@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Redis源码阅读  源码阅读,">
+  <meta name="keywords" content="Redis,Key-Value存储系统,源码阅读,">
 
 
 
@@ -80,14 +80,14 @@
 
 
 <meta name="description" content="从5.20开始开一个新坑，嗯，520是个好的开始呢。“Redis源码阅读”主要解读阅读Redis源码的理解，阅读的源码版本不是最新的，慢慢来 手动斜眼笑&amp;lt;-_&amp;lt;- 本文主要介绍如下内容：  简单动态字符串SDS SDS的优点 SDS API sds.c部分函数节选   简单动态字符串SDSRedis中使用了一个叫SDS（simple dynamic string）的字符串,其关键定义如">
-<meta name="keywords" content="Redis源码阅读  源码阅读">
+<meta name="keywords" content="Redis,Key-Value存储系统,源码阅读">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis源码阅读--简单动态字符串SDS">
 <meta property="og:url" content="https://www.a-programmer.top/2018/05/20/Redis源码阅读--简单动态字符串SDS/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
 <meta property="og:description" content="从5.20开始开一个新坑，嗯，520是个好的开始呢。“Redis源码阅读”主要解读阅读Redis源码的理解，阅读的源码版本不是最新的，慢慢来 手动斜眼笑&amp;lt;-_&amp;lt;- 本文主要介绍如下内容：  简单动态字符串SDS SDS的优点 SDS API sds.c部分函数节选   简单动态字符串SDSRedis中使用了一个叫SDS（simple dynamic string）的字符串,其关键定义如">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-23T15:21:51.349Z">
+<meta property="og:updated_time" content="2019-01-29T13:53:31.978Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis源码阅读--简单动态字符串SDS">
 <meta name="twitter:description" content="从5.20开始开一个新坑，嗯，520是个好的开始呢。“Redis源码阅读”主要解读阅读Redis源码的理解，阅读的源码版本不是最新的，慢慢来 手动斜眼笑&amp;lt;-_&amp;lt;- 本文主要介绍如下内容：  简单动态字符串SDS SDS的优点 SDS API sds.c部分函数节选   简单动态字符串SDSRedis中使用了一个叫SDS（simple dynamic string）的字符串,其关键定义如">
@@ -350,8 +350,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-05-23T23:21:51+08:00">
-                2018-05-23
+              <time title="更新于" itemprop="dateModified" datetime="2019-01-29T21:53:31+08:00">
+                2019-01-29
               </time>
             
           </span>
@@ -369,8 +369,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Redis-Key-Value存储系统/" itemprop="url" rel="index">
-                    <span itemprop="name">Redis Key-Value存储系统</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -552,7 +552,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Redis源码阅读-源码阅读/" rel="tag"># Redis源码阅读  源码阅读</a>
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/Key-Value存储系统/" rel="tag"># Key-Value存储系统</a>
+          
+            <a href="/tags/源码阅读/" rel="tag"># 源码阅读</a>
           
         </div>
       
@@ -670,7 +674,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -681,7 +685,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">46</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

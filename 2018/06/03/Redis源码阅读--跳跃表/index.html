@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Redis源码阅读  源码阅读,">
+  <meta name="keywords" content="Redis,Key-Value存储系统,源码阅读,">
 
 
 
@@ -80,7 +80,7 @@
 
 
 <meta name="description" content="本文主要介绍如下内容：  跳跃表介绍 Redis中的跳跃表实现及特点 Redis中的跳跃表源码难点分析 Redis中的跳跃表源码部分节选   跳跃表介绍跳跃表是一种随机化数据结构，基于并联的链表，其效率可以比拟平衡二叉树，查找、删除、插入等操作都可以在对数期望时间内完成，对比平衡树，跳跃表的实现要简单直观很多。 以下是一个跳跃表的例图(来自维基百科)：从图中可以看出跳跃表主要有以下几个部分构成：">
-<meta name="keywords" content="Redis源码阅读  源码阅读">
+<meta name="keywords" content="Redis,Key-Value存储系统,源码阅读">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis源码阅读--跳跃表">
 <meta property="og:url" content="https://www.a-programmer.top/2018/06/03/Redis源码阅读--跳跃表/index.html">
@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://redisbook.com/_images/graphviz-59432127803598137980d030e8e529c5b068bebb.png">
 <meta property="og:image" content="https://img-blog.csdn.net/20160131084016631">
 <meta property="og:image" content="http://redisbook.com/_images/graphviz-e252c0a9575f171b9721162311df23889699cac9.png">
-<meta property="og:updated_time" content="2018-06-03T15:22:49.951Z">
+<meta property="og:updated_time" content="2019-01-29T13:54:45.554Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis源码阅读--跳跃表">
 <meta name="twitter:description" content="本文主要介绍如下内容：  跳跃表介绍 Redis中的跳跃表实现及特点 Redis中的跳跃表源码难点分析 Redis中的跳跃表源码部分节选   跳跃表介绍跳跃表是一种随机化数据结构，基于并联的链表，其效率可以比拟平衡二叉树，查找、删除、插入等操作都可以在对数期望时间内完成，对比平衡树，跳跃表的实现要简单直观很多。 以下是一个跳跃表的例图(来自维基百科)：从图中可以看出跳跃表主要有以下几个部分构成：">
@@ -355,8 +355,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T23:22:49+08:00">
-                2018-06-03
+              <time title="更新于" itemprop="dateModified" datetime="2019-01-29T21:54:45+08:00">
+                2019-01-29
               </time>
             
           </span>
@@ -374,8 +374,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Redis-Key-Value存储系统/" itemprop="url" rel="index">
-                    <span itemprop="name">Redis Key-Value存储系统</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -591,7 +591,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Redis源码阅读-源码阅读/" rel="tag"># Redis源码阅读  源码阅读</a>
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/Key-Value存储系统/" rel="tag"># Key-Value存储系统</a>
+          
+            <a href="/tags/源码阅读/" rel="tag"># 源码阅读</a>
           
         </div>
       
@@ -709,7 +713,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -720,7 +724,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">46</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

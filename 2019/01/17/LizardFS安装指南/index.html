@@ -88,7 +88,7 @@
 <meta property="og:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1fz9y83nq22j20pr0bqabx.jpg">
 <meta property="og:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1fz9y81dg0xj20i70eewei.jpg">
 <meta property="og:image" content="http://wx4.sinaimg.cn/mw690/71c65545gy1fz9y81s7u8j20gn0aq0t3.jpg">
-<meta property="og:updated_time" content="2019-01-17T14:57:27.933Z">
+<meta property="og:updated_time" content="2019-01-29T14:11:09.381Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LizardFS安装指南">
 <meta name="twitter:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1fz9y83nq22j20pr0bqabx.jpg">
@@ -351,8 +351,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-01-17T22:57:27+08:00">
-                2019-01-17
+              <time title="更新于" itemprop="dateModified" datetime="2019-01-29T22:11:09+08:00">
+                2019-01-29
               </time>
             
           </span>
@@ -416,7 +416,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  767 字
+                  763 字
                 </span>
               
 
@@ -458,8 +458,8 @@
 <h2 id="安装规划准备环境"><a href="#安装规划准备环境" class="headerlink" title="安装规划准备环境"></a>安装规划准备环境</h2><p>主要准备环境，规划好各节点用于什么角色<br>比如笔者有三个节点，规划反映到/etc/hosts里面：<br>192.168.0.1  mfsmaster chunkserver1 metalogger<br>192.168.0.2  shadowmaster chunkserver2<br>192.168.0.3  chunkserver3 cgiserver</p>
 <p><strong><em>注:每个节点的/etc/hosts都要修改哦</em></strong></p>
 <h2 id="master-shadowmaster模式安装步骤"><a href="#master-shadowmaster模式安装步骤" class="headerlink" title="master-shadowmaster模式安装步骤"></a>master-shadowmaster模式安装步骤</h2><p>参考上一节将各节点角色配置到各个节点的/etc/hosts文件中<br>到<a href="https://lizardfs.com/download/#toggle-id-2" target="_blank" rel="noopener">https://lizardfs.com/download/#toggle-id-2</a><br>下载对应系统的安装包<br><img src="http://wx3.sinaimg.cn/mw690/71c65545gy1fz9y81dg0xj20i70eewei.jpg" alt=""><br>笔者是CentOS 7.5，所以下了对应的包，解开里面包含文件如下：<br><img src="http://wx4.sinaimg.cn/mw690/71c65545gy1fz9y81s7u8j20gn0aq0t3.jpg" alt=""></p>
-<h3 id="mfsmaster节点安装"><a href="#mfsmaster节点安装" class="headerlink" title="mfsmaster节点安装"></a>mfsmaster节点安装</h3><p>主要用如下命令：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">rpm –ivh lizardfs-master-3.13.0-0el7.x86_64.rpm</span><br><span class="line">rpm –ivh lizardfs-adm-3.13.0-0el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line">cp /var/lib/mfs/metadata.mfs.empty  /var/lib/mfs/metadata.mfs</span><br><span class="line">cp /var/lib/mfs/mfsexports.cfg.dist  /var/lib/mfs/mfsexports.cfg</span><br><span class="line"></span><br><span class="line">vi /etc/mfs/mfsmaster.cfg</span><br><span class="line">PERSONALITY = master</span><br><span class="line"></span><br><span class="line">service lizardfs-master start</span><br></pre></td></tr></table></figure></p>
-<h3 id="shadowmaster节点安装"><a href="#shadowmaster节点安装" class="headerlink" title="shadowmaster节点安装"></a>shadowmaster节点安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">rpm –ivh lizardfs-master-3.13.0-0el7.x86_64.rpm</span><br><span class="line">rpm –ivh lizardfs-adm-3.13.0-0el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line">cp /var/lib/mfs/metadata.mfs.empty  /var/lib/mfs/metadata.mfs</span><br><span class="line">cp /var/lib/mfs/mfsexports.cfg.dist  /var/lib/mfs/mfsexports.cfg</span><br><span class="line"></span><br><span class="line">vi /etc/mfs/mfsmaster.cfg</span><br><span class="line">PERSONALITY = shadow</span><br><span class="line"></span><br><span class="line">service lizardfs-master start</span><br></pre></td></tr></table></figure>
+<h3 id="mfsmaster节点安装"><a href="#mfsmaster节点安装" class="headerlink" title="mfsmaster节点安装"></a>mfsmaster节点安装</h3><p>主要用如下命令：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">rpm –ivh lizardfs-master-3.13.0-0el7.x86_64.rpm</span><br><span class="line">rpm –ivh lizardfs-adm-3.13.0-0el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line">cp /var/lib/mfs/metadata.mfs.empty  /var/lib/mfs/metadata.mfs</span><br><span class="line">cp /etc/mfs/mfsexports.cfg.dist  /etc/mfs/mfsexports.cfg</span><br><span class="line"></span><br><span class="line">vi /etc/mfs/mfsmaster.cfg</span><br><span class="line">PERSONALITY = master</span><br><span class="line"></span><br><span class="line">service lizardfs-master start</span><br></pre></td></tr></table></figure></p>
+<h3 id="shadowmaster节点安装"><a href="#shadowmaster节点安装" class="headerlink" title="shadowmaster节点安装"></a>shadowmaster节点安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">rpm –ivh lizardfs-master-3.13.0-0el7.x86_64.rpm</span><br><span class="line">rpm –ivh lizardfs-adm-3.13.0-0el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line">cp /var/lib/mfs/metadata.mfs.empty  /var/lib/mfs/metadata.mfs</span><br><span class="line">cp /etc/mfs/mfsexports.cfg.dist  /etc/mfs/mfsexports.cfg</span><br><span class="line"></span><br><span class="line">vi /etc/mfs/mfsmaster.cfg</span><br><span class="line">PERSONALITY = shadow</span><br><span class="line"></span><br><span class="line">service lizardfs-master start</span><br></pre></td></tr></table></figure>
 <p> shadowmaster节点与master节点的区别其实就是配置文件/etc/mfs/mfsmaster.cfg里面的PERSONALITY值不同。</p>
 <h3 id="chunkserver与metalogger节点"><a href="#chunkserver与metalogger节点" class="headerlink" title="chunkserver与metalogger节点"></a>chunkserver与metalogger节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rpm –ivh lizardfs-chunkserver-3.13.0-0el7.x86_64.rpm</span><br><span class="line">rpm –ivh lizardfs-metalogger-3.13.0-0el7.x86_64.rpm</span><br><span class="line">vi /etc/default/lizardfs-chunkserver</span><br><span class="line">LIZARDFSCHUNKSERVER_ENABLE=true</span><br><span class="line">vi /etc/default/lizardfs-metalogger</span><br><span class="line">LIZARDFSMETALOGGER_ENABLE=true</span><br></pre></td></tr></table></figure>
 <p><strong><em>注意：下面的盘符需要根据实际环境上的做相应的修改：</em></strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mkfs.ext3 /dev/sdd</span><br><span class="line">mkdir /mnt/chunk1</span><br><span class="line">mount /dev/sdd /mnt/chunk1</span><br><span class="line">vi /etc/mfs/mfshdd.cfg</span><br><span class="line">/mnt/chunk1</span><br><span class="line"></span><br><span class="line">chown -R mfs:mfs /mnt/chunk1</span><br></pre></td></tr></table></figure></p>
@@ -659,7 +659,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -670,7 +670,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">46</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
