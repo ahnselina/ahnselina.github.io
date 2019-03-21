@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[由LeetCode一题窥探GO程序的性能测试及性能优化]]></title>
+    <url>%2F2019%2F03%2F21%2F%E7%94%B1LeetCode%E4%B8%80%E9%A2%98%E7%AA%A5%E6%8E%A2GO%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%2F</url>
+    <content type="text"><![CDATA[本文将通过一道LeetCode的题目介绍GO语言程序的性能测试及性能优化方法。题目是无重复字符的最长子串 LeetCode题目题目描述给定一个字符串，请你找出其中不含有重复字符的 最长子串 的长度。 示例 1: 输入: “abcabcbb”输出: 3解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。示例 2: 输入: “bbbbb”输出: 1解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。示例 3: 输入: “pwwkew”输出: 3解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。 请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。 本题有多种解法：题解请参考:无重复字符的最长子串题解本文实现参考第三种解法 GO程序性能测试假设go程序实现如下：1234567891011121314151617181920212223242526272829303132// longestNotRpeatedSubstring project main.gopackage mainimport ( "fmt")func longestNotRpeatedSubstring(s string) int &#123; lastOccurred := make(map[byte]int) start := 0 maxLength := 0 for i, ch := range []byte(s) &#123; //lastI, ok := lastOccurred[ch] lastI := lastOccurred[ch] if lastI &gt;= start &#123; start = lastI + 1 &#125; if i-start+1 &gt; maxLength &#123; maxLength = i - start + 1 &#125; lastOccurred[ch] = i &#125; return maxLength&#125;func main() &#123; fmt.Println(longestNotRpeatedSubstring("abcadefg")) fmt.Println(longestNotRpeatedSubstring("abcabcbb"))&#125; 注意上面的程序不支持中文字符，其实可以稍微修改让程序支持中文字符，比如使用rune类型，这是GO语言为了用于支持各种语言而设定的类型。golang中string底层是通过byte数组实现的。中文字符在unicode下占2个字节，在utf-8编码下占3个字节 byte 等同于int8，常用来处理ascii字符 rune 等同于int32,常用来处理unicode或utf-8字符 通用版解法：123456789101112131415161718192021222324252627282930package mainimport ( "fmt")func longestNotRpeatedSubstring(s string) int &#123; lastOccurred := make(map[rune]int) start := 0 maxLength := 0 for i, ch := range []rune(s) &#123; lastI, ok := lastOccurred[ch] if ok &amp;&amp; lastI &gt;= start &#123; start = lastI + 1 &#125; if i-start+1 &gt; maxLength &#123; maxLength = i - start + 1 &#125; lastOccurred[ch] = i &#125; return maxLength&#125;func main() &#123; fmt.Println(longestNotRpeatedSubstring("abcadefg")) fmt.Println(longestNotRpeatedSubstring("abcabcbb")) fmt.Println(longestNotRpeatedSubstring("黑化肥发灰挥发会花飞灰化肥挥发发黑会飞花"))&#125; GO语言由于提供了一系列测试相关的工具，所以其性能测试做起来相对其他语言而言来说是相当的方便。另外命名一个文件：比如longestNotRpeatedSubstring_test.go注意必须要以xxxx_test.go的方式命名longestNotRpeatedSubstring_test.go内容如下123456789101112131415func BenchmarkSubstring(b *testing.B) &#123; s, ans := "灰化肥挥发发黑会飞花", 9 for i := 0; i &lt; 11; i++ &#123; s = s + s &#125; b.Logf("len(s) = %d", len(s)) b.ResetTimer() for i := 0; i &lt; b.N; i++ &#123; actual := longestNotRpeatedSubstring(s) if actual != ans &#123; b.Errorf("got %d for input %s; "+ "expected %d", actual, s, ans) &#125; &#125;&#125; 做性能测试命令如下：123go test -bench .go test -bench . -cpuprofile cpu.outgo tool pprof cpu.out 执行效果如下图：go test -bench . -cpuprofile cpu.out生成的cpu.out文件是二进制文件，需要借助go的pprof工具进行查看，然后使用go tool pprof cpu.out命令进入到交互式命令行，可以敲入help进行查看，执行效果如下图： 这里使用简单的办法：直接敲入web，也就是通过web server查看可视化的图网页中显示效果如下： 注意：这里需要安装graphviz工具，可以到官网下载安装，Windows安装之后记得把软件的bin目录添加到环境变量中去，然后重新打开命令窗口即可具体步骤可参考： GO程序性能优化通过上面的步骤，可以看到上面给出解法，主要耗时在map的访问那我们可以想办法把这块时间优化掉，通常这采用的办法是：用空间换时间我们可以选择不用map，那么可以将程序改成：123456789101112131415161718192021222324252627282930313233package mainimport ( "fmt")func longestNotRpeatedSubstring(s string) int &#123; lastOccurred := make([]int, 0xffff) for i := range lastOccurred &#123; lastOccurred[i] = -1 &#125; start := 0 maxLength := 0 for i, ch := range []rune(s) &#123; lastI := lastOccurred[ch] if lastI &gt;= start &#123; start = lastI + 1 &#125; if i-start+1 &gt; maxLength &#123; maxLength = i - start + 1 &#125; lastOccurred[ch] = i &#125; return maxLength&#125;func main() &#123; fmt.Println(longestNotRpeatedSubstring("abcadefg")) fmt.Println(longestNotRpeatedSubstring("abcabcbb")) fmt.Println(longestNotRpeatedSubstring("黑化肥发灰挥发会花飞灰化肥挥发发黑会飞花"))&#125; 再次执行：12go test -bench . -cpuprofile cpu.outgo tool pprof cpu.out 可以看到优化后的代码每次操作，也就是每次调用我们的函数耗时已经降为4.92ms，原来的时间是9.19ms（可以看上面的截图）可以得知此次优化还是非常好的，我们还可以使用web通过web server查看耗时情况： 通过上面优化的示例，我们就可以看到优化的过程如下 当然上面的程序还可以做一点优化，那就是把slice移到外面去，不用每次都去重新分配一个slice12345678910111213141516171819202122232425262728293031323334package mainimport ( "fmt")var lastOccurred = make([]int, 0xffff)func longestNotRpeatedSubstring(s string) int &#123; for i := range lastOccurred &#123; lastOccurred[i] = -1 &#125; start := 0 maxLength := 0 for i, ch := range []rune(s) &#123; lastI := lastOccurred[ch] if lastI &gt;= start &#123; start = lastI + 1 &#125; if i-start+1 &gt; maxLength &#123; maxLength = i - start + 1 &#125; lastOccurred[ch] = i &#125; return maxLength&#125;func main() &#123; fmt.Println(longestNotRpeatedSubstring("abcadefg")) fmt.Println(longestNotRpeatedSubstring("abcabcbb")) fmt.Println(longestNotRpeatedSubstring("黑化肥发灰挥发会花飞灰化肥挥发发黑会飞花"))&#125; GO程序普通测试的方法编写测试用例，GO语言中主要采用表格测试的方法，将测试数据，与真正的测试逻辑分开 如果需要做普通的测试也可以在上述性能测试文件longestNotRpeatedSubstring_test.go里面添加如下函数：12345678910111213141516171819202122func TestSubstr(t *testing.T) &#123; tests := []struct &#123; s string ans int &#125;&#123; &#123;"abcacbcc", 3&#125;, &#123;"pwwkew", 3&#125;, &#123;"", 0&#125;, &#123;"b", 1&#125;, &#123;"abcabcabcd", 4&#125;, &#123;"灰化肥挥发发黑会飞花", 5&#125;, &#125; for _, tt := range tests &#123; actual := longestNotRpeatedSubstring(tt.s) if actual != tt.ans &#123; t.Errorf("got %d for input %s; expected %d", actual, tt.s, tt.ans) &#125; &#125;&#125; 测试主要使用如下命令1go test . 此外使用GO自带的工具还可以查看代码覆盖率，非常方便：12go test -coverprofile=c.outgo tool cover -html=c.out 效果如下： C语言实现下面补充本题的C语言实现，仅供参考12345678910111213141516171819202122232425262728293031323334353637383940414243int checkExist(char *s, int start, int end, char target)&#123; for(int i = start; i &lt; end; i++) &#123; if(s[i] == target) &#123; return i; &#125; &#125; return -1;&#125;int lengthOfLongestSubstring(char* s) &#123; if(!s) &#123; return 0; &#125; int start = 0; int maxlen = 0; int repeatPosition = -1; int cur = 0; char *p = s; while(*p != '\0') &#123; repeatPosition = checkExist(s, start, cur, *p); if(repeatPosition &gt;= start) &#123; start = repeatPosition + 1; &#125; if(cur - start + 1 &gt; maxlen) &#123; maxlen = cur - start + 1; &#125; p++; cur++; &#125; return maxlen;&#125; 参考资料：无重复字符的最长子串无重复字符的最长子串题解]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>Go</tag>
+        <tag>性能测试</tag>
+        <tag>性能优化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[docker基础技术介绍]]></title>
     <url>%2F2019%2F02%2F21%2Fdocker%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D%2F</url>
     <content type="text"><![CDATA[本文主要介绍docker及其相关的技术，力求让大家读了此文和相关的参考资料之后就对docker技术有一个整体上的掌握，既可以作为入门阅读资料，又可以作为自己复习的资料 : ) docker基础技术简介Docker是近些年云计算领域非常热门的技术，可能很多人认为该技术非常新颖，但其实除了其编程语言用go比较新外，其实它还真不是个新东西，其中用到了许多linux的一些老的技术，下面就分别对用的技术做一个简介，目的是让大家对docker基础技术有一个了解，如果想深入研究请查阅相关的参考资料和源码。 容器技术使用了一系列的系统级别的机制诸如利用Linux namespaces来进行空间隔离，通过文件系统的挂载点来决定容器可以访问哪些文件，通过cgroups来确定每个容器可以利用多少资源。此外容器之间共享同一个系统内核，这样当同一个库被多个容器使用时，内存的使用效率会得到提升。Docker 包括三个基本概念 镜像（Image） 容器（Container） 仓库（Repository） 理解了这三个概念，就理解了 Docker 的整个生命周期。这三个概念更多信息请参考：基本概念 Linux NamespaceLinux Namespace是Linux提供的一种内核级别环境隔离的方法 Namespace解决的问题主要是环境隔离的问题，这只是虚拟化中最最基础的一步,我们还需要解决对计算机资源使用上的隔离。也就是说，虽然你通过Namespace把我Jail到一个特定的环境中去了，但是我在其中的进程使用用CPU、内存、磁盘等这些计算资源其实还是可以随心所欲的。所以，我们希望对进程进行资源利用上的限制或控制。这就是Linux CGroup出来了的原因。更多详细信息请参考：DOCKER基础技术：LINUX NAMESPACE（上）DOCKER基础技术：LINUX NAMESPACE（下） Linux CGroup Linux CGroup全称Linux Control Group， 是Linux内核的一个功能，用来限制，控制与分离一个进程组群的资源（如CPU、内存、磁盘输入输出等）。这个项目最早是由Google的工程师在2006年发起（主要是Paul Menage和Rohit Seth），最早的名称为进程容器（process containers）。在2007年时，因为在Linux内核中，容器（container）这个名词太过广泛，为避免混乱，被重命名为cgroup，并且被合并到2.6.24版的内核中去。然后，其它开始了他的发展。更多信息请参考：DOCKER基础技术：LINUX CGROUP 诞生背景软件开发最大的麻烦事之一，就是环境配置。用户计算机的环境都不相同，你怎么知道自家的软件，能在那些机器跑起来？用户必须保证两件事：操作系统的设置，各种库和组件的安装。只有它们都正确，软件才能运行。举例来说，安装一个 Python 应用，计算机必须有 Python 引擎，还必须有各种依赖，可能还要配置环境变量。如果某些老旧的模块与当前环境不兼容，那就麻烦了。开发者常常会说：”它在我的机器可以跑了”（It works on my machine），言下之意就是，其他机器很可能跑不了。环境配置如此麻烦，换一台机器，就要重来一次，旷日费时。很多人想到，能不能从根本上解决问题，软件可以带环境安装？也就是说，安装的时候，把原始环境一模一样地复制过来。 虚拟机虚拟机（virtual machine）就是带环境安装的一种解决方案。它可以在一种操作系统里面运行另一种操作系统，比如在 Windows 系统里面运行 Linux 系统。应用程序对此毫无感知，因为虚拟机看上去跟真实系统一模一样，而对于底层系统来说，虚拟机就是一个普通文件，不需要了就删掉，对其他部分毫无影响。虽然用户可以通过虚拟机还原软件的原始环境。但是，这个方案有几个缺点。（1）资源占用多虚拟机会独占一部分内存和硬盘空间。它运行的时候，其他程序就不能使用这些资源了。哪怕虚拟机里面的应用程序，真正使用的内存只有 1MB，虚拟机依然需要几百 MB 的内存才能运行。（2）冗余步骤多虚拟机是完整的操作系统，一些系统级别的操作步骤，往往无法跳过，比如用户登录。（3）启动慢启动操作系统需要多久，启动虚拟机就需要多久。可能要等几分钟，应用程序才能真正运行。 Linux 容器由于虚拟机存在这些缺点，Linux 发展出了另一种虚拟化技术：Linux 容器（Linux Containers，缩写为 LXC）。Linux 容器不是模拟一个完整的操作系统，而是对进程进行隔离。或者说，在正常进程的外面套了一个保护层。对于容器里面的进程来说，它接触到的各种资源都是虚拟的，从而实现与底层系统的隔离。由于容器是进程级别的，相比虚拟机有很多优势。 启动快 容器里面的应用，直接就是底层系统的一个进程，而不是虚拟机内部的进程。所以，启动容器相当于启动本机的一个进程，而不是启动一个操作系统，速度就快很多。 资源占用少 容器只占用需要的资源，不占用那些没有用到的资源；虚拟机由于是完整的操作系统，不可避免要占用所有资源。另外，多个容器可以共享资源，虚拟机都是独享资源。 体积小 容器只要包含用到的组件即可，而虚拟机是整个操作系统的打包，所以容器文件比虚拟机文件要小很多。总之，容器有点像轻量级的虚拟机，能够提供虚拟化的环境，但是成本开销小得多。 docker与虚拟化的区别上面的图片比较了 Docker 和传统虚拟化方式的不同之处。传统虚拟机技术是虚拟出一套硬件后，在其上运行一个完整操作系统，在该系统上再运行所需应用进程；而容器内的应用进程直接运行于宿主的内核，容器内没有自己的内核，而且也没有进行硬件虚拟。因此容器要比传统虚拟机更为轻便。 容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的 命名空间。因此容器可以拥有自己的 root 文件系统、自己的网络配置、自己的进程空间，甚至自己的用户 ID 空间。容器内的进程是运行在一个隔离的环境里，使用起来，就好像是在一个独立于宿主的系统下操作一样。这种特性使得容器封装的应用比直接在宿主运行更加安全。也因为这种隔离的特性，很多人初学 Docker 时常常会混淆容器和虚拟机。 对于系统虚拟化技术来说，虚拟层为用户提供了一个完整的虚拟机：包括内核在内的一个完整的系统镜像。CPU虚拟化技术可以为每个用户提供一个独享且和其他用户隔离的系统环境，虚拟层可以为每个用户分配虚拟化后的CPU、内存和IO设备资源。当然由上所述，可以知道虚拟机的隔离性还是要优于容器的。 更多docker相关的信息请查阅文末的参考资料。 参考资料：Docker 入门教程Docker — 从入门到实践DOCKER基础技术：LINUX NAMESPACE（上）DOCKER基础技术：LINUX NAMESPACE（下）DOCKER基础技术：LINUX CGROUPDOCKER基础技术：AUFSDOCKER基础技术：DEVICEMAPPER]]></content>
@@ -111,9 +124,9 @@
       </categories>
       <tags>
         <tag>日常积累</tag>
-        <tag>crontab</tag>
         <tag>开机启动</tag>
         <tag>监控</tag>
+        <tag>crontab</tag>
         <tag>shell</tag>
       </tags>
   </entry>
@@ -283,8 +296,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>strace</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -296,8 +309,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>awk</tag>
         <tag>日常积累</tag>
+        <tag>awk</tag>
       </tags>
   </entry>
   <entry>
@@ -410,8 +423,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>gdb</tag>
         <tag>问题定位</tag>
+        <tag>gdb</tag>
       </tags>
   </entry>
   <entry>
@@ -436,9 +449,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
+        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
-        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
