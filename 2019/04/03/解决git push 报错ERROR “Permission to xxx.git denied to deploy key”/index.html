@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://wx1.sinaimg.cn/mw690/71c65545ly1g1py2fo45xj20gv07ydg3.jpg">
 <meta property="og:image" content="http://wx1.sinaimg.cn/mw690/71c65545ly1g1pxq8fw8bj20gt08h74c.jpg">
 <meta property="og:image" content="http://wx2.sinaimg.cn/mw690/71c65545ly1g1py3odngoj20kj08jaag.jpg">
-<meta property="og:updated_time" content="2019-04-03T17:25:04.821Z">
+<meta property="og:updated_time" content="2019-04-03T17:30:51.167Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解决git push 报错ERROR “Permission to xxx.git denied to deploy key”">
 <meta name="twitter:image" content="http://wx2.sinaimg.cn/mw690/71c65545ly1g1pxyevf05j20kh03nmx0.jpg">
@@ -354,7 +354,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-04-04T01:25:04+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2019-04-04T01:30:51+08:00">
                 2019-04-04
               </time>
             
@@ -419,7 +419,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  720 字
+                  784 字
                 </span>
               
 
@@ -473,10 +473,14 @@
 <p>打开 Repository 的设置页，在 Deploy keys -&gt; Add deploy key 添加公钥并勾选 Allow write access。</p>
 <h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>试了多种方法未果，最终发现用如下方法有效：<br>第一步：将ssh改为https，打开对应项目目录的 .git/config文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim .git/config</span><br></pre></td></tr></table></figure></p>
 <p>改之后如下图：<br><img src="http://wx1.sinaimg.cn/mw690/71c65545ly1g1pxq8fw8bj20gt08h74c.jpg" alt=""></p>
-<p>修改之后继续git push，遇到如下的错误<br><img src="http://wx2.sinaimg.cn/mw690/71c65545ly1g1py3odngoj20kj08jaag.jpg" alt=""><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git push</span><br><span class="line">Fatal: HttpRequestException encountered.</span><br><span class="line">fatal: Out of memory, malloc failed (tried to allocate 2813163520 bytes)</span><br><span class="line">error: failed to push some refs to &apos;https://github.com/ahnselina/data-structure.git&apos;</span><br></pre></td></tr></table></figure></p>
+<p>第二步：修改之后会让输入github的用户名密码，输入之后可以采用如下命令来缓存，以免每次都输入<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global credential.helper wincred</span><br></pre></td></tr></table></figure></p>
+<p>第三步：解决遇到的新错误<br>修改之后继续git push，遇到如下的错误<br><img src="http://wx2.sinaimg.cn/mw690/71c65545ly1g1py3odngoj20kj08jaag.jpg" alt=""><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git push</span><br><span class="line">Fatal: HttpRequestException encountered.</span><br><span class="line">fatal: Out of memory, malloc failed (tried to allocate 2813163520 bytes)</span><br><span class="line">error: failed to push some refs to &apos;https://github.com/ahnselina/data-structure.git&apos;</span><br></pre></td></tr></table></figure></p>
 <p>然后继续解决该问题：<br>在对应项目目录的 .git/config文件中加入如下内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[http]</span><br><span class="line">  postbuffer = 1024m</span><br></pre></td></tr></table></figure></p>
 <p>然后git push发现问题解决:)</p>
-<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p><a href="https://stackoverflow.com/questions/41120920/git-fatal-out-of-memory-malloc-failed-tried-to-allocate-889192448-bytes" target="_blank" rel="noopener">GIT: fatal: Out of memory, malloc failed (tried to allocate 889192448 bytes)</a><br><a href="https://help.github.com/en/articles/error-permission-denied-publickey" target="_blank" rel="noopener">Error: Permission denied (publickey)</a><br><a href="https://stackoverflow.com/questions/8855317/git-push-out-of-memory-malloc-failed" target="_blank" rel="noopener">git push Out of memory, malloc failed</a></p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p><a href="https://stackoverflow.com/questions/41120920/git-fatal-out-of-memory-malloc-failed-tried-to-allocate-889192448-bytes" target="_blank" rel="noopener">GIT: fatal: Out of memory, malloc failed (tried to allocate 889192448 bytes)</a>  </p>
+<p><a href="https://help.github.com/en/articles/error-permission-denied-publickey" target="_blank" rel="noopener">Error: Permission denied (publickey)</a>  </p>
+<p><a href="https://stackoverflow.com/questions/8855317/git-push-out-of-memory-malloc-failed" target="_blank" rel="noopener">git push Out of memory, malloc failed</a>  </p>
+<p><a href="https://help.github.com/en/articles/caching-your-github-password-in-git" target="_blank" rel="noopener">Caching your GitHub password in Git</a></p>
 
       
     </div>
