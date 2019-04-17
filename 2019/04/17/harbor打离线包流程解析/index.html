@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="harbor,docker registry,harbor离线包,">
+  <meta name="keywords" content="docker registry,harbor,harbor离线包,">
 
 
 
@@ -79,7 +79,7 @@
 
 
 
-<meta name="keywords" content="harbor,docker registry,harbor离线包">
+<meta name="keywords" content="docker registry,harbor,harbor离线包">
 <meta property="og:type" content="article">
 <meta property="og:title" content="harbor打离线包流程解析">
 <meta property="og:url" content="https://www.a-programmer.top/2019/04/17/harbor打离线包流程解析/index.html">
@@ -87,7 +87,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1g25pi54vvaj20m809gdge.jpg">
 <meta property="og:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1g25reofpa1j20ce03x746.jpg">
-<meta property="og:updated_time" content="2019-04-17T15:59:36.577Z">
+<meta property="og:updated_time" content="2019-04-17T16:03:34.522Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="harbor打离线包流程解析">
 <meta name="twitter:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1g25pi54vvaj20m809gdge.jpg">
@@ -350,8 +350,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-04-17T23:59:36+08:00">
-                2019-04-17
+              <time title="更新于" itemprop="dateModified" datetime="2019-04-18T00:03:34+08:00">
+                2019-04-18
               </time>
             
           </span>
@@ -494,7 +494,7 @@
 <p>可以看到modify_composefile主要是将各文件中的版本__xxx_version替换为设置的版本。</p>
 <h4 id="保存harbor-docker镜像-amp-amp-打包"><a href="#保存harbor-docker镜像-amp-amp-打包" class="headerlink" title="保存harbor docker镜像 &amp;&amp; 打包"></a>保存harbor docker镜像 &amp;&amp; 打包</h4><p>保存harbor docker镜像 &amp;&amp; 打包其实很简单，直接看代码即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@echo &quot;saving harbor docker image&quot;</span><br><span class="line">        @$(DOCKERSAVE) $(DOCKERSAVE_PARA) &gt; $(HARBORPKG)/$(DOCKERIMGFILE).$(VERSIONTAG).tar</span><br><span class="line">        @gzip $(HARBORPKG)/$(DOCKERIMGFILE).$(VERSIONTAG).tar</span><br><span class="line"></span><br><span class="line">        @$(TARCMD) $(PACKAGE_OFFLINE_PARA)</span><br><span class="line">        @rm -rf $(HARBORPKG)</span><br><span class="line">        @echo &quot;Done.</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">DOCKERSAVE_PARA=$(DOCKERIMAGENAME_ADMINSERVER):$(VERSIONTAG) \</span><br><span class="line">                $(DOCKERIMAGENAME_UI):$(VERSIONTAG) \</span><br><span class="line">                $(DOCKERIMAGENAME_LOG):$(VERSIONTAG) \</span><br><span class="line">                $(DOCKERIMAGENAME_DB):$(VERSIONTAG) \</span><br><span class="line">                $(DOCKERIMAGENAME_JOBSERVICE):$(VERSIONTAG) \</span><br><span class="line">                vmware/redis-photon:$(REDISVERSION) \</span><br><span class="line">                vmware/nginx-photon:$(NGINXVERSION) vmware/registry-photon:$(REGISTRYVERSION)-$(VERSIONTAG) \</span><br><span class="line">                vmware/photon:$(PHOTONVERSION)</span><br><span class="line">PACKAGE_OFFLINE_PARA=-zcvf harbor-offline-installer-$(PKGVERSIONTAG).tgz \</span><br><span class="line">                          $(HARBORPKG)/common/templates $(HARBORPKG)/$(DOCKERIMGFILE).$(VERSIONTAG).tar.gz \</span><br><span class="line">                                  $(HARBORPKG)/prepare $(HARBORPKG)/NOTICE \</span><br><span class="line">                                  $(HARBORPKG)/LICENSE $(HARBORPKG)/install.sh \</span><br><span class="line">                                  $(HARBORPKG)/harbor.cfg $(HARBORPKG)/$(DOCKERCOMPOSEFILENAME) \</span><br><span class="line">                                  $(HARBORPKG)/ha</span><br></pre></td></tr></table></figure>
-<p>打包就是调用tar -zcvf命令进行打包,当然需要把“$(HARBORPKG)/prepare $(HARBORPKG)/NOTICE \<br>                                  $(HARBORPKG)/LICENSE $(HARBORPKG)/install.sh \<br>                                  $(HARBORPKG)/harbor.cfg $(HARBORPKG)/$(DOCKERCOMPOSEFILENAME) \<br>                                  $(HARBORPKG)/ha<br>”等包含进去。</p>
+<p>打包就是使用tar -zcvf命令进行打包,当然需要把“$(HARBORPKG)/prepare $(HARBORPKG)/NOTICE \<br>                                  $(HARBORPKG)/LICENSE $(HARBORPKG)/install.sh \<br>                                  $(HARBORPKG)/harbor.cfg $(HARBORPKG)/$(DOCKERCOMPOSEFILENAME) \<br>                                  $(HARBORPKG)/ha<br>”等包含进去。</p>
 <h2 id="修改docker-registry后如何打离线包"><a href="#修改docker-registry后如何打离线包" class="headerlink" title="修改docker registry后如何打离线包"></a>修改docker registry后如何打离线包</h2><p>看这段代码（这段代码分析可参考上面build小节）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">_build_registry:</span><br><span class="line">       @if [ &quot;$(BUILDBIN)&quot; != &quot;true&quot; ] ; then \</span><br><span class="line">               rm -rf $(DOCKERFILEPATH_REG)/binary &amp;&amp; mkdir -p $(DOCKERFILEPATH_REG)/binary &amp;&amp; \</span><br><span class="line">               $(call _get_binary, https://storage.googleapis.com/harbor-builds/bin/registry, $(DOCKERFILEPATH_REG)/binary/registry); \</span><br><span class="line">       else \</span><br><span class="line">               cd $(DOCKERFILEPATH_REG) &amp;&amp; $(DOCKERFILEPATH_REG)/builder $(REGISTRYVERSION); \</span><br></pre></td></tr></table></figure></p>
 <p>很容易想到两种方案：</p>
 <h3 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h3><p>将修改后docker registry编译出对应的二进制文件registry，编译方法如下(可参考文章<a href="https://blog.csdn.net/u010931295/article/details/84862407" target="_blank" rel="noopener">Docker Registry-源码安装</a>)：<br>到项目路径下执行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make PREFIX=/go clean binaries</span><br></pre></td></tr></table></figure></p>
@@ -573,9 +573,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/harbor/" rel="tag"># harbor</a>
-          
             <a href="/tags/docker-registry/" rel="tag"># docker registry</a>
+          
+            <a href="/tags/harbor/" rel="tag"># harbor</a>
           
             <a href="/tags/harbor离线包/" rel="tag"># harbor离线包</a>
           
