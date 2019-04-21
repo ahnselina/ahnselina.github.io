@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="shell脚本,日常积累,strace,">
+  <meta name="keywords" content="harbor,photon,">
 
 
 
@@ -79,18 +79,20 @@
 
 
 
-<meta name="description" content="strace常用来跟踪进程执行时的系统调用和所接收的信号。 在Linux世界，进程不能直接访问硬件设备，当进程需要访问硬件设备(比如读取磁盘文件，接收网络数据等等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备。strace可以跟踪到一个进程产生的系统调用,包括参数，返回值，执行消耗的时间，strace命令能够显示所有在程序中使用的系统调用。 本文主要介绍如下内容：  strace">
-<meta name="keywords" content="shell脚本,日常积累,strace">
+<meta name="keywords" content="harbor,photon">
 <meta property="og:type" content="article">
-<meta property="og:title" content="strace命令用法介绍">
-<meta property="og:url" content="https://www.a-programmer.top/2018/05/18/strace命令用法介绍-/index.html">
+<meta property="og:title" content="解决photon中ping command not found">
+<meta property="og:url" content="https://www.a-programmer.top/2019/04/19/解决photon中ping command not found/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
-<meta property="og:description" content="strace常用来跟踪进程执行时的系统调用和所接收的信号。 在Linux世界，进程不能直接访问硬件设备，当进程需要访问硬件设备(比如读取磁盘文件，接收网络数据等等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备。strace可以跟踪到一个进程产生的系统调用,包括参数，返回值，执行消耗的时间，strace命令能够显示所有在程序中使用的系统调用。 本文主要介绍如下内容：  strace">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-29T13:52:55.306Z">
+<meta property="og:image" content="https://camo.githubusercontent.com/4d4cc8eedee941e882dc521eb37dd354c6beca20/687474703a2f2f73746f726167652e676f6f676c65617069732e636f6d2f70726f6a6563742d70686f746f6e2f766d772d6c6f676f2d70686f746f6e2e737667">
+<meta property="og:image" content="http://static.oschina.net/uploads/img/201512/20112919_P9RS.png">
+<meta property="og:image" content="http://static.oschina.net/uploads/img/201512/20112919_RJTD.png">
+<meta property="og:image" content="http://static.oschina.net/uploads/img/201512/20112920_Lt6d.png">
+<meta property="og:updated_time" content="2019-04-19T08:54:20.763Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="strace命令用法介绍">
-<meta name="twitter:description" content="strace常用来跟踪进程执行时的系统调用和所接收的信号。 在Linux世界，进程不能直接访问硬件设备，当进程需要访问硬件设备(比如读取磁盘文件，接收网络数据等等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备。strace可以跟踪到一个进程产生的系统调用,包括参数，返回值，执行消耗的时间，strace命令能够显示所有在程序中使用的系统调用。 本文主要介绍如下内容：  strace">
+<meta name="twitter:title" content="解决photon中ping command not found">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/4d4cc8eedee941e882dc521eb37dd354c6beca20/687474703a2f2f73746f726167652e676f6f676c65617069732e636f6d2f70726f6a6563742d70686f746f6e2f766d772d6c6f676f2d70686f746f6e2e737667">
 
 
 
@@ -120,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="https://www.a-programmer.top/2018/05/18/strace命令用法介绍-/">
+  <link rel="canonical" href="https://www.a-programmer.top/2019/04/19/解决photon中ping command not found/">
 
 
 
 
 
-  <title>strace命令用法介绍 | 成长录-知行合一</title>
+  <title>解决photon中ping command not found | 成长录-知行合一</title>
   
 
 
@@ -305,7 +307,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2018/05/18/strace命令用法介绍-/">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2019/04/19/解决photon中ping command not found/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ahnselina">
@@ -322,7 +324,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">strace命令用法介绍</h1>
+          <h1 class="post-title" itemprop="name headline">解决photon中ping command not found</h1>
         
 
         <div class="post-meta">
@@ -334,8 +336,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-18T00:00:00+08:00">
-                2018-05-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-19T16:11:30+08:00">
+                2019-04-19
               </time>
             
 
@@ -350,8 +352,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-01-29T21:52:55+08:00">
-                2019-01-29
+              <time title="更新于" itemprop="dateModified" datetime="2019-04-19T16:54:20+08:00">
+                2019-04-19
               </time>
             
           </span>
@@ -369,8 +371,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index">
-                    <span itemprop="name">Linux</span>
+                  <a href="/categories/云计算/" itemprop="url" rel="index">
+                    <span itemprop="name">云计算</span>
                   </a>
                 </span>
 
@@ -387,8 +389,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/05/18/strace命令用法介绍-/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2018/05/18/strace命令用法介绍-/" itemprop="commentCount"></span>
+                <a href="/2019/04/19/解决photon中ping command not found/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/04/19/解决photon中ping command not found/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -415,7 +417,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,110 字
+                  827 字
                 </span>
               
 
@@ -431,7 +433,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  12 分钟
+                  4 分钟
                 </span>
               
             </div>
@@ -452,60 +454,37 @@
       
 
       
-        <p>strace常用来跟踪进程执行时的系统调用和所接收的信号。 在Linux世界，进程不能直接访问硬件设备，当进程需要访问硬件设备(比如读取磁盘文件，接收网络数据等等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备。strace可以跟踪到一个进程产生的系统调用,包括参数，返回值，执行消耗的时间，strace命令能够显示所有在程序中使用的系统调用。</p>
-<p>本文主要介绍如下内容：</p>
-<ul>
-<li>strace能做什么</li>
-<li>strace怎么用</li>
-<li>strace问题定位案例</li>
-</ul>
-<hr>
-<h3 id="strace能做什么？"><a href="#strace能做什么？" class="headerlink" title="strace能做什么？"></a>strace能做什么？</h3><p>strace作为一种动态跟踪工具，能够帮助运维高效地定位进程和服务故障。它像是一个侦探，通过系统调用的蛛丝马迹，告诉你异常的真相。</p>
-<p>先来个例子：<br>假设我们从别的机器copy了个叫做some_server的软件包过来，开发说直接启动就行，啥都不用改。可是尝试启动时却报错，根本起不来！</p>
-<p><strong>启动命令：</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./some_server ../conf/some_server.conf</span><br></pre></td></tr></table></figure>
-<p>输出:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FATAL: InitLogFile failed iRet: -1!</span><br><span class="line">Init error: -1655</span><br></pre></td></tr></table></figure></p>
-<p>为什么起不来呢？从日志看，是初始化日志文件失败，真相到底怎样呢？我们用strace来看看。</p>
-<p>strace -tt -f  ./some_server ../conf/some_server.conf<br>输出:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">23:14:24.448034 open("/usr/local/apps/some_server/log//server_agent.log", O_RDWR|O_CREAT|O_APPEND|O_LARGEFILE, 0666) = -1 ENOENT (No such file or directory)</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
-<p>注意到，有个open系统调用，它尝试打开文件/usr/local/apps/some_server/log//server_agent.log来写(若文件不存在则创建)，可是却出错了，返回码是-1, 系统错误号errorno为ENOENT。</p>
-<p>搜索ENOENT这个错误号errno的解释:</p>
+        <p><img src="https://camo.githubusercontent.com/4d4cc8eedee941e882dc521eb37dd354c6beca20/687474703a2f2f73746f726167652e676f6f676c65617069732e636f6d2f70726f6a6563742d70686f746f6e2f766d772d6c6f676f2d70686f746f6e2e737667" alt=""></p>
+<a id="more"></a>
+<p>本文主要解决photon中ping command not found的问题</p>
+<h2 id="photon介绍"><a href="#photon介绍" class="headerlink" title="photon介绍"></a>photon介绍</h2><p><img src="http://static.oschina.net/uploads/img/201512/20112919_P9RS.png" alt=""><br>VMware推出的Linux操作系统Photon，为vSphere优化的Container执行平台。<br>Photon是以提供Container执行环境为目的的轻量操作系统。</p>
+<p>虚拟化厂商VMware在2015年4月推出了自家的Linux版本Photon，用于打造轻量级虚拟化Container环境的轻量级Linux操作系统。</p>
+<p>Photon提供4种安装模式，而4种模式所占的镜像文件大小都不一样，如全安装占了1.7GB，最小安装（Minimal）则需303MB，微安装（Micro）需要462MB，至于最后一个自定义安装则介于全安装及最小安装两者之间。</p>
+<p>VMware表示，Photon是一个为vSphere优化的Container执行平台，可以支持多项Container技术，如Docker、Rocket Container（rkt）和Pivotal Garden Container镜像文件。</p>
+<p>Photon可部署于vSphere 5.5、vSphere 6.0、vCloud Air、VMware Fusion和VMware Workstation产品上，除了协助企业将Fusion、VMware Workstaion等测试环境上的应用程序，搬迁到使用vSphere上的正式环境，并通过Lightwave对Container进行访问控制、身份管理等功能。</p>
+<p>企业也可以整合Lightwave和Photon，提供多租户目录服务，加强大量Container的管理，例如限定特定Container所能执行的主机，并且限制只有特定权限的使用者可以管理Container。<br><img src="http://static.oschina.net/uploads/img/201512/20112919_RJTD.png" alt=""></p>
+<p>Photon可部署在vSphere之上，并透过Lightwave对Container进行访问控制、身份管理等功能。</p>
+<p><img src="http://static.oschina.net/uploads/img/201512/20112920_Lt6d.png" alt=""></p>
+<p>Photon可以提供4种安装模式：微安装（Micro）、最小安装（Minimal）、全安装及客制化安装，每种模式的映像文件大小都不一。</p>
+<h2 id="解决ping-command-not-found问题"><a href="#解决ping-command-not-found问题" class="headerlink" title="解决ping command not found问题"></a>解决ping command not found问题</h2><p><strong>VMware 的开源项目harbor使用的基础镜像也包括photon</strong><br>不过在项目过程中，遇到使用photon的容器无法联通host上一个虚拟IP，而用Ubuntu的容器则可以，但是photon上面貌似什么命令也没有，包括ping命令。下面给出解决ping command not found问题的方法：</p>
+<h3 id="photon-1-0版本"><a href="#photon-1-0版本" class="headerlink" title="photon 1.0版本"></a>photon 1.0版本</h3><p>查看photon版本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/photon-release</span><br></pre></td></tr></table></figure></p>
+<p>结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">VMware Photon Linux 1.0</span><br><span class="line">PHOTON_BUILD_NUMBER=62c543d</span><br></pre></td></tr></table></figure></p>
+<p>使用如下命令解决：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tdnf install iputils</span><br></pre></td></tr></table></figure></p>
+<h3 id="photon-2-0及以上版本"><a href="#photon-2-0及以上版本" class="headerlink" title="photon 2.0及以上版本"></a>photon 2.0及以上版本</h3><p>查看photon版本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/photon-release</span><br></pre></td></tr></table></figure></p>
+<p>结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">VMware Photon OS 2.0</span><br><span class="line">PHOTON_BUILD_NUMBER=0922243</span><br></pre></td></tr></table></figure></p>
+<p>使用如下命令解决：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tdnf install pmd-cli</span><br></pre></td></tr></table></figure></p>
+<p>可以将这个安装添加到Dockerfile中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">FROM vmware/photon:2.0</span><br><span class="line"></span><br><span class="line">RUN tdnf erase vim -y \</span><br><span class="line">    &amp;&amp; tdnf distro-sync -y || echo \</span><br><span class="line">    &amp;&amp; tdnf install -y sudo &gt;&gt; /dev/null \</span><br><span class="line">    &amp;&amp; tdnf install -y pmd-cli &gt;&gt; /dev/null \</span><br><span class="line">    &amp;&amp; tdnf clean all \</span><br><span class="line">    &amp;&amp; groupadd -r -g 10000 harbor &amp;&amp; useradd --no-log-init -r -g 10000 -u 10000 harbor \</span><br><span class="line">    &amp;&amp; mkdir /harbor/</span><br><span class="line">COPY ./make/dev/adminserver/harbor_adminserver ./make/photon/adminserver/start.sh /harbor/</span><br><span class="line">HEALTHCHECK CMD curl --fail -s http://127.0.0.1:8080/api/ping || exit 1</span><br><span class="line"></span><br><span class="line">RUN chmod u+x /harbor/harbor_adminserver /harbor/start.sh</span><br><span class="line">WORKDIR /harbor/</span><br><span class="line">ENTRYPOINT [&quot;/harbor/start.sh&quot;]</span><br></pre></td></tr></table></figure></p>
+<h2 id="telnet命令没有找到"><a href="#telnet命令没有找到" class="headerlink" title="telnet命令没有找到"></a>telnet命令没有找到</h2><p>解决方法： telnet(use SSH instead)</p>
 <blockquote>
-<p>ENOENT O_CREAT  is not set and the named file does not exist.  Or, a directory component in pathname does not exist or is a dangling symbolic link.</p>
+<p>The following Linux troubleshoot tools are neither installed on Photon OS by default nor available in the Photon OS repositories:<br>iostat<br>telnet (use SSH instead)<br>Iprm<br>hdparm<br>syslog (use journalctl instead)<br>ddd<br>ksysmoops<br>xev<br>GUI tools (because Photon OS has no GUI)</p>
 </blockquote>
-<p>这里说得比较清楚，因为我们例子中的open选项指定了O_CREAT选项，这里errno为ENOENT的原因是日志路径中某个部分不存在或者是一个失效的符号链接。我们来一级一级看下路径中的哪部分不存在：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ls -l /usr/local/apps/some_server/log</span><br><span class="line">ls: cannot access /usr/local/apps/some_server/log: No such file or directory</span><br><span class="line">ls -l /usr/local/apps/some_server</span><br><span class="line">total 8</span><br><span class="line">drwxr-xr-x 2 root users 4096 May 14 23:13 bin</span><br><span class="line">drwxr-xr-x 2 root users 4096 May 14 22:48 conf</span><br></pre></td></tr></table></figure></p>
-<p>原来是log子目录不存在！上层目录都是存在的。手工创建log子目录后，服务就能正常启动了。</p>
-<p>回过头来， strace究竟能做什么呢？</p>
-<p><strong><em>它能够打开应用进程的这个黑盒，通过系统调用的线索，告诉你进程大概在干嘛。</em></strong></p>
-<hr>
-<h3 id="strace怎么用？"><a href="#strace怎么用？" class="headerlink" title="strace怎么用？"></a>strace怎么用？</h3><p>关于系统调用：</p>
-<p>按维基百科中的解释，在计算机中，系统调用（英语：system call），又称为系统呼叫，指运行在用户空间的程序向操作系统内核请求需要更高权限运行的服务。</p>
-<p>系统调用提供用户程序与操作系统之间的接口。操作系统的进程空间分为用户空间和内核空间：</p>
-<p>操作系统内核直接运行在硬件上，提供设备管理、内存管理、任务调度等功能。<br>用户空间通过API请求内核空间的服务来完成其功能——内核提供给用户空间的这些API, 就是系统调用。<br>在Linux系统上，应用代码通过glibc库封装的函数，间接使用系统调用。</p>
-<p>Linux内核目前有300多个系统调用，详细的列表可以通过syscalls手册页查看。这些系统调用主要分为几类：</p>
-<blockquote>
-<p>文件和设备访问类 比如open/close/read/write/chmod等<br>进程管理类 fork/clone/execve/exit/getpid等<br>信号类 signal/sigaction/kill 等<br>内存管理 brk/mmap/mlock等<br>进程间通信IPC shmget/semget * 信号量，共享内存，消息队列等<br>网络通信 socket/connect/sendto/sendmsg 等<br>其他  </p>
-</blockquote>
-<p>熟悉Linux系统调用/系统编程，能够让我们在使用strace时得心应手。不过，对于问题定位来说，知道strace这个工具，会查系统调用手册，就差不多够了。</p>
-<p>想要深入了解的同学，建议阅读《Linux系统编程》, 《Unix环境高级编程》等书籍。</p>
-<p><strong>strace命令参数</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">-c 统计每一系统调用的所执行的时间,次数和出错的次数等. </span><br><span class="line">-d 输出strace关于标准错误的调试信息. </span><br><span class="line">-f 跟踪由fork调用所产生的子进程. </span><br><span class="line">-ff 如果提供-o filename,则所有进程的跟踪结果输出到相应的filename.pid中,pid是各进程的进程号. </span><br><span class="line">-F 尝试跟踪vfork调用.在-f时,vfork不被跟踪. </span><br><span class="line">-h 输出简要的帮助信息. </span><br><span class="line">-i 输出系统调用的入口指针. </span><br><span class="line">-q 禁止输出关于脱离的消息. </span><br><span class="line">-r 打印出相对时间关于,,每一个系统调用. </span><br><span class="line">-t 在输出中的每一行前加上时间信息. </span><br><span class="line">-tt 在输出中的每一行前加上时间信息,微秒级. </span><br><span class="line">-ttt 微秒级输出,以秒了表示时间. </span><br><span class="line">-T 显示每一调用所耗的时间. </span><br><span class="line">-v 输出所有的系统调用.一些调用关于环境变量,状态,输入输出等调用由于使用频繁,默认不输出. </span><br><span class="line">-V 输出strace的版本信息. </span><br><span class="line">-x 以十六进制形式输出非标准字符串 </span><br><span class="line">-xx 所有字符串以十六进制形式输出. </span><br><span class="line">-a column </span><br><span class="line">设置返回值的输出位置.默认 为40. </span><br><span class="line">-e expr </span><br><span class="line">指定一个表达式,用来控制如何跟踪.格式如下: </span><br><span class="line">[qualifier=][!]value1[,value2]... </span><br><span class="line">qualifier只能是 trace,abbrev,verbose,raw,signal,read,write其中之一.value是用来限定的符号或数字.默认的 qualifier是 trace.感叹号是否定符号.例如: </span><br><span class="line">-eopen等价于 -e trace=open,表示只跟踪open调用.而-etrace!=open表示跟踪除了open以外的其他调用.有两个特殊的符号 all 和 none. </span><br><span class="line">注意有些shell使用!来执行历史记录里的命令,所以要使用\\. </span><br><span class="line">-e trace=set </span><br><span class="line">只跟踪指定的系统 调用.例如:-e trace=open,close,rean,write表示只跟踪这四个系统调用.默认的为set=all. </span><br><span class="line">-e trace=file </span><br><span class="line">只跟踪有关文件操作的系统调用. </span><br><span class="line">-e trace=process </span><br><span class="line">只跟踪有关进程控制的系统调用. </span><br><span class="line">-e trace=network </span><br><span class="line">跟踪与网络有关的所有系统调用. </span><br><span class="line">-e strace=signal </span><br><span class="line">跟踪所有与系统信号有关的 系统调用 </span><br><span class="line">-e trace=ipc </span><br><span class="line">跟踪所有与进程通讯有关的系统调用 </span><br><span class="line">-e abbrev=set </span><br><span class="line">设定 strace输出的系统调用的结果集.-v 等与 abbrev=none.默认为abbrev=all. </span><br><span class="line">-e raw=set </span><br><span class="line">将指 定的系统调用的参数以十六进制显示. </span><br><span class="line">-e signal=set </span><br><span class="line">指定跟踪的系统信号.默认为all.如 signal=!SIGIO(或者signal=!io),表示不跟踪SIGIO信号. </span><br><span class="line">-e read=set </span><br><span class="line">输出从指定文件中读出 的数据.例如: </span><br><span class="line">-e read=3,5 </span><br><span class="line">-e write=set </span><br><span class="line">输出写入到指定文件中的数据. </span><br><span class="line">-o filename </span><br><span class="line">将strace的输出写入文件filename </span><br><span class="line">-p pid </span><br><span class="line">跟踪指定的进程pid. </span><br><span class="line">-s strsize </span><br><span class="line">指定输出的字符串的最大长度.默认为32.文件名一直全部输出. </span><br><span class="line">-u username </span><br><span class="line">以username 的UID和GID执行被跟踪的命令</span><br></pre></td></tr></table></figure></p>
-<p><strong>使用方法</strong><br>strace有两种使用方法：<br>一种是通过它启动要跟踪的进程。用法很简单，在原本的命令前加上strace即可。比如我们要跟踪 “ls -lh /var/log/messages” 这个命令的执行，可以这样：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strace ls -lh /var/log/messages</span><br></pre></td></tr></table></figure></p>
-<p>另外一种运行模式，是跟踪已经在运行的进程，在不中断进程执行的情况下，理解它在干嘛。 这种情况，给strace传递个-p pid 选项即可。<br>比如，有个在运行的some_server服务，第一步，查看pid:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pidof some_server                      </span><br><span class="line">17553</span><br></pre></td></tr></table></figure></p>
-<p>得到其pid 17553然后就可以用strace跟踪其执行:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strace -p 17553</span><br></pre></td></tr></table></figure></p>
-<p>完成跟踪时，按ctrl + C 结束strace即可</p>
-<hr>
-<h3 id="strace问题定位案例"><a href="#strace问题定位案例" class="headerlink" title="strace问题定位案例"></a>strace问题定位案例</h3><p><strong>解决库依赖问题</strong><br>starce 的另一个用处是解决和动态库相关的问题。当对一个可执行文件运行ldd时，它会告诉你程序使用的动态库和找到动态库的位置。<br>尽管这样，ldd并不能把所有程序依赖的动态库列出 来，系统调用dlopen可以在需要的时候自动调入需要的动态库，而这些库可能不会被ldd列出来。作为glibc的一部分的NSS（Name Server Switch）库就是一个典型的例子，NSS的一个作用就是告诉应用程序到哪里去寻找系统帐号数据库。应用程序不会直接连接到NSS库，glibc则会通 过dlopen自动调入NSS库。如果这样的库偶然丢失，你不会被告知存在库依赖问题，但这样的程序就无法通过用户名解析得到用户ID了。让我们看一个例子：<br>whoami程序会给出你自己的用户名，这个程序在一些需要知道运行程序的真正用户的脚本程序里面非常有用，whoami的一个示例 输出如下：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> whoami</span><br><span class="line">root</span><br></pre></td></tr></table></figure></p>
-<p>假设因为某种原因在升 级glibc的过程中负责用户名和用户ID转换的库NSS丢失，我们可以通过把nss库改名来模拟这个环境：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> mv /lib/libnss_files.so.2 /lib/libnss_files.so.2.backup </span><br><span class="line"><span class="meta">#</span> whoami</span><br><span class="line">whoami: cannot find username for UID 0</span><br></pre></td></tr></table></figure>
-<p>这里你可以看到，运行whoami时出现了错误，ldd程序的输出不会提供有用的帮助：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># ldd /usr/bin/whoami</span><br><span class="line">libc.so.6 =&gt; /lib/libc.so.6 (0x4001f000)</span><br><span class="line">/lib/ld-linux.so.2 =&gt; /lib/ld-linux.so.2 (0x40000000)</span><br></pre></td></tr></table></figure>
-<p>你只会看到whoami依赖Libc.so.6和ld-linux.so.2，它没有给出运行whoami所必须的其他库。这里时用strace跟踪 whoami时的输出：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">strace -o whoami-strace.txt whoami</span><br><span class="line"></span><br><span class="line">open(&quot;/lib/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br><span class="line">open(&quot;/lib/i686/mmx/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br><span class="line">stat64(&quot;/lib/i686/mmx&quot;, 0xbffff190) = -1 ENOENT (No such file or directory) </span><br><span class="line">open(&quot;/lib/i686/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br><span class="line">stat64(&quot;/lib/i686&quot;, 0xbffff190) = -1 ENOENT (No such file or directory)</span><br><span class="line">open(&quot;/lib/mmx/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br><span class="line">stat64(&quot;/lib/mmx&quot;, 0xbffff190) = -1 ENOENT (No such file or directory) </span><br><span class="line">open(&quot;/lib/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br><span class="line">stat64(&quot;/lib&quot;, &#123;st_mode=S_IFDIR|0755, st_size=2352, ...&#125;) = 0</span><br><span class="line">open(&quot;/usr/lib/i686/mmx/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br><span class="line">stat64(&quot;/usr/lib/i686/mmx&quot;, 0xbffff190) = -1 ENOENT (No such file or directory) </span><br><span class="line">open(&quot;/usr/lib/i686/libnss_files.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)</span><br></pre></td></tr></table></figure>
-<p>你可以发现在不同目录下面查找libnss.so.2的尝试，但是都失败了。如果没有strace这样的工具，很难发现这个错误是由于缺少动态库造成的。现 在只需要找到libnss.so.2并把它放回到正确的位置就可以了。</p>
-<p>除了上述问题，strace还可以用于<br><strong>定位进程异常退出</strong><br><strong>某个命令执行耗时很长</strong><br>笔者曾经在定位问题时就遇到一个命令执行很慢的问题，当时是用rpm命令查询：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -qa| grep agent</span><br></pre></td></tr></table></figure></p>
-<p>结果该命令执行很慢，要几秒，明显能感觉到比平时慢了很多。这个时候就可以用strace命令进行分析了。<br>比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strace -c rpm -qa| grep agent</span><br></pre></td></tr></table></figure></p>
-<p>可以看到各个系统调用耗时统计<br>然后看到conect xxx的时候耗时较长，最终发现是/etc/hosts没有配置  </p>
-<p>hosts文件可以帮助解决远程登录linux主机过慢问题<br>比如有时候客户端想要远程登录一台linux主机，但每次登录输入密码后都会等很长一段时间才会进入，这是因为linux主机在返回信息时需要解析IP，如果在linux主机的hosts文件事先就加入客户端的IP地址，这时再从客户端远程登录linux就会很快。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://man.linuxde.net/strace?ymnats=iai0l" target="_blank" rel="noopener">strace命令</a><br><a href="https://www.linuxidc.com/Linux/2018-01/150654.htm" target="_blank" rel="noopener">强大的strace命令用法详解</a><br><a href="https://www.cnblogs.com/fhefh/archive/2011/04/16/2018327.html" target="_blank" rel="noopener">Linux错误代码含义/Linux Error Code</a></p>
+<h2 id="Why-is-netstat-not-working"><a href="#Why-is-netstat-not-working" class="headerlink" title="Why is netstat not working?"></a>Why is netstat not working?</h2><p>A. netstat is deprecated, ss or ip (part of iproute2) should be used instead.</p>
+<p>For more information, see Use <a href="https://vmware.github.io/photon/assets/files/html/3.0/photon_admin/use-ip-and-ss-commands.html" target="_blank" rel="noopener">ip and ss Commands</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>可以多看看<br><a href="https://github.com/vmware/photon/wiki/Frequently-Asked-Questions" target="_blank" rel="noopener">Photon OS Frequently Asked Questions</a><br>这里面包含了许多常见问题</p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p><a href="https://my.oschina.net/JasonZhang/blog/548023" target="_blank" rel="noopener">harbor 官方github</a> </p>
+<p><a href="https://www.paluszek.com/wp/2018/03/27/photon-os-no-ping-and-no-ecmp-replies-other-quick-hints-on-photon-too/" target="_blank" rel="noopener">Photon OS – no ping and no ICMP replies? Other quick hints on Photon too.</a>  </p>
+<p><a href="https://vmware.github.io/photon/assets/files/html/3.0/photon_troubleshoot/linux-troubleshooting-tools.html" target="_blank" rel="noopener">Linux Troubleshooting Tools</a></p>
+<p><a href="https://github.com/vmware/photon/wiki/Frequently-Asked-Questions" target="_blank" rel="noopener">Photon OS Frequently Asked Questions</a></p>
 
       
     </div>
@@ -558,7 +537,7 @@
       </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-        <a href="/2018/05/18/strace命令用法介绍-/" title="strace命令用法介绍">2018/05/18/strace命令用法介绍-/</a>
+        <a href="/2019/04/19/解决photon中ping command not found/" title="解决photon中ping command not found">2019/04/19/解决photon中ping command not found/</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权： </strong>
@@ -570,11 +549,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/shell脚本/" rel="tag"># shell脚本</a>
+            <a href="/tags/harbor/" rel="tag"># harbor</a>
           
-            <a href="/tags/日常积累/" rel="tag"># 日常积累</a>
-          
-            <a href="/tags/strace/" rel="tag"># strace</a>
+            <a href="/tags/photon/" rel="tag"># photon</a>
           
         </div>
       
@@ -587,8 +564,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/07/awk/" rel="next" title="AWK的一些基本用法">
-                <i class="fa fa-chevron-left"></i> AWK的一些基本用法
+              <a href="/2019/04/17/harbor打离线包流程解析/" rel="next" title="harbor打离线包流程解析">
+                <i class="fa fa-chevron-left"></i> harbor打离线包流程解析
               </a>
             
           </div>
@@ -596,10 +573,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/05/20/Redis源码阅读--简单动态字符串SDS/" rel="prev" title="Redis源码阅读--简单动态字符串SDS">
-                Redis源码阅读--简单动态字符串SDS <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -752,7 +725,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#strace能做什么？"><span class="nav-number">1.</span> <span class="nav-text">strace能做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#strace怎么用？"><span class="nav-number">2.</span> <span class="nav-text">strace怎么用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#strace问题定位案例"><span class="nav-number">3.</span> <span class="nav-text">strace问题定位案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#photon介绍"><span class="nav-number">1.</span> <span class="nav-text">photon介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决ping-command-not-found问题"><span class="nav-number">2.</span> <span class="nav-text">解决ping command not found问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#photon-1-0版本"><span class="nav-number">2.1.</span> <span class="nav-text">photon 1.0版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#photon-2-0及以上版本"><span class="nav-number">2.2.</span> <span class="nav-text">photon 2.0及以上版本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#telnet命令没有找到"><span class="nav-number">3.</span> <span class="nav-text">telnet命令没有找到</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-is-netstat-not-working"><span class="nav-number">4.</span> <span class="nav-text">Why is netstat not working?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料："><span class="nav-number">6.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
             
 
           </div>
