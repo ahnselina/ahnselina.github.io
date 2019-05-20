@@ -213,9 +213,9 @@
       </categories>
       <tags>
         <tag>日常积累</tag>
-        <tag>crontab</tag>
         <tag>开机启动</tag>
         <tag>监控</tag>
+        <tag>crontab</tag>
         <tag>shell</tag>
       </tags>
   </entry>
@@ -385,8 +385,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>strace</tag>
         <tag>日常积累</tag>
+        <tag>strace</tag>
       </tags>
   </entry>
   <entry>
@@ -398,8 +398,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>awk</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -512,8 +512,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>问题定位</tag>
         <tag>gdb</tag>
+        <tag>问题定位</tag>
       </tags>
   </entry>
   <entry>
@@ -538,9 +538,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
-        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
+        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
