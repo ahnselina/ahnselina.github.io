@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[为什么存在大端模式小端模式，为什么没有统一成一个标准]]></title>
+    <url>%2F2020%2F01%2F01%2F%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%98%E5%9C%A8%E5%A4%A7%E7%AB%AF%E6%A8%A1%E5%BC%8F%E5%B0%8F%E7%AB%AF%E6%A8%A1%E5%BC%8F%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B2%A1%E6%9C%89%E7%BB%9F%E4%B8%80%E6%88%90%E4%B8%80%E4%B8%AA%E6%A0%87%E5%87%86%2F</url>
+    <content type="text"><![CDATA[本文主要回顾一个计算机中的基础知识，字节序的大端模式与小端模式。 什么是小端模式 什么是大端模式 为什么没有统一成一个标准 网络字节序 为什么存在大端模式小端模式计算机系统中内存是以字节为单位进行编址的，每个地址单元都唯一的对应着1个字节（8 bit）。这可以应对char类型数据的存储要求，因为char类型长度刚好是1个字节，但是有些类型的长度是超过1个字节的（字符串虽然是多字节的，但它本质是由一个个char类型组成的类似数组的结构而已），比如C/C++中，short类型一般是2个字节，int类型一般4个字节等。因此这里就存在着一个如何安排多个字节数据中各字节存放顺序的问题。正是因为不同的安排顺序导致了大端存储模式和小端存储模式的存在。 小端模式小端模式：是指数据的高字节保存在内存的高地址中，而数据的低字节保存在内存的低地址中。简单的说就是低地址存低位，高地址存高位 为了方便说明，使用16进制表示这两个数，即0x12345678和0x11223344。小端模式采用以下方式存储这个两个数字： 大端模式大端模式：是指数据的高字节保存在内存的低地址中，而数据的低字节保存在内存的高地址中。简单的上，就是低地址存高位，高地址存低位（跟人读写数值的顺序一样）为了方便说明，使用16进制表示这两个数，即0x12345678和0x11223344。大端模式采用以下方式存储这个两个数字： 为什么没有统一成一个标准一言以蔽之，这两种模式各有各的优点。 小端模式优点： 内存的低地址处存放低字节，所以在强制转换数据时不需要调整字节的内容（注解：比如把int的4字节强制转换成short的2字节时，就直接把int数据存储的前两个字节给short就行，因为其前两个字节刚好就是最低的两个字节，符合转换逻辑）； CPU做数值运算时从内存中依顺序依次从低位到高位取数据进行运算，直到最后刷新最高位的符号位，这样的运算方式会更高效 大端模式优点：符号位在所表示的数据的内存的第一个字节中，便于快速判断数据的正负和大小 其各自的优点就是对方的缺点，正因为两者彼此不分伯仲，再加上一些硬件厂商的坚持，因此在多字节存储顺序上始终没有一个统一的标准 网络字节序不同的计算机使用的字节序可能不同，即有可能有的使用大端模式有的使用小端模式。那使用不同字节序模式的计算机如何进行通信呢？ （目前个人PC大部分都是X86的小端模式）TCP/IP协议隆重出场，RFC1700规定使用“大端”字节序为网络字节序，其他不使用大端的计算机要注意了，发送数据的时候必须要将自己的主机字节序转换为网络字节序（即“大端”字节序），接收到的数据再转换为自己的主机字节序。这样就与CPU、操作系统无关了，实现了网络通信的标准化。 为了程序的兼容，你会看到，程序员们每次发送和接收数据都要进行转换，这样做的目的是保证代码在任何计算机上执行时都能达到预期的效果。 这么常用的操作，BSD Socket提供了封装好的转换接口，方便程序员使用。包括从主机字节序到网络字节序的转换函数：htons、htonl；从网络字节序到主机字节序的转换函数：ntohs、ntohl。 C语言判断一个当前计算机是使用大端模式还是小端模式下面的一段代码可以用来判断计算机是大端的还是小端的，判断的思路是确定一个多字节的值（下面使用的是4字节的整数），将其写入内存（即赋值给一个变量），然后用指针取其首地址所对应的字节（即低地址的一个字节），判断该字节存放的是高位还是低位，高位说明是Big endian，低位说明是Little endian。123456789101112#include &lt;stdio.h&gt;int main ()&#123; unsigned int x = 0x12345678; char *c = (char*)&amp;x; if (*c == 0x78) &#123; printf("Little endian"); &#125; else &#123; printf("Big endian"); &#125; return 0;&#125; 其他的信息，包括那个故事，请阅读参考资料 参考资料：字节顺序–维基百科“字节序”是个什么鬼？大小端存储模式精解]]></content>
+      <categories>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>基础知识</tag>
+        <tag>查缺补漏</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[云计算相关知识一]]></title>
     <url>%2F2019%2F10%2F20%2F%E4%BA%91%E8%AE%A1%E7%AE%97%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E4%B8%80%2F</url>
     <content type="text"><![CDATA[从本文开始准备开一个新坑，主要用于记录云计算相关的知识，主要参考资料为公开课Cloud Computing Concepts, Part 1。可以看做是学习记录 : ) 本文将尝试回答什么是cloud，与传统的分布式系统相比较，有什么新的特点cloud comupute与早期几代分布式系统的区别 基础知识Process = a program in action C语言的程序，main调用f1，f1调用f2程序代码是不变的，但是有变化的组件，那些变化的组件： PC是程序计数器program counter,表明当前程序执行到哪了 stack被函数用于传递参数和返回值，比如main调用f1时传递的参数就可以通过push压栈到stack中，然后f1可以通过pop获取到main传递给他的参数。 f1调用f2类似，当f2执行完毕，便可以通过push将执行结果压栈到stack顶，然后f1可以通过pop获取到f2的执行结果，类似的，main也可以获取到f1的执行结果 简化的计算机架构 两种云：私有云 公有云私有云一般仅供公司内部使用公有云是把服务提供给付费的用户使用，比如AWS S3,阿里云，华为云之类的公有云服务 why clouds？节约时间和金钱 如果你创办了一个公司，是使用公有云服务呢，还是自己搭建一套私有云？通常可以对比两者，看公司使用时间，如果在一年内，那使用公有云更划算，如果是使用多年，那使用私有云更划算。前期为了业务尽快上线，一般选用公有云，省时省力，当公司业务发展到一定水平，存储量业务量都很大的时候，这时候势必要上私有云了。 什么是云 For the purposes of this course, however, I’m going to come up with a very simple definition, it’s a working definition. It’s not perfect. It’s not meant to be perfect. It’s meant to be good enough for us to learn more about the technologies that exist out there. So working definition says, that a Cloud consists of a lot of storage resources, so you can store gigabytes, terabytes, petabytes, maybe even more of data with compute cycles located nearby. Notice that this definition is not the reverse which is it doesn’t say, you have compute cycles with data moving around. Essentially, there is so much data. It is a data intensive world that we live in, that you can’t really move around the data all that easily. So, you need to bring the compute closer to the data rather than bring the data closer to where the computer is. 当今的云计算，与前几代的分布式系统比，不同的地方 超大规模 按需访问 数据密集性质 新的云计算程序模型按需访问， 在这里我们会把它作为 aaS （即服务）行业分类的一部分来讨论。 按需访问是指 你为你已经实际使用的服务付费， 而不是支付预付成本， 或提前购买。 这就像是 叫了一辆出租车对比 租了一辆车，你需要 付一些预付款来使用 其他人已拥有的服务，或者买一辆车 相似的， 你买了自己的数据中心。 而现在，云服务让你可以 仅仅支付几十美分或几块钱来 购买CPU的运行小时， 你可以用任意你想拥有的CPU数量， 只要你的应用程序需要。 比如，AWS的EC2， 以及微软的Azure都能提供这种服务。 或者支付几十美分或几块钱 来购买每月的GB容量来存储数据。 同样的，AWS和Azure都能为你提供这种服务。 还有许多的其他公司 都能提供相似的服务，提供的条件也有竞争力。 现在整个行业经常为 提供的云服务进行分类， 按照这些服务本身的特性。 经常被分类成， aaS， “即服务” 概念。HaaS硬件即服务、IaaS基础设计即服务，PaaS平台及服务，SaaS软件及服务。云计算第三个新的方面， 今天云区别自身与 之前几代分布式系统的是 我们已经可以着手处理大数据。 然而在此之前， 是计算密集型处理技术， 比如基于消息传递接口、 即MPI的计算， 还有高性能计算技术， 当你有一个相对小的数据集的时候， 但是你仍然需要相当性能的密集型计算， 比如，天气模型就是一个密集型计算， 这里当然包括了 诸如NCSA Blue Waters 数据中心， 但是 数据密集型计算技术却有一点相反， 你有大量的数据存储在 数据中心， 而且你需要附近的计算节点， 是因为你要处理海量的数据。在计算密集型的应用中，CPU利用率，被视为资源利用率 最主要的衡量指标， 但在数据密集型的云服务中， CPU已经不再是最主要的度量， I/O才是最重要的度量，disk I/O 和 network I/O。 参考资料：Cloud Computing Concepts, Part 1]]></content>
@@ -410,8 +422,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>strace</tag>
         <tag>日常积累</tag>
+        <tag>strace</tag>
       </tags>
   </entry>
   <entry>
@@ -423,8 +435,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>awk</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -537,8 +549,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>问题定位</tag>
         <tag>gdb</tag>
+        <tag>问题定位</tag>
       </tags>
   </entry>
   <entry>
@@ -563,9 +575,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
-        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
+        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
