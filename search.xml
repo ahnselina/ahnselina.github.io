@@ -57,8 +57,8 @@
         <category>云计算</category>
       </categories>
       <tags>
-        <tag>docker registry</tag>
         <tag>harbor</tag>
+        <tag>docker registry</tag>
         <tag>harbor离线包</tag>
       </tags>
   </entry>
@@ -164,9 +164,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -214,9 +214,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -410,8 +410,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>strace</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -423,8 +423,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>awk</tag>
         <tag>日常积累</tag>
+        <tag>awk</tag>
       </tags>
   </entry>
   <entry>
