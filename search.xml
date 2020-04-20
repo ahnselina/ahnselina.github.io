@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[leveldb源码阅读（一）PUT流程]]></title>
+    <url>%2F2020%2F01%2F20%2Fleveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88%E4%B8%80%EF%BC%89PUT%E6%B5%81%E7%A8%8B%2F</url>
+    <content type="text"><![CDATA[本文主要介绍leveldb的put流程。 整体架构 LOG文件 Put流程 整体架构 整体架构主要从静态角度来描述。所谓的静态角度，我们可以假想整个存储系统正在运行过程中（不断插入删除读取数据），此时我们给LevelDb照相，从照片可以看到之前系统的数据在内存和磁盘中是如何分布的，处于什么状态等等；从动态的角度，主要是了解系统是如何写入一条记录，读出一条记录，删除一条记录的，同时也包括除了这些接口操作外的内部操作比如compaction，系统运行时崩溃后如何恢复系统等等方面。LevelDb作为存储系统，数据记录的存储介质包括内存以及磁盘文件，如果像上面说的，当LevelDb运行了一段时间，此时我们给LevelDb进行透视拍照，那么你会看到如下图的景象 当应用写入一条Key:Value记录的时候，LevelDb会先往log文件里写入，成功后将记录插进Memtable中，这样基本就算完成了写入操作，因为一次写入操作只涉及一次磁盘顺序写和一次内存写入，所以这是为何说LevelDb写入速度极快的主要原因。 SSTable 就是由内存中的数据不断导出并进行 Compaction 操作后形成的，而且 SSTable 的所有文件是一种层级结构，第一层为Level 0，第二层为Level 1，依次类推，层级逐渐增高，这也是为何称之为LevelDb的原因。 在图中我们可以看到，内存中有MemTable, Immutable memtable，磁盘中有LOG文件，Manifest文件,Current文件，以及SSTable。这些文件或者内存结构在后续的文章中会详细介绍。本文介绍Put流程，就先介绍LOG文件 LOG文件首先请看LOG文件相关的代码：12345678910111213141516171819202122232425262728#ifndef STORAGE_LEVELDB_DB_LOG_FORMAT_H_#define STORAGE_LEVELDB_DB_LOG_FORMAT_H_namespace leveldb &#123;namespace log &#123;enum RecordType &#123; // Zero is reserved for preallocated files kZeroType = 0, kFullType = 1, // For fragments kFirstType = 2, kMiddleType = 3, kLastType = 4&#125;;static const int kMaxRecordType = kLastType;static const int kBlockSize = 32768;// Header is checksum (4 bytes), length (2 bytes), type (1 byte).static const int kHeaderSize = 4 + 2 + 1;&#125; // namespace log&#125; // namespace leveldb#endif LOG文件在leveldb中的主要作用是系统故障恢复时，能够保证不会丢失数据。因为在将记录写入内存的Memtable之前，会先写入LOG文件，这样即使系统发生故障，Memtable中的数据没有来得及Dump到磁盘的SSTable文件，LevelDB也可以根据LOG文件恢复内存的Memtable数据结构内容，不会造成系统丢失数据，在这点上LevelDb和Bigtable是一致的。(PS:实际代码实现时，p写文件也可以通过参数控制是立马刷盘还是交由操作系统自行控制，也就是说交由系统控制的话，也是可能会存在丢数据的情况) 通过上面的代码可以看出LOG文件的物理布局就是由连续的 32K 大小 Block 构成的。物理布局如下图：在应用的视野里是看不到这些Block的，应用看到的是一系列的Key:Value对，在leveldb内部，会将一个Key:Value对看做一条记录的数据，另外在这个数据前增加一个记录头，用来记载一些管理信息，以方便内部处理，下图显示了记录头的结构： 1234checksum: uint32 // type及data[]对应的crc32值length: uint16 // 数据长度type: uint8 // FULL/FIRST/MIDDLE/LAST中的一种data: uint8[length] // 实际存储的数据 类型存在4种： kFullType ： 顾名思义记录完全在一个block中kFirstType ： 当前block容纳不下所有的内容，记录的第一片在本block中kMiddleType ： 记录的内容的起始位置不在本block，结束未知也不在本blockkLastType ： 记录的内容起始位置不在本block，但 结束位置在本block PUT流程简单的说:其实PUT流程就两步，一写LOG, 二写(插入)memtable: 数据首先会被写到 log，保证持久性； 然后写入 mutable memtable 中，返回； 当 mutable 内存到达一定大小之后就会变成 immutable memtable； 当到达一定的条件后，后台的 Compaction 线程会把 immutable memtable 刷到盘中 Level 0 中 sstable； 当 level i 到一定条件后，就会和 level i+1 中的 sstable 进行 Compaction，合并成 level i+1 的 sst 文件 调用栈主要调用顺序大体就3步：1DBImpl::Put -&gt; DB::Put -&gt; DBImpl::Write 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172Status DBImpl::Write(const WriteOptions&amp; options, WriteBatch* updates) &#123; Writer w(&amp;mutex_); w.batch = updates; w.sync = options.sync; w.done = false; MutexLock l(&amp;mutex_); writers_.push_back(&amp;w); while (!w.done &amp;&amp; &amp;w != writers_.front()) &#123; w.cv.Wait(); &#125; if (w.done) &#123; return w.status; &#125; // May temporarily unlock and wait. Status status = MakeRoomForWrite(updates == nullptr); uint64_t last_sequence = versions_-&gt;LastSequence(); Writer* last_writer = &amp;w; if (status.ok() &amp;&amp; updates != nullptr) &#123; // nullptr batch is for compactions WriteBatch* write_batch = BuildBatchGroup(&amp;last_writer); WriteBatchInternal::SetSequence(write_batch, last_sequence + 1); last_sequence += WriteBatchInternal::Count(write_batch); // Add to log and apply to memtable. We can release the lock // during this phase since &amp;w is currently responsible for logging // and protects against concurrent loggers and concurrent writes // into mem_. &#123; mutex_.Unlock(); status = log_-&gt;AddRecord(WriteBatchInternal::Contents(write_batch)); bool sync_error = false; if (status.ok() &amp;&amp; options.sync) &#123; status = logfile_-&gt;Sync(); if (!status.ok()) &#123; sync_error = true; &#125; &#125; if (status.ok()) &#123; status = WriteBatchInternal::InsertInto(write_batch, mem_); &#125; mutex_.Lock(); if (sync_error) &#123; // The state of the log file is indeterminate: the log record we // just added may or may not show up when the DB is re-opened. // So we force the DB into a mode where all future writes fail. RecordBackgroundError(status); &#125; &#125; if (write_batch == tmp_batch_) tmp_batch_-&gt;Clear(); versions_-&gt;SetLastSequence(last_sequence); &#125; while (true) &#123; Writer* ready = writers_.front(); writers_.pop_front(); if (ready != &amp;w) &#123; ready-&gt;status = status; ready-&gt;done = true; ready-&gt;cv.Signal(); &#125; if (ready == last_writer) break; &#125; // Notify new head of write queue if (!writers_.empty()) &#123; writers_.front()-&gt;cv.Signal(); &#125; return status;&#125; 先生成一个Writer，然后抢一个mutex锁，多线程的写入会在这里互斥，只能有一个进来，第一个进来的写操作会在真正写log文件和写memtable的时候把锁放掉，这时候别的写操作会进来把自己push到writes_的deque中，然后睡在自己的条件锁上，因为此时自己的done不是true并且自己不是deque中的第一个writer。等第一个writer全部操作完之后呢，会把此时deque中的所有writer唤醒,这里可能要问了，为什么醒了之后第一步是判断自己是不是done呢，自己还没执行怎么可能会done呢，其实这是leveldb的优化，当前抢到锁进来的writer会在真正操作之前把此时deque中所有的writer的任务都拿过来（实际上不是全拿过来，有数量限制，在BuildBatchGroup函数中有明确的过程），然后一起做了，并且把结果放回至每个writer对应的status中，最后再唤醒所有writer，所以这些writer醒来后发现自己的任务已经被做了，就直接拿自己的返回值返回了。 另外值得一提的是，条件变量与互斥锁之间的使用，直接上代码：12345678910struct DBImpl::Writer &#123; explicit Writer(port::Mutex* mu) : batch(nullptr), sync(false), done(false), cv(mu) &#123;&#125; Status status; WriteBatch* batch; bool sync; bool done; port::CondVar cv;&#125;; 就是代码中传入了互斥锁mu，如果不传这个的锁，会出现多线程中一个容易犯的问题：唤醒丢失问题，具体可以参考条件变量 之 稀里糊涂的锁 写入前检查：MakeRoomForWrite12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061Status DBImpl::MakeRoomForWrite(bool force) &#123; mutex_.AssertHeld(); assert(!writers_.empty()); bool allow_delay = !force; Status s; while (true) &#123; if (!bg_error_.ok()) &#123; // Yield previous error s = bg_error_; break; &#125; else if (allow_delay &amp;&amp; versions_-&gt;NumLevelFiles(0) &gt;= config::kL0_SlowdownWritesTrigger) &#123; // We are getting close to hitting a hard limit on the number of // L0 files. Rather than delaying a single write by several // seconds when we hit the hard limit, start delaying each // individual write by 1ms to reduce latency variance. Also, // this delay hands over some CPU to the compaction thread in // case it is sharing the same core as the writer. mutex_.Unlock(); env_-&gt;SleepForMicroseconds(1000); allow_delay = false; // Do not delay a single write more than once mutex_.Lock(); &#125; else if (!force &amp;&amp; (mem_-&gt;ApproximateMemoryUsage() &lt;= options_.write_buffer_size)) &#123; // There is room in current memtable break; &#125; else if (imm_ != nullptr) &#123; // We have filled up the current memtable, but the previous // one is still being compacted, so we wait. Log(options_.info_log, "Current memtable full; waiting...\n"); background_work_finished_signal_.Wait(); &#125; else if (versions_-&gt;NumLevelFiles(0) &gt;= config::kL0_StopWritesTrigger) &#123; // There are too many level-0 files. Log(options_.info_log, "Too many L0 files; waiting...\n"); background_work_finished_signal_.Wait(); &#125; else &#123; // Attempt to switch to a new memtable and trigger compaction of old assert(versions_-&gt;PrevLogNumber() == 0); uint64_t new_log_number = versions_-&gt;NewFileNumber(); WritableFile* lfile = nullptr; s = env_-&gt;NewWritableFile(LogFileName(dbname_, new_log_number), &amp;lfile); if (!s.ok()) &#123; // Avoid chewing through file number space in a tight loop. versions_-&gt;ReuseFileNumber(new_log_number); break; &#125; delete log_; delete logfile_; logfile_ = lfile; logfile_number_ = new_log_number; log_ = new log::Writer(lfile); imm_ = mem_; has_imm_.store(true, std::memory_order_release); mem_ = new MemTable(internal_comparator_); mem_-&gt;Ref(); force = false; // Do not force another compaction if have room MaybeScheduleCompaction(); &#125; &#125; return s;&#125; 写入检查流程可以归结为下图： 关于PUT流程暂且写这么多，如果想了解更多可以阅读参考资料。 参考资料：数据分析与处理之二（Leveldb 实现原理）LevelDb 源码阅读–写操作Leveldb之Put实现条件变量 之 稀里糊涂的锁]]></content>
+      <categories>
+        <category>源码阅读</category>
+      </categories>
+      <tags>
+        <tag>源码阅读</tag>
+        <tag>leveldb</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[为什么存在大端模式小端模式，为什么没有统一成一个标准]]></title>
     <url>%2F2020%2F01%2F01%2F%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%98%E5%9C%A8%E5%A4%A7%E7%AB%AF%E6%A8%A1%E5%BC%8F%E5%B0%8F%E7%AB%AF%E6%A8%A1%E5%BC%8F%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B2%A1%E6%9C%89%E7%BB%9F%E4%B8%80%E6%88%90%E4%B8%80%E4%B8%AA%E6%A0%87%E5%87%86%2F</url>
     <content type="text"><![CDATA[本文主要回顾一个计算机中的基础知识，字节序的大端模式与小端模式。 什么是小端模式 什么是大端模式 为什么没有统一成一个标准 网络字节序 为什么存在大端模式小端模式计算机系统中内存是以字节为单位进行编址的，每个地址单元都唯一的对应着1个字节（8 bit）。这可以应对char类型数据的存储要求，因为char类型长度刚好是1个字节，但是有些类型的长度是超过1个字节的（字符串虽然是多字节的，但它本质是由一个个char类型组成的类似数组的结构而已），比如C/C++中，short类型一般是2个字节，int类型一般4个字节等。因此这里就存在着一个如何安排多个字节数据中各字节存放顺序的问题。正是因为不同的安排顺序导致了大端存储模式和小端存储模式的存在。 小端模式小端模式：是指数据的高字节保存在内存的高地址中，而数据的低字节保存在内存的低地址中。简单的说就是低地址存低位，高地址存高位 为了方便说明，使用16进制表示这两个数，即0x12345678和0x11223344。小端模式采用以下方式存储这个两个数字： 大端模式大端模式：是指数据的高字节保存在内存的低地址中，而数据的低字节保存在内存的高地址中。简单的上，就是低地址存高位，高地址存低位（跟人读写数值的顺序一样）为了方便说明，使用16进制表示这两个数，即0x12345678和0x11223344。大端模式采用以下方式存储这个两个数字： 为什么没有统一成一个标准一言以蔽之，这两种模式各有各的优点。 小端模式优点： 内存的低地址处存放低字节，所以在强制转换数据时不需要调整字节的内容（注解：比如把int的4字节强制转换成short的2字节时，就直接把int数据存储的前两个字节给short就行，因为其前两个字节刚好就是最低的两个字节，符合转换逻辑）； CPU做数值运算时从内存中依顺序依次从低位到高位取数据进行运算，直到最后刷新最高位的符号位，这样的运算方式会更高效 大端模式优点：符号位在所表示的数据的内存的第一个字节中，便于快速判断数据的正负和大小 其各自的优点就是对方的缺点，正因为两者彼此不分伯仲，再加上一些硬件厂商的坚持，因此在多字节存储顺序上始终没有一个统一的标准 网络字节序不同的计算机使用的字节序可能不同，即有可能有的使用大端模式有的使用小端模式。那使用不同字节序模式的计算机如何进行通信呢？ （目前个人PC大部分都是X86的小端模式）TCP/IP协议隆重出场，RFC1700规定使用“大端”字节序为网络字节序，其他不使用大端的计算机要注意了，发送数据的时候必须要将自己的主机字节序转换为网络字节序（即“大端”字节序），接收到的数据再转换为自己的主机字节序。这样就与CPU、操作系统无关了，实现了网络通信的标准化。 为了程序的兼容，你会看到，程序员们每次发送和接收数据都要进行转换，这样做的目的是保证代码在任何计算机上执行时都能达到预期的效果。 这么常用的操作，BSD Socket提供了封装好的转换接口，方便程序员使用。包括从主机字节序到网络字节序的转换函数：htons、htonl；从网络字节序到主机字节序的转换函数：ntohs、ntohl。 C语言判断一个当前计算机是使用大端模式还是小端模式下面的一段代码可以用来判断计算机是大端的还是小端的，判断的思路是确定一个多字节的值（下面使用的是4字节的整数），将其写入内存（即赋值给一个变量），然后用指针取其首地址所对应的字节（即低地址的一个字节），判断该字节存放的是高位还是低位，高位说明是Big endian，低位说明是Little endian。123456789101112#include &lt;stdio.h&gt;int main ()&#123; unsigned int x = 0x12345678; char *c = (char*)&amp;x; if (*c == 0x78) &#123; printf("Little endian"); &#125; else &#123; printf("Big endian"); &#125; return 0;&#125; 其他的信息，包括那个故事，请阅读参考资料 参考资料：字节顺序–维基百科“字节序”是个什么鬼？大小端存储模式精解]]></content>
@@ -69,8 +81,8 @@
         <category>云计算</category>
       </categories>
       <tags>
-        <tag>docker registry</tag>
         <tag>harbor</tag>
+        <tag>docker registry</tag>
         <tag>harbor离线包</tag>
       </tags>
   </entry>
@@ -176,9 +188,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -226,9 +238,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -250,9 +262,9 @@
       </categories>
       <tags>
         <tag>日常积累</tag>
-        <tag>crontab</tag>
         <tag>开机启动</tag>
         <tag>监控</tag>
+        <tag>crontab</tag>
         <tag>shell</tag>
       </tags>
   </entry>
@@ -549,8 +561,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>gdb</tag>
         <tag>问题定位</tag>
+        <tag>gdb</tag>
       </tags>
   </entry>
   <entry>
@@ -575,9 +587,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
+        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
-        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
