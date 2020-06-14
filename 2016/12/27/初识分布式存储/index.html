@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://ww4.sinaimg.cn/mw690/71c65545jw1fb6z22ykkaj20tq0c4dg7.jpg">
 <meta property="og:image" content="http://ww1.sinaimg.cn/mw690/71c65545jw1fb6zed0v7zj20zk0k0abd.jpg">
-<meta property="og:updated_time" content="2019-01-29T13:33:54.070Z">
+<meta property="og:updated_time" content="2020-06-14T15:00:39.193Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初识分布式存储">
 <meta name="twitter:description" content="分布式领域的知识理论非常庞大，涉及的知识面也非常广博，比如涉及到计算、存储、网络，甚至数据库理论、大数据处理等知识理论。由于笔者的浅陋，以目前水平确实无法做到面面俱到，所以本文选取了笔者相对熟悉的存储领域进行简要介绍。主要内容有：  分布式存储产生的背景 分布式存储概念 分布式存储面临的问题或挑战 常见概念理论介绍 个人参与项目的感受   背景当今社会是信息时代，互联网时代，同时也是信息数据大爆炸">
@@ -353,8 +353,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-01-29T21:33:54+08:00">
-                2019-01-29
+              <time title="更新于" itemprop="dateModified" datetime="2020-06-14T23:00:39+08:00">
+                2020-06-14
               </time>
             
           </span>
@@ -493,7 +493,7 @@
 <p>好的可用性主要是指系统能够很好的为用户服务，不出现用户操作失败或者访问超时等用户体验不好的情况。可用性通常情况下可用性和分布式数据冗余，负载均衡等有着很大的关联。</p>
 <p><strong>Partition Tolerance分区容错性</strong></p>
 <p>分区容错性指“the system continues to operate despite arbitrary message loss or failure of part of the system”，即分布式系统在遇到某节点或网络分区故障的时候，仍然能够对外提供满足一致性和可用性的服务。</p>
-<p>分区容错性和扩展性紧密相关。在分布式应用中，可能因为一些分布式的原因导致系统无法正常运转。好的分区容错性要求能够使应用虽然是一个分布式系统，而看上去却好像是在一个可以运转正常的整体。比如现在的分布式系统中有某一个或者几个机器宕掉了，其他剩下的机器还能够正常运转满足系统需求，或者是机器之间有网络异常，将分布式系统分隔未独立的几个部分，各个部分还能维持分布式系统的运作，这样就具有好的分区容错性。</p>
+<p>分区容错性和扩展性紧密相关。在分布式应用中，可能因为一些分布式的原因导致系统无法正常运转。好的分区容错性要求能够使应用虽然是一个分布式系统，而看上去却好像是在一个可以运转正常的整体。比如现在的分布式系统中有某一个或者几个机器宕掉了，其他剩下的机器还能够正常运转满足系统需求，或者是机器之间有网络异常，将分布式系统分隔为独立的几个部分，各个部分还能维持分布式系统的运作，这样就具有好的分区容错性。</p>
 <h4 id="Quorum机制"><a href="#Quorum机制" class="headerlink" title="Quorum机制"></a>Quorum机制</h4><p>从小学的<strong>抽屉原理</strong>说起，为什么从抽屉原理说起？一来大家对这个比较熟悉，二来它与Quorum机制有异曲同工的地方。回顾抽屉原理，2个抽屉每个抽屉最多容纳2个苹果，现在有3个苹果无论怎么放，其中的一个抽屉里面会有2个苹果。那么我们把抽屉原理变变型，2个抽屉一个放了2个红苹果，另一个放了2个青苹果，我们取出3个苹果，无论怎么取至少有1个是红苹果，这个理解起来也很简单。我们把红苹果看成更新了的有效数据，青苹果看成未更新的无效数据。便可以看出来，不需要更新全部数据（并非全部是红苹果）我们就可以得到有效数据，当然我们需要读取多个副本完成（取出多个苹果）。这其实就是Quorum机制的一种特殊情况，其实质是将Write All 的负载均衡到 Read Only 上。上面的解决“三份论文一致性”的方法，其实就是Read Only Write All，就是更新的时候全部更新，读的时候就只用读一份数据了。由于本文属于简介性质，所以关于QUORUM机制本文也不做过多介绍，有兴趣的可以去查相关资料。</p>
 <h4 id="EC模式"><a href="#EC模式" class="headerlink" title="EC模式"></a>EC模式</h4><p>三副本确实很不错，能解决很多问题，但是大家有没有发现这样有个什么问题？那就是什么东西都要存三份，这存储效率不高呀，空间利用率不高，这对于使用存储设备的厂商来说存储的成本会变得很高，简单的说，1T的数据，你需要3个1T的移动硬盘来存储。那有没有什么好的其他方案呢？答案是有的，很多存储厂商，为了提高自身产品的竞争力，除了提供三副本的方式外，还提供了EC的方式。EC，全称Erasure Code.<br>为了阐述简单，本文只举4+2这种模式的EC算法进行示意说明，并不阐述具体的算法或其变种算法。感兴趣的可以看下这篇文章的介绍<br><a href="http://blog.csdn.net/u011026968/article/details/52295666" target="_blank" rel="noopener">分布式系统下的纠删码技术</a>。<br><img src="http://ww4.sinaimg.cn/mw690/71c65545jw1fb6z22ykkaj20tq0c4dg7.jpg" alt="EC 4+ 2"><br>简单来说，4+2这种模式的EC算法就是原始数据切分成4块,图中D1、D2、D3、D4，然后利用EC算法，计算出2块校验数据P1、P2，总共6块数据。至于怎么算出来的咱不管，就当做解方程组。通过这种方法能够保证你在丢失至多2块（6块数据丢2块）数据的情况下，都是能够恢复出来的（可以看作能够通过解方程的形式解出来\^_\^)。当然要是丢了2块以上的数据就没办法恢复了。比如D3和D4丢了，可以通过剩下的4块数据将D3和D4算出来。</p>
 <p>可以看到4+2的模式，比三副本的模式的存储效率提高了，能够降低存储成本，同时也能保证一定的可靠性和容错性。当然，也可以把EC算法看成是以CPU计算来换取存储效率的提高，因为采用EC模式，在丢了原始数据的情况下是需要CPU进行计算来恢复出原始数据的。</p>
@@ -678,7 +678,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -689,7 +689,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -700,7 +700,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">77</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
