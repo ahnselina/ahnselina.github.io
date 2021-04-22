@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.a-programmer.top/2019/05/16/raft%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90%20/</loc>
+    
+    <lastmod>2021-04-22T17:08:43.177Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.a-programmer.top/books/index.html</loc>
+    
+    <lastmod>2021-04-22T16:39:43.301Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.a-programmer.top/2020/01/15/Leveldb%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/</loc>
     
     <lastmod>2021-03-03T15:36:27.336Z</lastmod>
@@ -30,13 +44,6 @@
   </url>
   
   <url>
-    <loc>https://www.a-programmer.top/books/index.html</loc>
-    
-    <lastmod>2020-12-18T17:27:50.746Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://www.a-programmer.top/2020/07/06/%E8%A7%A3%E5%86%B3github%E7%BD%91%E7%AB%99%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E7%9A%84%E9%97%AE%E9%A2%98/</loc>
     
     <lastmod>2020-07-05T18:04:30.148Z</lastmod>
@@ -61,13 +68,6 @@
     <loc>https://www.a-programmer.top/2019/10/20/%E4%BA%91%E8%AE%A1%E7%AE%97%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E4%B8%80/</loc>
     
     <lastmod>2019-10-20T15:35:45.365Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.a-programmer.top/2019/05/16/raft%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90%20/</loc>
-    
-    <lastmod>2019-07-14T14:39:45.532Z</lastmod>
     
   </url>
   

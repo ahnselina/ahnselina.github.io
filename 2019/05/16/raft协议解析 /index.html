@@ -85,19 +85,19 @@
 <meta property="og:url" content="https://www.a-programmer.top/2019/05/16/raft协议解析 /index.html">
 <meta property="og:site_name" content="成长录-知行合一">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://wx1.sinaimg.cn/mw690/71c65545ly1g387aqpi08j20sr0j210g.jpg">
-<meta property="og:image" content="http://wx1.sinaimg.cn/mw690/71c65545ly1g387ydk0utj20k807r0tm.jpg">
-<meta property="og:image" content="http://wx2.sinaimg.cn/mw690/71c65545ly1g387ydwfjtj20gj063t8w.jpg">
-<meta property="og:image" content="http://wx3.sinaimg.cn/mw690/71c65545ly1g387yea5d2j20jd0e175h.jpg">
-<meta property="og:image" content="http://wx4.sinaimg.cn/mw690/71c65545ly1g387yfb7gbj20iw0c575b.jpg">
-<meta property="og:image" content="http://wx4.sinaimg.cn/mw690/71c65545ly1g387yfzg8nj20k609cwfe.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKAZq.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKEd0.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKFLn.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKVoV.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKuz4.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKMQJ.jpg">
 <meta property="og:image" content="https://pic3.zhimg.com/v2-c8e4ead21f6f2e9d40361717739519c6_b.jpg">
 <meta property="og:image" content="https://pic3.zhimg.com/v2-6b85a141cd131aa129a4e70d060f37be_b.jpg">
-<meta property="og:image" content="http://wx1.sinaimg.cn/mw690/71c65545ly1g387yha38ej20hh0awq3q.jpg">
-<meta property="og:updated_time" content="2019-07-14T14:39:45.532Z">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOKlLR.jpg">
+<meta property="og:updated_time" content="2021-04-22T17:08:43.177Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="raft协议解析">
-<meta name="twitter:image" content="http://wx1.sinaimg.cn/mw690/71c65545ly1g387aqpi08j20sr0j210g.jpg">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/04/23/cOKAZq.jpg">
 
 
 
@@ -367,8 +367,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-07-14T22:39:45+08:00">
-                2019-07-14
+              <time title="更新于" itemprop="dateModified" datetime="2021-04-23T01:08:43+08:00">
+                2021-04-23
               </time>
             
           </span>
@@ -469,7 +469,7 @@
       
 
       
-        <p><img src="http://wx1.sinaimg.cn/mw690/71c65545ly1g387aqpi08j20sr0j210g.jpg" alt=""></p>
+        <p><img src="https://z3.ax1x.com/2021/04/23/cOKAZq.jpg" alt=""></p>
 <a id="more"></a>
 <p>本文主要介绍raft一致性协议，在理解该协议的过程中，除了阅读原论文，还参考了很多参考资料中列出的文章，这些文章对我对raft的理解起了很大的帮助。在这些文章的基础上，遂按照自己的理解对相关资料做了整合更新。另外就是发现每次读原版论文和相关文章的时候都能读出新的东西，很是奇妙。PS:个人觉得这些经典的论文和资料可以多读几遍。</p>
 <p>Raft实现了和Paxos相同的功能，它将一致性分解为多个子问题：Leader选举（Leader election）、日志同步（Log replication）、安全性（Safety）、日志压缩（Log compaction）、成员变更（Membership change）等。同时，Raft算法使用了更强的假设来减少了需要考虑的状态，使之变的易于理解和实现。<br>本文通过Leader选举（Leader election）、日志同步（Log replication）、安全性（Safety）、日志压缩（Log compaction）、成员变更（Membership change）以及具体实例等方面来解析raft。</p>
@@ -490,9 +490,9 @@
 <h2 id="raft协议概述"><a href="#raft协议概述" class="headerlink" title="raft协议概述"></a>raft协议概述</h2><p>Raft将系统中的角色分为领导者（Leader）、跟从者（Follower）和候选人（Candidate）：</p>
 <p>Leader：接受客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。<br>Follower：接受并持久化Leader同步的日志，在Leader告之日志可以提交之后，提交日志。<br>Candidate：Leader选举过程中的临时角色。</p>
 <p>Raft算法角色<br>在正常情况下，Raft要求系统在任意时刻最多只有一个Leader，正常工作期间只有Leader和Followers。</p>
-<p>Raft算法角色状态转换如下：<br><img src="http://wx1.sinaimg.cn/mw690/71c65545ly1g387ydk0utj20k807r0tm.jpg" alt="Raft算法角色状态转换"></p>
+<p>Raft算法角色状态转换如下：<br><img src="https://z3.ax1x.com/2021/04/23/cOKEd0.jpg" alt="Raft算法角色状态转换"></p>
 <p>Follower只响应其他服务器的请求。如果Follower超时没有收到Leader的消息，它会成为一个Candidate并且开始一次Leader选举。收到大多数服务器投票的Candidate会成为新的Leader。Leader在宕机之前会一直保持Leader的状态。</p>
-<p><img src="http://wx2.sinaimg.cn/mw690/71c65545ly1g387ydwfjtj20gj063t8w.jpg" alt=""><br>Raft算法将时间分为一个个的任期（term），每一个term的开始都是Leader选举。在成功选举Leader之后，Leader会在整个term内管理整个集群。如果Leader选举失败，该term就会因为没有Leader而结束(这里的term相当于逻辑时钟，可以用term来判别一个消息是否过时)。Raft 保证了在一个给定的任期内，最多只有一个领导者。</p>
+<p><img src="https://z3.ax1x.com/2021/04/23/cOKFLn.jpg" alt=""><br>Raft算法将时间分为一个个的任期（term），每一个term的开始都是Leader选举。在成功选举Leader之后，Leader会在整个term内管理整个集群。如果Leader选举失败，该term就会因为没有Leader而结束(这里的term相当于逻辑时钟，可以用term来判别一个消息是否过时)。Raft 保证了在一个给定的任期内，最多只有一个领导者。</p>
 <h2 id="Leader-election"><a href="#Leader-election" class="headerlink" title="Leader election"></a>Leader election</h2><p>Raft协议的每个副本都会处于三种状态之一：Leader、Follower、Candidate。</p>
 <p>Leader：所有请求的处理者，Leader副本接受client的更新请求，本地处理后再同步到多个其他副本；<br>Follower：请求的被动更新者，从Leader接受更新请求，然后写入本地日志文件<br>Candidate：如果Follower副本在一段时间内没有收到Leader副本的心跳，则判断Leader可能已经故障，此时启动选主过程，此时副本会变成Candidate状态，直到选主结束。<br>时间被分为很多连续的随机长度的term，term有唯一的id。每个term一开始就进行选主：</p>
 <ul>
@@ -516,8 +516,8 @@
 <li>如果不同日志中的两个条目有着相同的索引和任期号，则它们所存储的命令是相同的。</li>
 <li>如果不同日志中的两个条目有着相同的索引和任期号，则它们之前的所有条目都是完全一样的。</li>
 </ul>
-<p><img src="http://wx3.sinaimg.cn/mw690/71c65545ly1g387yea5d2j20jd0e175h.jpg" alt=""></p>
-<p>当一个新的Leader被选出来时，它的日志和其它的Follower的日志可能不一样，这个时候，就需要一个机制来保证日志的一致性。一个新leader产生时，集群状态可能如下：<br><img src="http://wx4.sinaimg.cn/mw690/71c65545ly1g387yfb7gbj20iw0c575b.jpg" alt=""><br>最上面这个是新leader,其上方的数字代表log index，a~f是follower，每个格子代表一条log entry，格子内的数字代表这个log entry是在哪个term上产生的。</p>
+<p><img src="https://z3.ax1x.com/2021/04/23/cOKVoV.jpg" alt=""></p>
+<p>当一个新的Leader被选出来时，它的日志和其它的Follower的日志可能不一样，这个时候，就需要一个机制来保证日志的一致性。一个新leader产生时，集群状态可能如下：<br><img src="https://z3.ax1x.com/2021/04/23/cOKuz4.jpg" alt=""><br>最上面这个是新leader,其上方的数字代表log index，a~f是follower，每个格子代表一条log entry，格子内的数字代表这个log entry是在哪个term上产生的。</p>
 <p>新leader产生后，就以leader上的log为准。其它的follower要么少了数据比如b，要么多了数据，比如d，要么既少了又多了数据，比如f。</p>
 <p>因此，需要有一种机制来让leader和follower对log达成一致，leader会为每个follower维护一个nextIndex，表示leader给各个follower发送的下一条log entry在log中的index，初始化为leader的最后一条log entry的下一个位置。leader给follower发送AppendEntriesRPC消息，带着(term_id, (nextIndex-1))， term_id即(nextIndex-1)这个槽位的log entry的term_id，follower接收到AppendEntriesRPC后，会从自己的log中找是不是存在这样的log entry，如果不存在，就给leader回复拒绝消息，然后leader则将nextIndex减1，再重复，知道AppendEntriesRPC消息被接收。</p>
 <p>以leader和b为例：</p>
@@ -531,7 +531,7 @@
 <blockquote>
 <p>Leader只能推进commit index来提交当前term的已经复制到大多数服务器上的日志，旧term日志的提交要等到提交当前term的日志来间接提交（log index 小于 commit index的日志被间接提交）。</p>
 </blockquote>
-<p>之所以要这样，是因为可能会出现已提交的日志又被覆盖的情况：<br><img src="http://wx4.sinaimg.cn/mw690/71c65545ly1g387yfzg8nj20k609cwfe.jpg" alt=""></p>
+<p>之所以要这样，是因为可能会出现已提交的日志又被覆盖的情况：<br><img src="https://z3.ax1x.com/2021/04/23/cOKMQJ.jpg" alt=""></p>
 <ol>
 <li>在阶段a，term为2，S1是Leader，且S1写入日志（term, index）为(2, 2)，并且日志被同步写入了S2；  </li>
 <li>在阶段b，S1离线，触发一次新的选主，此时S5被选为新的Leader，此时系统term为3，且写入了日志（term, index）为（3， 2）;</li>
@@ -584,7 +584,7 @@
 <p>Snapshot中包含以下内容：</p>
 <ul>
 <li>日志元数据。最后一条已提交的 log entry的 log index和term。这两个值在snapshot之后的第一条log entry的AppendEntries RPC的完整性检查的时候会被用上。</li>
-<li>系统当前状态<br><img src="http://wx1.sinaimg.cn/mw690/71c65545ly1g387yha38ej20hh0awq3q.jpg" alt=""><br>当Leader要发给某个日志落后太多的Follower的log entry被丢弃，Leader会将snapshot发给Follower。或者当新加进一台机器时，也会发送snapshot给它。发送snapshot使用InstalledSnapshot RPC（RPC细节参见八、Raft算法总结）。</li>
+<li>系统当前状态<br><img src="https://z3.ax1x.com/2021/04/23/cOKlLR.jpg" alt=""><br>当Leader要发给某个日志落后太多的Follower的log entry被丢弃，Leader会将snapshot发给Follower。或者当新加进一台机器时，也会发送snapshot给它。发送snapshot使用InstalledSnapshot RPC（RPC细节参见八、Raft算法总结）。</li>
 </ul>
 <p>做snapshot既不要做的太频繁，否则消耗磁盘带宽， 也不要做的太不频繁，否则一旦节点重启需要回放大量日志，影响可用性。推荐当日志达到某个固定的大小做一次snapshot。</p>
 <p>做一次snapshot可能耗时过长，会影响正常日志同步。可以通过使用copy-on-write技术避免snapshot过程影响正常日志同步。</p>

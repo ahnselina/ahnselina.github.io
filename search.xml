@@ -129,8 +129,8 @@
         <category>云计算</category>
       </categories>
       <tags>
-        <tag>harbor</tag>
         <tag>docker registry</tag>
+        <tag>harbor</tag>
         <tag>harbor离线包</tag>
       </tags>
   </entry>
@@ -609,8 +609,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>gdb</tag>
         <tag>问题定位</tag>
+        <tag>gdb</tag>
       </tags>
   </entry>
   <entry>
@@ -635,9 +635,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
+        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
-        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
