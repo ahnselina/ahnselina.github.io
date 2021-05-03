@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[解决github网站无法打开的问题]]></title>
-    <url>%2F2020%2F07%2F06%2F%E8%A7%A3%E5%86%B3github%E7%BD%91%E7%AB%99%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E7%9A%84%E9%97%AE%E9%A2%98%2F</url>
-    <content type="text"><![CDATA[本文主要记录github网站无法打开问题的解决方法，笔者两年前遇到过一次，当时通过搜索引擎解决了该问题，最近不知为啥又遇到了，搜了尝试好几个方法才最终解决，所以在此记录一下，但愿能帮助到跟我一样遇到同样问题的人。 问题症状 首先电脑是能上网的，百度甚至谷歌都是OK的 : ) ping github.com全是超时，无法ping通 解决方法 找到目录 C:\Windows\System32\drivers\etc 文件下的 hosts文件 拷贝到其他地方进行修改，在文件中添加（注意不要复制下面的IP，请自行根据下文重点进行IP查询,然后将IP改为你自己查到的IP） 12140.82.113.3 github.com199.232.69.194 github.global.ssl.fastly.net 3.修改之后保存，再覆盖 C:\Windows\System32\drivers\etc目录下的hosts文件 重点上面添加的IP是因人而异的，如果你直接复制我上面的IP可能是无效的，需要自己查询对应的IP进行修改，查询地址为： http://github.global.ssl.fastly.net.ipaddress.com/如下图：可以在其搜索框中输入github.com来查询github的IP,然后修改hosts文件之后就好啦 补充修改之后可以在命令行中执行ipconfig /flushdns命令来刷新缓存。 参考资料：ping github 请求超时解决方案]]></content>
-      <categories>
-        <category>问题解决</category>
-      </categories>
-      <tags>
-        <tag>问题解决</tag>
-        <tag>github</tag>
-      </tags>
-  </entry>
-  <entry>
     <title><![CDATA[LevelDB源码阅读 -- Version]]></title>
     <url>%2F2020%2F03%2F15%2FLevelDB%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%20--%20Version%2F</url>
     <content type="text"><![CDATA[本文主要介绍LevelDB中的Version及其相关的结构和流程。 理解Version对理解LevelDB中compaction有很重要的作用，可以说不理解Version就无法理解Compaction。Version和Compaction互相联系，相互作用。Version，直观上理解就是版本，也就是说LevelDB中数据是可能是多版本共存的，所以在介绍Version具体相关的数据结构之前，我们先看一下MVCC。 MVCCMulti-version Cocurrent Control，多版本并发控制。MVCC 技术最初也是在数据库 系统中被提出，但这种思想并不局限于单机的分布式系统，在分布式系统中同样有效。 顾名思义，MVCC 即多个不同版本的数据实现并发控制的技术，其基本思想是为每次事务生成一个新版本的数据，在读数据时选择不同版本的数据即可以实现对事务结果的完整性读取。在使用 MVCC 时，每个事务都是基于一个已生效的基础版本进行更新，事务可以并行进行，从而可以产生一种图状结构。 如上图所示，基础数据的版本为1，同时产生了两个事务：事务A 与事务B。这两个事务都各自对数据进行了一些本地修改（这些修改只有事务自己可见，不影响真正的数据），之后事务A 首先提交，生成数据版本2；基于数据版本2，又发起了事务C，事务C 继续提交，生成了数据版本3；最后事务B 提交，此时事务B 的结果需要与事务C 的结果合并，如果数据没有冲突，即事务B 没有修改事务A 与事务C 修改过的变量，那么事务B 可以提交，否则事务 B 提交失败。 MVCC 的流程过程非常类似于SVN 等版本控制系统的流程，或者说SVN 等版本控制系统就是使用的 MVCC 思想。 事务在基于基础版本做修改时，为了不影响真正的数据。通常有两种做法： 将基础版本的数据全部拷贝出来之后再修改，SVN就使用了这个办法，SVN check out就是拷贝的过程 每个事务中只记录更新操作，不记录完整的数据，读取数据的再将更新操作应用于基础版本的数据从而得到更新后的数据 LevelDB中的sstable的MVCC采用的上述的第2种方法，下文介绍LevelDB中Version相关内容。 Version、VersionEdit、VersionSet关系介绍 Version字面意思就是代表某一版本 VersionEdit就是指版本变化（一个版本到另一个版本之间的更新操作） VersionSet看字面意思就是版本的集合，确实也是系统中Version的集合 上文提到了LevelDB也有SSTable的MVCC，其具体实现就是通过Version、VersionEdit以及VersionSet实现的。Version代表一个基础版本，VersionEdit就是记录更新操作当中的各种变更，VersionSet则是管理了当前系统中所有的版本。也就是说有如下公式： Version(N) + VersionEdit = Version(N+1) 在LevelDB的实现中，为方便将VersionEdit变更应用于Version之上，实现了VersionSet::Builder以及相关的方法。不过有个问题，如果有多次变更操作产生了多次VersionEdit，然后将这多个VersionEdit累积应用与基础Version版本，将会得到多个Version，如果只需要最终的一个Version或者某几个Version，那这个过程岂不是产生了很多中间版本。为了达到不产生这些中间版本的目的，VersionSet Builder中提供了一个Apply方法，可以把多次变更累积到一个VersionEdit中，然后将该VersionEdit应用于(VersionSet Builder提供的方法为SaveTo)基础版本Version就可以直接得到最终版本。 数据结构本文只介绍下关键的数据结构成员及关键方法，并不会列出所有的数据成员，详细数据结构请参考源码。 Version的主要数据结构 12345678910111213141516171819202122232425262728VersionSet* vset_; // 当前版本属于的VersionSetVersion* next_; // 在VersionSet双向链表中的下一个版本Version* prev_; // 在VersionSet双向链表中的前一个版本int refs_; // 当前版本存有的引用计数// 每一层所拥有的文件列表std::vector&lt;FileMetaData*&gt; files_[config::kNumLevels];// 基于统计访问次数选定的将要进行下一次compaction的文件*FileMetaData file_to_compact_;int file_to_compact_level_;// Level that should be compacted next and its compaction score.// Score &lt; 1 means compaction is not strictly needed. These fields// are initialized by Finalize().double compaction_score_;int compaction_level_; 从Version的主要数据结构可以看到，当前版本中包含属于当前版本的所有的文件，以及哪个文件将要用于compaction，还记录了compaction_score_以及compaction_level_（将要用于压缩的那一层，其compaction_score是最大的，注释中也提到了，score &lt; 1的情况下，compaction是不严格要求的, 也就是说这种情况可以不进行compaction）。此外，Version的数据结构中还记录上一个版本prev_以及下一个版本next_。 VersionEdit主要数据结构 123456std::vector&lt;std::pair&lt;int, InternalKey&gt;&gt; compact_pointers_;DeletedFileSet deleted_files_;std::vector&lt;std::pair&lt;int, FileMetaData&gt;&gt; new_files_; 上面三个是VersionEdit中最重要的成员，每一个compact_pointers_表示某一层的要开始进行compact的InternalKey，比如在实际要进行compaction时，通过该变量可以知道在当前层（pair当中的第一个变量）从哪一个Key开始进行compaction，没有这个信息的话，就不知道从哪个key开始进行compaction，总不能每次都从第一个key开始吧。 deleted_files_则表示要删除哪些文件。 new_files_则表示新增哪些文件。 VersionSet主要数据结构 12345678910Versiondummy_versions_; // Head of circular doubly-linked list of versions.Version*current_; // == dummy_versions_.prev_// Per-level key at which the next compaction at that level should start.// Either an empty string, or a valid InternalKey.std::stringcompact_pointer_[config::kNumLevels]; dummy_versions_是双向循环链表的头，也就是说VersionSet是一个双向循环连接，所有存在的Version都在这个双向循环链表上。 dummy_versions_.prev_指向当前版本current_。 compact_pointer_也是表明每一层进行下一次compaction时应该开始的Key，这个要么是个空字符串，要么是一个有效的InternalKey。 通过上面VersionEdit的主要数据结构可以看出，在LevelDB的MVCC是SSTable的MVCC，VersionEdit主要是记录了SSTable文件的变化（在compaction时生成新的SSTable，完成compaction之后删除旧的SSTable）。所以严格的来说，这里的MVCC并不是读取某一个数据多版本，当然由于compaction前同一个key在不同文件中确实有存在多个版本的问题，比如刚开始设置key1的值为1，然后一直有写请求，后面又将key1的值设为了2。那么这系统里面是存在两个版本的key1的value值的，我们读的时候，是会优先读到2的这个值的，也可以通过设置来读取到1，不过在进行compaction的时候会进行合并，合并之后就不会读到1了。 主要方法及流程更多问题1.既然存在多版本，那什么时候Version会发生变化呢？ 答：当SSTable文件发生变化时则会产生新的Version 2.SSTable产生变化的触发条件是什么？ 答：（1）将Immutable转为SSTable时（minor compaction） （2）当后台开始进行Compact时 （major compaction） 3.Version产生的流程 答： Memtable转为新的SSTable或者进行Compact之后SSTable产生变化时调用VersionSet::LogAndApply()产生新的Version。 leveldb上电还原Version过程，调用接口VersionSet::Recover()。 leveldb异常损坏，修复levelDB过程，调用接口RepairDB()产生新的Version。 4.Manifest丢失或者损坏，LevelDB会丢数据吗？ 答：不会 5.Manifest丢失或者损坏，如何恢复LevelDB数据？ 答：使用python-leveldb，通过如下手段可以修复Leveldb 12import leveldbret ＝ leveldb.RepairDB(&apos;/data/mon.iecvq/store.db&apos;) 6.为什么MANIFEST损坏或者丢失之后，依然可以恢复出来？LevelDB如何做到的？ 答：对于LevelDB而言，修复过程如下： 首先处理log，这些还未来得及写入的记录，写入新的.sst文件 扫描所有的sst文件，生成元数据信息：包括number filesize， 最小key，最大key 根据这些元数据信息，将生成新的MANIFEST文件。 第三步如何生成新的MANIFEST？ 因为SSTable文件是分level的，但是很不幸，我们无法从名字上判断出来文件属于哪个level。第三步处理的原则是，既然我分不出来，我就认为所有的sstale文件都属于level 0，因为level 0是允许重叠的，因此并没有违反基本的准则。 当修复之后，第一次Open LevelDB的时候，很明显level 0 的文件可能远远超过4个文件，因此会Compaction。 又因为所有的文件都在Level 0 这次Compaction无疑是非常沉重的。它会扫描所有的文件，归并排序，产生出level 1文件，进而产生出其他level的文件。 从上面的处理流程看，如果只有MANIFEST文件丢失，其他文件没有损坏，LevelDB是不会丢失数据的，原因是，LevelDB既然已经无法将所有的数据分到不同的Level，但是数据毕竟没有丢，根据文件的number，完全可以判断出文件的新旧，从而确定不同sstable文件中的重复数据，which是最新的。经过一次比较耗时的归并排序，就可以生成最新的LevelDB。 上述的方法，从功能的角度看，是正确的，但是效率上不敢恭维。Riak曾经测试过78000个sstable 文件，490G的数据，大家都位于Level 0，归并排序需要花费6 weeks，6周啊，这个耗时让人发疯的。 Riak 1.3 版本做了优化，改变了目录结构，对于google 最初版本的LevelDB，所有的文件都在一个目录下，但是Riak 1.3版本引入了子目录， 将不同level的sst 文件放入不同的子目录： 1234sst_0sst_1...sst_6 有了这个，重新生成MANIFEST自然就很简单了，同样的78000 sstable文件，Repair过程耗时是分钟级别的。 7.compaction触发的时机？ 答：主要有如下三个触发的时机 容量触发Compaction：每个Version在其生成的时候会初始化两个值compaction_level_、compaction_score_，这两个值记录了当前Version最需要进行Compaction的Level，以及其需要进行Compaction的紧迫程度，score大于1被认为是需要马上执行的。我们知道每次文件信息的改变都会生成新的Version，所以每个Version对应的这两个值初始化后不会再改变。level0层compaction_score_与文件数相关，其他level的则与当前层的文件总大小相关。这种区分的必要性也是显而易见的：每次Get操作都需要从level0层的每个文件中尝试查找，因此控制level0的文件数是很有必要的。同时Version中会记录每层上次Compaction结束后的最大Key值compact_pointer_，下一次触发自动Compaction会从这个Key开始。容量触发的优先级高于下面将要提到的Seek触发。 Seek触发Compaction：Version中会记录file_to_compact_和file_to_compact_level_，这两个值会在Get操作每次尝试从文件中查找时更新。LevelDB认为每次查找同样会消耗IO，这个消耗在达到一定数量可以抵消一次Compaction操作消耗的IO，所以对Seek较多的文件应该主动触发一次Compaction。但在引入布隆过滤器后，这种查找消耗的IO就会变得微不足道了，因此由Seek触发的Compaction其实也就变得没有必要了。 手动Compaction：LevelDB提供了外部接口CompactRange，用户可以指定触发某个Key Range的Compaction，LevelDB默认手动Compaction的优先级高于两种自动触发。 参考资料《分布式系统原理介绍》 leveldb之MANIFEST) 图解leveldb version相关结构及流程) 庖丁解LevelDB之版本控制)]]></content>
@@ -85,6 +73,18 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[解决github网站无法打开的问题]]></title>
+    <url>%2F2019%2F11%2F16%2F%E8%A7%A3%E5%86%B3github%E7%BD%91%E7%AB%99%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E7%9A%84%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[本文主要记录github网站无法打开问题的解决方法，笔者两年前遇到过一次，当时通过搜索引擎解决了该问题，最近不知为啥又遇到了，搜了尝试好几个方法才最终解决，所以在此记录一下，但愿能帮助到跟我一样遇到同样问题的人。 问题症状 首先电脑是能上网的，百度甚至谷歌都是OK的 : ) ping github.com全是超时，无法ping通 解决方法 找到目录 C:\Windows\System32\drivers\etc 文件下的 hosts文件 拷贝到其他地方进行修改，在文件中添加（注意不要复制下面的IP，请自行根据下文重点进行IP查询,然后将IP改为你自己查到的IP） 12140.82.113.3 github.com199.232.69.194 github.global.ssl.fastly.net 3.修改之后保存，再覆盖 C:\Windows\System32\drivers\etc目录下的hosts文件 重点上面添加的IP是因人而异的，如果你直接复制我上面的IP可能是无效的，需要自己查询对应的IP进行修改，查询地址为： http://github.global.ssl.fastly.net.ipaddress.com/如下图：可以在其搜索框中输入github.com来查询github的IP,然后修改hosts文件之后就好啦 补充修改之后可以在命令行中执行ipconfig /flushdns命令来刷新缓存。 参考资料：ping github 请求超时解决方案]]></content>
+      <categories>
+        <category>问题解决</category>
+      </categories>
+      <tags>
+        <tag>问题解决</tag>
+        <tag>github</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[云计算相关知识一]]></title>
     <url>%2F2019%2F10%2F20%2F%E4%BA%91%E8%AE%A1%E7%AE%97%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E4%B8%80%2F</url>
     <content type="text"><![CDATA[从本文开始准备开一个新坑，主要用于记录云计算相关的知识，主要参考资料为公开课Cloud Computing Concepts, Part 1。可以看做是学习记录 : ) 本文将尝试回答什么是cloud，与传统的分布式系统相比较，有什么新的特点cloud comupute与早期几代分布式系统的区别 基础知识Process = a program in action C语言的程序，main调用f1，f1调用f2程序代码是不变的，但是有变化的组件，那些变化的组件： PC是程序计数器program counter,表明当前程序执行到哪了 stack被函数用于传递参数和返回值，比如main调用f1时传递的参数就可以通过push压栈到stack中，然后f1可以通过pop获取到main传递给他的参数。 f1调用f2类似，当f2执行完毕，便可以通过push将执行结果压栈到stack顶，然后f1可以通过pop获取到f2的执行结果，类似的，main也可以获取到f1的执行结果 简化的计算机架构 两种云：私有云 公有云私有云一般仅供公司内部使用公有云是把服务提供给付费的用户使用，比如AWS S3,阿里云，华为云之类的公有云服务 why clouds？节约时间和金钱 如果你创办了一个公司，是使用公有云服务呢，还是自己搭建一套私有云？通常可以对比两者，看公司使用时间，如果在一年内，那使用公有云更划算，如果是使用多年，那使用私有云更划算。前期为了业务尽快上线，一般选用公有云，省时省力，当公司业务发展到一定水平，存储量业务量都很大的时候，这时候势必要上私有云了。 什么是云 For the purposes of this course, however, I’m going to come up with a very simple definition, it’s a working definition. It’s not perfect. It’s not meant to be perfect. It’s meant to be good enough for us to learn more about the technologies that exist out there. So working definition says, that a Cloud consists of a lot of storage resources, so you can store gigabytes, terabytes, petabytes, maybe even more of data with compute cycles located nearby. Notice that this definition is not the reverse which is it doesn’t say, you have compute cycles with data moving around. Essentially, there is so much data. It is a data intensive world that we live in, that you can’t really move around the data all that easily. So, you need to bring the compute closer to the data rather than bring the data closer to where the computer is. 当今的云计算，与前几代的分布式系统比，不同的地方 超大规模 按需访问 数据密集性质 新的云计算程序模型按需访问， 在这里我们会把它作为 aaS （即服务）行业分类的一部分来讨论。 按需访问是指 你为你已经实际使用的服务付费， 而不是支付预付成本， 或提前购买。 这就像是 叫了一辆出租车对比 租了一辆车，你需要 付一些预付款来使用 其他人已拥有的服务，或者买一辆车 相似的， 你买了自己的数据中心。 而现在，云服务让你可以 仅仅支付几十美分或几块钱来 购买CPU的运行小时， 你可以用任意你想拥有的CPU数量， 只要你的应用程序需要。 比如，AWS的EC2， 以及微软的Azure都能提供这种服务。 或者支付几十美分或几块钱 来购买每月的GB容量来存储数据。 同样的，AWS和Azure都能为你提供这种服务。 还有许多的其他公司 都能提供相似的服务，提供的条件也有竞争力。 现在整个行业经常为 提供的云服务进行分类， 按照这些服务本身的特性。 经常被分类成， aaS， “即服务” 概念。HaaS硬件即服务、IaaS基础设计即服务，PaaS平台及服务，SaaS软件及服务。云计算第三个新的方面， 今天云区别自身与 之前几代分布式系统的是 我们已经可以着手处理大数据。 然而在此之前， 是计算密集型处理技术， 比如基于消息传递接口、 即MPI的计算， 还有高性能计算技术， 当你有一个相对小的数据集的时候， 但是你仍然需要相当性能的密集型计算， 比如，天气模型就是一个密集型计算， 这里当然包括了 诸如NCSA Blue Waters 数据中心， 但是 数据密集型计算技术却有一点相反， 你有大量的数据存储在 数据中心， 而且你需要附近的计算节点， 是因为你要处理海量的数据。在计算密集型的应用中，CPU利用率，被视为资源利用率 最主要的衡量指标， 但在数据密集型的云服务中， CPU已经不再是最主要的度量， I/O才是最重要的度量，disk I/O 和 network I/O。 参考资料：Cloud Computing Concepts, Part 1]]></content>
@@ -141,8 +141,8 @@
         <category>云计算</category>
       </categories>
       <tags>
-        <tag>harbor</tag>
         <tag>docker registry</tag>
+        <tag>harbor</tag>
         <tag>harbor离线包</tag>
       </tags>
   </entry>
@@ -248,9 +248,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
-        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
+        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -298,9 +298,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
-        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
+        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -494,8 +494,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>strace</tag>
         <tag>日常积累</tag>
+        <tag>strace</tag>
       </tags>
   </entry>
   <entry>
@@ -507,8 +507,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>awk</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>

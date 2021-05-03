@@ -85,14 +85,14 @@
 <meta property="og:url" content="https://www.a-programmer.top/2019/03/26/Habor初印象/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://wx4.sinaimg.cn/mw690/71c65545gy1g1ggu3h5lkj20yb0dpagf.jpg">
-<meta property="og:image" content="http://wx3.sinaimg.cn/mw690/71c65545gy1g1ggu23jcyj216g0u0juk.jpg">
-<meta property="og:image" content="http://wx2.sinaimg.cn/mw690/71c65545gy1g1ggu0oomyj20ie09vgmp.jpg">
-<meta property="og:image" content="http://wx4.sinaimg.cn/mw690/71c65545gy1g1ggtzyhemj20g30a2glh.jpg">
-<meta property="og:updated_time" content="2019-04-17T11:53:38.325Z">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxr9A.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxTcq.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmx7j0.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxqBT.jpg">
+<meta property="og:updated_time" content="2021-05-03T17:59:07.236Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Habor初印象">
-<meta name="twitter:image" content="http://wx4.sinaimg.cn/mw690/71c65545gy1g1ggu3h5lkj20yb0dpagf.jpg">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/05/04/gmxr9A.jpg">
 
 
 
@@ -362,8 +362,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-04-17T19:53:38+08:00">
-                2019-04-17
+              <time title="更新于" itemprop="dateModified" datetime="2021-05-04T01:59:07+08:00">
+                2021-05-04
               </time>
             
           </span>
@@ -464,7 +464,7 @@
       
 
       
-        <p><img src="http://wx4.sinaimg.cn/mw690/71c65545gy1g1ggu3h5lkj20yb0dpagf.jpg" alt=""><br><a id="more"></a><br>部署企业私有镜像仓库往往是很有必要的, 它可以帮助你管理企业的一些敏感镜像, 同时由于Docker Hub的下载速度和GFW的原因, 往往需要将一些无法直接下载的镜像导入本地私有仓库。 而Harbor就是部署<strong>企业级镜像仓库</strong>的一个不二之选，本文主要对Habor做一个简要介绍。</p>
+        <p><img src="https://z3.ax1x.com/2021/05/04/gmxr9A.jpg" alt=""><br><a id="more"></a><br>部署企业私有镜像仓库往往是很有必要的, 它可以帮助你管理企业的一些敏感镜像, 同时由于Docker Hub的下载速度和GFW的原因, 往往需要将一些无法直接下载的镜像导入本地私有仓库。 而Harbor就是部署<strong>企业级镜像仓库</strong>的一个不二之选，本文主要对Habor做一个简要介绍。</p>
 <h3 id="Habor简介"><a href="#Habor简介" class="headerlink" title="Habor简介"></a>Habor简介</h3><p>Harbor是vmware开源的企业级registry，可以让你迅速的搭建自己的私有registry，harbor扩展的docker的registry，使harbor支持以下特性：</p>
 <ul>
 <li>RBAC 基于角色的权限控制: 用户与Docker镜像仓库通过“项目”进行组织管理，一个用户可以对多个镜像仓库在同一命名空间（project）里有不同的权限</li>
@@ -479,7 +479,7 @@
 <li>安装简单:提供在线和离线两种安装工具  </li>
 </ul>
 <p>Harbor是container镜像仓库，其主要作用是为管理和服务container镜像提供一个安全的环境，用户可以用habor打造一个私有的镜像仓库；这对一些想管理自己的镜像又不想开源的企业来说是有用的。Habor既然是container镜像仓库，那么就应当是存储镜像的，这个可能是大多数接触harbor的人的一个误区，当深入了解以后才发现，镜像的存储harbor使用的是官方的docker registry服务去完成，至于registry是用本地存储或者s3都是可以的，harbor的功能是在此之上提供用户权限管理、镜像复制等功能，提高使用的registry的效率。</p>
-<h3 id="Habor架构"><a href="#Habor架构" class="headerlink" title="Habor架构"></a>Habor架构</h3><p>Habor发展至今，架构肯定有一些变化，下面的图是参考网上的，不是最新的架构，不过应该变化不大，可以参考一下：<br><img src="http://wx3.sinaimg.cn/mw690/71c65545gy1g1ggu23jcyj216g0u0juk.jpg" alt=""><br><img src="http://wx2.sinaimg.cn/mw690/71c65545gy1g1ggu0oomyj20ie09vgmp.jpg" alt=""></p>
+<h3 id="Habor架构"><a href="#Habor架构" class="headerlink" title="Habor架构"></a>Habor架构</h3><p>Habor发展至今，架构肯定有一些变化，下面的图是参考网上的，不是最新的架构，不过应该变化不大，可以参考一下：<br><img src="https://z3.ax1x.com/2021/05/04/gmxTcq.jpg" alt=""><br><img src="https://z3.ax1x.com/2021/05/04/gmx7j0.jpg" alt=""></p>
 <ul>
 <li>harbor-adminserver：harbor系统管理接口，可以修改系统配置以及获取系统信息</li>
 <li>harbor-db：存储项目的元数据、用户、规则、复制策略等信息</li>
@@ -497,7 +497,7 @@
 <p>Docker hub是Docker公司提供的一些存储镜像的空间，这部分空间是有限的。我们一般会自主建设Docker私有仓库Registry。</p>
 <h3 id="Repository和Registry区别"><a href="#Repository和Registry区别" class="headerlink" title="Repository和Registry区别"></a>Repository和Registry区别</h3><p>Repository：本身是一个仓库，这个仓库里面可以放具体的镜像，是指具体的某个镜像的仓库，比如Tomcat下面有很多个版本的镜像，它们共同组成了Tomcat的Repository。</p>
 <p>Registry：镜像的仓库，比如官方的是Docker Hub，它是开源的，也可以自己部署一个，Registry上有很多的Repository，Redis、Tomcat、MySQL等等Repository组成了Registry。</p>
-<h3 id="clair"><a href="#clair" class="headerlink" title="clair"></a>clair</h3><p>clair是 coreos 开源的容器漏洞扫描工具，在容器逐渐普及的今天，容器镜像安全问题日益严重。clair 是目前少数的开源安全扫描工具，主要提供OS（centos，debian，ubuntu等）的软件包脆弱性扫描。clair既可以单机部署也可以部署到k8s上，并可以与现有的registry集成。harbor 很好的整合了 clair ，通过简单的UI就可以对上传的镜像扫描，还可以通过每天的定时扫描对所有镜像进行统一扫描，架构如下：<br><img src="http://wx4.sinaimg.cn/mw690/71c65545gy1g1ggtzyhemj20g30a2glh.jpg" alt=""></p>
+<h3 id="clair"><a href="#clair" class="headerlink" title="clair"></a>clair</h3><p>clair是 coreos 开源的容器漏洞扫描工具，在容器逐渐普及的今天，容器镜像安全问题日益严重。clair 是目前少数的开源安全扫描工具，主要提供OS（centos，debian，ubuntu等）的软件包脆弱性扫描。clair既可以单机部署也可以部署到k8s上，并可以与现有的registry集成。harbor 很好的整合了 clair ，通过简单的UI就可以对上传的镜像扫描，还可以通过每天的定时扫描对所有镜像进行统一扫描，架构如下：<br><img src="https://z3.ax1x.com/2021/05/04/gmxqBT.jpg" alt=""></p>
 <blockquote>
 <p>注意不要混淆Clair 和 clarity，Clair is not clarity, clarity is the UI library we used, while clair is the docker image scanner.<br><a href="https://github.com/goharbor/harbor/issues/3464" target="_blank" rel="noopener">按照 docs/compile_guide.md 进行源码编译出错</a></p>
 </blockquote>
