@@ -79,21 +79,18 @@
 
 
 
-<meta name="description" content="本文主要介绍存储快照的使用场景、存储快照实现原理，LevelDB中的快照(snapshot)，最后简单介绍快照与备份的区别。 在正式介绍LevelDB的快照之前，我们先看看通常情况下存储系统中，快照的定义。 快照的定义简单的来说，快照是数据存储某一时刻的状态记录。 存储网络行业协会SNIA（StorageNetworking Industry Association）快照的定义则是：关于指定数据">
 <meta name="keywords" content="源码阅读,leveldb">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LevelDB源码阅读--快照snapshot">
 <meta property="og:url" content="https://www.a-programmer.top/2020/04/19/LevelDB源码阅读--快照snapshot/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
-<meta property="og:description" content="本文主要介绍存储快照的使用场景、存储快照实现原理，LevelDB中的快照(snapshot)，最后简单介绍快照与备份的区别。 在正式介绍LevelDB的快照之前，我们先看看通常情况下存储系统中，快照的定义。 快照的定义简单的来说，快照是数据存储某一时刻的状态记录。 存储网络行业协会SNIA（StorageNetworking Industry Association）快照的定义则是：关于指定数据">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://z3.ax1x.com/2021/05/10/gYvrcV.jpg">
 <meta property="og:image" content="https://z3.ax1x.com/2021/05/10/gYj2Wt.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/05/10/gYjIeg.md.png">
-<meta property="og:updated_time" content="2021-05-09T17:26:35.724Z">
+<meta property="og:updated_time" content="2021-05-09T17:32:23.404Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LevelDB源码阅读--快照snapshot">
-<meta name="twitter:description" content="本文主要介绍存储快照的使用场景、存储快照实现原理，LevelDB中的快照(snapshot)，最后简单介绍快照与备份的区别。 在正式介绍LevelDB的快照之前，我们先看看通常情况下存储系统中，快照的定义。 快照的定义简单的来说，快照是数据存储某一时刻的状态记录。 存储网络行业协会SNIA（StorageNetworking Industry Association）快照的定义则是：关于指定数据">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/05/10/gYvrcV.jpg">
 
 
@@ -364,7 +361,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2021-05-10T01:26:35+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2021-05-10T01:32:23+08:00">
                 2021-05-10
               </time>
             
@@ -467,6 +464,7 @@
 
       
         <p><img src="https://z3.ax1x.com/2021/05/10/gYvrcV.jpg" alt=""></p>
+<a id="more"></a>
 <p>本文主要介绍存储快照的使用场景、存储快照实现原理，LevelDB中的快照(snapshot)，最后简单介绍快照与备份的区别。</p>
 <p>在正式介绍LevelDB的快照之前，我们先看看通常情况下存储系统中，快照的定义。</p>
 <h3 id="快照的定义"><a href="#快照的定义" class="headerlink" title="快照的定义"></a>快照的定义</h3><p>简单的来说，快照是数据存储某一时刻的状态记录。</p>
@@ -521,10 +519,10 @@
 <ul>
 <li><strong>备份的数据安全性更好</strong>：如果原始数据损坏（例如物理介质损坏，或者绕开了快照所在层的管理机制对锁定数据进行了改写），快照回滚是无法恢复出正确的数据的，而备份可以。</li>
 <li><strong>快照的速度比备份快得多</strong>：生成快照的速度比备份速度快的多。也因为这个原因，为了回避因为备份时间带来的各种问题（例如IO占用、数据一致性等）很多备份软件是先生成快照，然后按照快照所记录的对应关系去读取底层数据来生成备份。</li>
-<li><p><strong>占用空间不同</strong>：备份会占用双倍的存储空间，而快照所占用的存储空间则取决于快照的数量以及数据变动情况。极端情况下，快照可能会只占用1%不到的存储空间，也可能会占用数十倍的存储空间。（PS：不过如果同一份数据，同时做相同数量的快照和增量备份的话，备份还是会比快照占用的存储空间多得多。）</p>
-<h3 id="更多问题"><a href="#更多问题" class="headerlink" title="更多问题"></a>更多问题</h3></li>
-<li><p>上层是怎么运用LevelDB中的快照的呢？</p>
-</li>
+<li><strong>占用空间不同</strong>：备份会占用双倍的存储空间，而快照所占用的存储空间则取决于快照的数量以及数据变动情况。极端情况下，快照可能会只占用1%不到的存储空间，也可能会占用数十倍的存储空间。（PS：不过如果同一份数据，同时做相同数量的快照和增量备份的话，备份还是会比快照占用的存储空间多得多。）</li>
+</ul>
+<h3 id="更多问题"><a href="#更多问题" class="headerlink" title="更多问题"></a>更多问题</h3><ul>
+<li>上层是怎么运用LevelDB中的快照的呢？</li>
 </ul>
 <p>例子：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;iostream&gt;</span><br><span class="line">#include&lt;cassert&gt;</span><br><span class="line">#include&lt;leveldb/db.h&gt;</span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">	leveldb::DB *db;</span><br><span class="line">	leveldb::Options options;</span><br><span class="line">	options.create_if_missing=true;</span><br><span class="line">	leveldb::Status status=leveldb::DB::Open(options,&quot;mydb2&quot;,&amp;db);</span><br><span class="line">	assert(status.ok());</span><br><span class="line">	std::string key1=&quot;fruit&quot;;</span><br><span class="line">	std::string value1=&quot;apple&quot;;</span><br><span class="line">	status=db-&gt;Put(leveldb::WriteOptions(),key1,value1);</span><br><span class="line">	assert(status.ok());</span><br><span class="line">	leveldb::ReadOptions readoptions;</span><br><span class="line">	readoptions.snapshot=db-&gt;GetSnapshot();</span><br><span class="line">	 std::string value2=&quot;orange&quot;;</span><br><span class="line">	 status=db-&gt;Put(leveldb::WriteOptions(),key1,value2);</span><br><span class="line">	 assert(status.ok());</span><br><span class="line">	 std::string value;</span><br><span class="line">	 status=db-&gt;Get(leveldb::ReadOptions(),key1,&amp;value);</span><br><span class="line">    	assert(status.ok());</span><br><span class="line">	 std::cout&lt;&lt;value&lt;&lt;std::endl;</span><br><span class="line">	 db-&gt;ReleaseSnapshot(readoptions.snapshot);</span><br><span class="line">	 delete db;</span><br><span class="line">	 return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
