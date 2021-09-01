@@ -88,7 +88,7 @@
 <meta property="og:image" content="https://z3.ax1x.com/2021/06/19/RiSqa9.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/06/19/RPzJkn.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/06/19/RPzOc8.png">
-<meta property="og:updated_time" content="2021-06-22T00:32:37.865Z">
+<meta property="og:updated_time" content="2021-09-01T14:25:52.692Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SeaweedFS初探">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/06/19/RiSqa9.png">
@@ -414,7 +414,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,288 字
+                  3,693 字
                 </span>
               
 
@@ -430,7 +430,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  14 分钟
+                  17 分钟
                 </span>
               
             </div>
@@ -559,15 +559,7 @@
 <h2 id="Master-Server-API"><a href="#Master-Server-API" class="headerlink" title="Master Server API"></a>Master Server API</h2><p>可以在HTTP API后面添加“&amp;pretty=y”来得到一个json格式的输出。</p>
 <h3 id="分配一个file-key"><a href="#分配一个file-key" class="headerlink" title="分配一个file key"></a>分配一个file key</h3><p>Basic Usage:</p>
 <p>curl<a href="http://localhost:9333/dir/assign" target="_blank" rel="noopener">http://localhost:9333/dir/assign</a></p>
-<h3 id="查询volume"><a href="#查询volume" class="headerlink" title="查询volume"></a>查询volume</h3><p>curl “<a href="http://localhost:9333/dir/lookup?volumeId=3&amp;pretty=y" target="_blank" rel="noopener">http://localhost:9333/dir/lookup?volumeId=3&amp;pretty=y</a>“</p>
-<p>{</p>
-<p>“locations”: [</p>
-<p>{</p>
-<p>“publicUrl”: “localhost:8080”,</p>
-<p>“url”: “localhost:8080”</p>
-<p>}</p>
-<p>]</p>
-<p>}</p>
+<h3 id="查询volume"><a href="#查询volume" class="headerlink" title="查询volume"></a>查询volume</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;[http://localhost:9333/dir/lookup?volumeId=3&amp;pretty=y](http://localhost:9333/dir/lookup?volumeId=3&amp;pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;locations&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;publicUrl&quot;: &quot;localhost:8080&quot;,</span><br><span class="line"></span><br><span class="line">&quot;url&quot;: &quot;localhost:8080&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="预分配volumes"><a href="#预分配volumes" class="headerlink" title="预分配volumes"></a>预分配volumes</h3><p>一个volume 一次服务一个写请求，如果你需要增加并发，可以预分配许多volumes:</p>
 <h1 id="specify-a-specific-replication"><a href="#specify-a-specific-replication" class="headerlink" title="specify a specific replication"></a>specify a specific replication</h1><p>curl “<a href="http://localhost:9333/vol/grow?replication=000&amp;count=4" target="_blank" rel="noopener">http://localhost:9333/vol/grow?replication=000&amp;count=4</a>“</p>
 <p>{“count”:4}# specify a collection</p>
@@ -575,180 +567,12 @@
 <p>curl “<a href="http://localhost:9333/vol/grow?dataCenter=dc1&amp;count=4&quot;#specify" target="_blank" rel="noopener">http://localhost:9333/vol/grow?dataCenter=dc1&amp;count=4&quot;#specify</a> ttl</p>
 <p>curl “<a href="http://localhost:9333/vol/grow?ttl=5d&amp;count=4" target="_blank" rel="noopener">http://localhost:9333/vol/grow?ttl=5d&amp;count=4</a>“</p>
 <p>产生4个空的volumes</p>
-<h3 id="检查系统状态"><a href="#检查系统状态" class="headerlink" title="检查系统状态"></a>检查系统状态</h3><p>curl “<a href="http://10.0.2.15:9333/cluster/status?pretty=y" target="_blank" rel="noopener">http://10.0.2.15:9333/cluster/status?pretty=y</a>“</p>
-<p>{</p>
-<p>“IsLeader”: true,</p>
-<p>“Leader”: “10.0.2.15:9333”,</p>
-<p>“Peers”: [</p>
-<p>“10.0.2.15:9334”,</p>
-<p>“10.0.2.15:9335”</p>
-<p>]</p>
-<p>}</p>
-<p>curl “<a href="http://localhost:9333/dir/status?pretty=y" target="_blank" rel="noopener">http://localhost:9333/dir/status?pretty=y</a>“</p>
-<p>{</p>
-<p>“Topology”: {</p>
-<p>“DataCenters”: [</p>
-<p>{</p>
-<p>“Free”: 3,</p>
-<p>“Id”: “dc1”,</p>
-<p>“Max”: 7,</p>
-<p>“Racks”: [</p>
-<p>{</p>
-<p>“DataNodes”: [</p>
-<p>{</p>
-<p>“Free”: 3,</p>
-<p>“Max”: 7,</p>
-<p>“PublicUrl”: “localhost:8080”,</p>
-<p>“Url”: “localhost:8080”,</p>
-<p>“Volumes”: 4</p>
-<p>}</p>
-<p>],</p>
-<p>“Free”: 3,</p>
-<p>“Id”: “DefaultRack”,</p>
-<p>“Max”: 7</p>
-<p>}</p>
-<p>]</p>
-<p>},</p>
-<p>{</p>
-<p>“Free”: 21,</p>
-<p>“Id”: “dc3”,</p>
-<p>“Max”: 21,</p>
-<p>“Racks”: [</p>
-<p>{</p>
-<p>“DataNodes”: [</p>
-<p>{</p>
-<p>“Free”: 7,</p>
-<p>“Max”: 7,</p>
-<p>“PublicUrl”: “localhost:8081”,</p>
-<p>“Url”: “localhost:8081”,</p>
-<p>“Volumes”: 0</p>
-<p>}</p>
-<p>],</p>
-<p>“Free”: 7,</p>
-<p>“Id”: “rack1”,</p>
-<p>“Max”: 7</p>
-<p>},</p>
-<p>{</p>
-<p>“DataNodes”: [</p>
-<p>{</p>
-<p>“Free”: 7,</p>
-<p>“Max”: 7,</p>
-<p>“PublicUrl”: “localhost:8082”,</p>
-<p>“Url”: “localhost:8082”,</p>
-<p>“Volumes”: 0</p>
-<p>},</p>
-<p>{</p>
-<p>“Free”: 7,</p>
-<p>“Max”: 7,</p>
-<p>“PublicUrl”: “localhost:8083”,</p>
-<p>“Url”: “localhost:8083”,</p>
-<p>“Volumes”: 0</p>
-<p>}</p>
-<p>],</p>
-<p>“Free”: 14,</p>
-<p>“Id”: “DefaultRack”,</p>
-<p>“Max”: 14</p>
-<p>}</p>
-<p>]</p>
-<p>}</p>
-<p>],</p>
-<p>“Free”: 24,</p>
-<p>“Max”: 28,</p>
-<p>“layouts”: [</p>
-<p>{</p>
-<p>“collection”: “”,</p>
-<p>“replication”: “000”,</p>
-<p>“writables”: [</p>
-<p>1,</p>
-<p>2,</p>
-<p>3,</p>
-<p>4</p>
-<p>]</p>
-<p>}</p>
-<p>]</p>
-<p>},</p>
-<p>“Version”: “0.47”</p>
-<p>}</p>
+<h3 id="检查系统状态"><a href="#检查系统状态" class="headerlink" title="检查系统状态"></a>检查系统状态</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;[http://10.0.2.15:9333/cluster/status?pretty=y](http://10.0.2.15:9333/cluster/status?pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;IsLeader&quot;: true,</span><br><span class="line"></span><br><span class="line">&quot;Leader&quot;: &quot;10.0.2.15:9333&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Peers&quot;: [</span><br><span class="line"></span><br><span class="line">&quot;10.0.2.15:9334&quot;,</span><br><span class="line"></span><br><span class="line">&quot;10.0.2.15:9335&quot;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">curl &quot;[http://localhost:9333/dir/status?pretty=y](http://localhost:9333/dir/status?pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Topology&quot;: &#123;</span><br><span class="line"></span><br><span class="line">&quot;DataCenters&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;dc1&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Racks&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;DataNodes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8080&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8080&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 4</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;DefaultRack&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 21,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;dc3&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 21,</span><br><span class="line"></span><br><span class="line">&quot;Racks&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;DataNodes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8081&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8081&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 0</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;rack1&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;DataNodes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8082&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8082&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 0</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8083&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8083&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 0</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 14,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;DefaultRack&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 14</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 24,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 28,</span><br><span class="line"></span><br><span class="line">&quot;layouts&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;collection&quot;: &quot;&quot;,</span><br><span class="line"></span><br><span class="line">&quot;replication&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;writables&quot;: [</span><br><span class="line"></span><br><span class="line">1,</span><br><span class="line"></span><br><span class="line">2,</span><br><span class="line"></span><br><span class="line">3,</span><br><span class="line"></span><br><span class="line">4</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: &quot;0.47&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="Volume-Server-API"><a href="#Volume-Server-API" class="headerlink" title="Volume Server API"></a>Volume Server API</h2><h3 id="上传文件"><a href="#上传文件" class="headerlink" title="上传文件"></a>上传文件</h3><p>curl -F file=@/home/chris/myphoto.jpg<a href="http://127.0.0.1:8080/3,01637037d6" target="_blank" rel="noopener">http://127.0.0.1:8080/3,01637037d6</a></p>
 <p>{“size”: 43234}</p>
 <p>返回的size值是存储在seaweedfs上的大小，有时候文件会基于MIME类型被自动压缩。</p>
 <h3 id="删除文件"><a href="#删除文件" class="headerlink" title="删除文件"></a>删除文件</h3><p>curl -X DELETE<a href="http://127.0.0.1:8080/3,01637037d6" target="_blank" rel="noopener">http://127.0.0.1:8080/3,01637037d6</a></p>
-<h3 id="检查volume-server状态"><a href="#检查volume-server状态" class="headerlink" title="检查volume server状态"></a>检查volume server状态</h3><p>curl “<a href="http://localhost:8080/status?pretty=y" target="_blank" rel="noopener">http://localhost:8080/status?pretty=y</a>“</p>
-<p>{</p>
-<p>“Version”: “0.34”,</p>
-<p>“Volumes”: [</p>
-<p>{</p>
-<p>“Id”: 1,</p>
-<p>“Size”: 1319688,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 276,</p>
-<p>“DeleteCount”: 0,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>},</p>
-<p>{</p>
-<p>“Id”: 2,</p>
-<p>“Size”: 1040962,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 291,</p>
-<p>“DeleteCount”: 0,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>},</p>
-<p>{</p>
-<p>“Id”: 3,</p>
-<p>“Size”: 1486334,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 301,</p>
-<p>“DeleteCount”: 2,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>},</p>
-<p>{</p>
-<p>“Id”: 4,</p>
-<p>“Size”: 8953592,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 320,</p>
-<p>“DeleteCount”: 2,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>},</p>
-<p>{</p>
-<p>“Id”: 5,</p>
-<p>“Size”: 70815851,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 309,</p>
-<p>“DeleteCount”: 1,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>},</p>
-<p>{</p>
-<p>“Id”: 6,</p>
-<p>“Size”: 1483131,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 301,</p>
-<p>“DeleteCount”: 1,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>},</p>
-<p>{</p>
-<p>“Id”: 7,</p>
-<p>“Size”: 46797832,</p>
-<p>“RepType”: “000”,</p>
-<p>“Version”: 2,</p>
-<p>“FileCount”: 292,</p>
-<p>“DeleteCount”: 0,</p>
-<p>“DeletedByteCount”: 0,</p>
-<p>“ReadOnly”: false</p>
-<p>}</p>
-<p>]</p>
-<p>}</p>
+<h3 id="检查volume-server状态"><a href="#检查volume-server状态" class="headerlink" title="检查volume server状态"></a>检查volume server状态</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;[http://localhost:8080/status?pretty=y](http://localhost:8080/status?pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: &quot;0.34&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 1,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1319688,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 276,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1040962,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 291,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1486334,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 301,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 4,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 8953592,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 320,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 5,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 70815851,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 309,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 1,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 6,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1483131,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 301,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 1,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 46797832,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 292,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="存储文件以Time-To-Live（TTL）的方式"><a href="#存储文件以Time-To-Live（TTL）的方式" class="headerlink" title="存储文件以Time To Live（TTL）的方式"></a>存储文件以Time To Live（TTL）的方式</h2><h3 id="怎样使用"><a href="#怎样使用" class="headerlink" title="怎样使用"></a>怎样使用</h3><p>比如我们存一个文件其TTL位3分钟。</p>
 <p>首先，向master请求分配一个file id 到一个有3分钟TTL的volume：</p>
 <p>curl<a href="http://localhost:9333/dir/assign?ttl=3m" target="_blank" rel="noopener">http://localhost:9333/dir/assign?ttl=3m</a></p>
@@ -781,16 +605,7 @@
 <h2 id="Master-server故障转移"><a href="#Master-server故障转移" class="headerlink" title="Master server故障转移"></a>Master server故障转移</h2><p>Master servers之间使用raft协议来选主，主负责所有的任务，比如管理volumes，分配file id。</p>
 <p>如果主挂了，将会选举出新的主。所有的volume servers将会发生他们的心跳以及他们的volumes信息给新的主。</p>
 <p>在转移的过程中，可能有片刻时间，新的主只有所有volume servers的部分信息。这就意味着那些还没有上报心跳的volume servers将暂时不可写。</p>
-<p><strong>常规的启动多个多个master servers和多个volume servers的方法</strong>：</p>
-<p>weed master -port=9333 -mdir=./1 -peers=localhost:9333,localhost:9334,localhost:9335</p>
-<p>weed master -port=9334 -mdir=./2 -peers=localhost:9333,localhost:9334,localhost:9335</p>
-<p>weed master -port=9335 -mdir=./3 -peers=localhost:9333,localhost:9334,localhost:9335# now start the volume servers, specifying any one of the master server</p>
-<p>weed volume -dir=./1 -port=8080 -mserver=localhost:9333,localhost:9334,localhost:9335</p>
-<p>weed volume -dir=./2 -port=8081 -mserver=localhost:9333,localhost:9334,localhost:9335</p>
-<p>weed volume -dir=./3 -port=8082 -mserver=localhost:9333,localhost:9334,localhost:9335</p>
-<p>//The full list of masters is recommended, but not required.<br>//You can only specify any master servers.</p>
-<p>weed volume -dir=./3 -port=8082 -mserver=localhost:9333</p>
-<p>weed volume -dir=./3 -port=8082 -mserver=localhost:9333,localhost:9334</p>
+<p><strong>常规的启动多个多个master servers和多个volume servers的方法</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">weed master -port=9333 -mdir=./1 -peers=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed master -port=9334 -mdir=./2 -peers=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed master -port=9335 -mdir=./3 -peers=localhost:9333,localhost:9334,localhost:9335# now start the volume servers, specifying any one of the master server</span><br><span class="line"></span><br><span class="line">weed volume -dir=./1 -port=8080 -mserver=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed volume -dir=./2 -port=8081 -mserver=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed volume -dir=./3 -port=8082 -mserver=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">//The full list of masters is recommended, but not required.</span><br><span class="line">//You can only specify any master servers.</span><br><span class="line"></span><br><span class="line">weed volume -dir=./3 -port=8082 -mserver=localhost:9333</span><br><span class="line"></span><br><span class="line">weed volume -dir=./3 -port=8082 -mserver=localhost:9333,localhost:9334</span><br></pre></td></tr></table></figure></p>
 <p>FAQ：可以向正在运行的seaweedfs集群中添加一个新的master server吗？</p>
 <p>A：可以把master 看做zookeeper节点，并且不要去经常变动。要添加一个master，需要停所有现有的master，然后以新的master列表启动新的masters。</p>
 <h2 id="支持EC特性"><a href="#支持EC特性" class="headerlink" title="支持EC特性"></a>支持EC特性</h2><p>支持EC 10+4:即把数据切分成10个原始分片，然后计算出4个校验分片，最多容忍4个分片丢失。</p>
@@ -1001,6 +816,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2021/08/31/Linux中HugePages的作用/" rel="prev" title="Linux中HugePages的作用">
+                Linux中HugePages的作用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -1081,7 +900,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">66</span>
+                  <span class="site-state-item-count">68</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1092,7 +911,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1103,7 +922,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">79</span>
+                  <span class="site-state-item-count">84</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
