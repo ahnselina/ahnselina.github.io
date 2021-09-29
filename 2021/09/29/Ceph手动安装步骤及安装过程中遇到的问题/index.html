@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="数据结构,算法,">
+  <meta name="keywords" content="存储,安装,Ceph,">
 
 
 
@@ -79,18 +79,19 @@
 
 
 
-<meta name="description" content="本文重温一种常见的线性表—-堆栈。主要包含如下内容:  问题引入 堆栈的抽象数据类型描述 堆栈的顺序存储实现 堆栈的链式存储实现 堆栈的应用   注意:虽然我们堆栈堆栈的叫，但是要注意不要混淆堆和栈，从其英文名字Stack可以看出这里的堆栈其实是栈，本文中的堆栈均指的是栈。   问题引入计算机如何进行表达式求值？例如：算术表达式5+6/2-3 * 4 。正确理解：5+6/2-3*4 = 5+3-3">
-<meta name="keywords" content="数据结构,算法">
+<meta name="keywords" content="存储,安装,Ceph">
 <meta property="og:type" content="article">
-<meta property="og:title" content="线性表之堆栈">
-<meta property="og:url" content="https://www.a-programmer.top/2017/11/05/单链表之堆栈/index.html">
+<meta property="og:title" content="Ceph手动安装步骤及安装过程中遇到的问题">
+<meta property="og:url" content="https://www.a-programmer.top/2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
-<meta property="og:description" content="本文重温一种常见的线性表—-堆栈。主要包含如下内容:  问题引入 堆栈的抽象数据类型描述 堆栈的顺序存储实现 堆栈的链式存储实现 堆栈的应用   注意:虽然我们堆栈堆栈的叫，但是要注意不要混淆堆和栈，从其英文名字Stack可以看出这里的堆栈其实是栈，本文中的堆栈均指的是栈。   问题引入计算机如何进行表达式求值？例如：算术表达式5+6/2-3 * 4 。正确理解：5+6/2-3*4 = 5+3-3">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-29T13:37:21.718Z">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/30/45zpp8.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/30/45v8KJ.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/30/45v02D.png">
+<meta property="og:updated_time" content="2021-09-29T16:46:59.482Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="线性表之堆栈">
-<meta name="twitter:description" content="本文重温一种常见的线性表—-堆栈。主要包含如下内容:  问题引入 堆栈的抽象数据类型描述 堆栈的顺序存储实现 堆栈的链式存储实现 堆栈的应用   注意:虽然我们堆栈堆栈的叫，但是要注意不要混淆堆和栈，从其英文名字Stack可以看出这里的堆栈其实是栈，本文中的堆栈均指的是栈。   问题引入计算机如何进行表达式求值？例如：算术表达式5+6/2-3 * 4 。正确理解：5+6/2-3*4 = 5+3-3">
+<meta name="twitter:title" content="Ceph手动安装步骤及安装过程中遇到的问题">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/09/30/45zpp8.png">
 
 
 
@@ -120,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="https://www.a-programmer.top/2017/11/05/单链表之堆栈/">
+  <link rel="canonical" href="https://www.a-programmer.top/2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/">
 
 
 
 
 
-  <title>线性表之堆栈 | 成长录-知行合一</title>
+  <title>Ceph手动安装步骤及安装过程中遇到的问题 | 成长录-知行合一</title>
   
 
 
@@ -315,7 +316,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2017/11/05/单链表之堆栈/">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ahnselina">
@@ -332,7 +333,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">线性表之堆栈</h1>
+          <h1 class="post-title" itemprop="name headline">Ceph手动安装步骤及安装过程中遇到的问题</h1>
         
 
         <div class="post-meta">
@@ -344,8 +345,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-05T00:00:00+08:00">
-                2017-11-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-09-29T23:30:30+08:00">
+                2021-09-29
               </time>
             
 
@@ -367,8 +368,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/重温数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">重温数据结构</span>
+                  <a href="/categories/分布式存储/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式存储</span>
                   </a>
                 </span>
 
@@ -385,8 +386,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/11/05/单链表之堆栈/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2017/11/05/单链表之堆栈/" itemprop="commentCount"></span>
+                <a href="/2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -413,7 +414,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,766 字
+                  1,996 字
                 </span>
               
 
@@ -429,7 +430,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  7 分钟
+                  9 分钟
                 </span>
               
             </div>
@@ -450,64 +451,103 @@
       
 
       
-        <p>本文重温一种常见的线性表—-堆栈。<br>主要包含如下内容:</p>
-<ul>
-<li>问题引入</li>
-<li>堆栈的抽象数据类型描述</li>
-<li>堆栈的顺序存储实现</li>
-<li>堆栈的链式存储实现</li>
-<li>堆栈的应用</li>
-</ul>
-<blockquote>
-<p><strong>注意:虽然我们堆栈堆栈的叫，但是要注意不要混淆堆和栈，从其英文名字Stack可以看出这里的堆栈其实是栈，本文中的堆栈均指的是栈。</strong></p>
-</blockquote>
-<hr>
-<h3 id="问题引入"><a href="#问题引入" class="headerlink" title="问题引入"></a>问题引入</h3><p><strong>计算机如何进行表达式求值？</strong><br>例如：算术表达式5+6/2-3 * 4 。<br>正确理解：<br>5+6/2-3*4 = 5+3-3 * 4 = 8-3*4 = 8-12 = -4<br>  由两类对象构成的：<br>  运算数，如2、3、4<br>  运算符号，如+、-、*、/<br>  不同运算符号优先级不一样</p>
-<p><strong>中缀表达式</strong> : 运算符号位于两个运算数之间。如 如  ，a + b <em> c - d / e<br><strong>后缀表达式</strong> : 运算符号位于两个运算数之后。如， a b c </em> + d e / -</p>
-<p><strong>后缀表达式求值策略</strong>：从左向右“扫描”，逐个处理运算数和运算符号  </p>
-<ol>
-<li>遇到运算数怎么办？如何“记住”目前还不未参与运算的数？</li>
-<li>遇到运算符号怎么办？对应的运算数是什么？</li>
+        <p><img src="https://z3.ax1x.com/2021/09/30/45zpp8.png" alt=""></p>
+<a id="more"></a>
+<p>本文主要介绍Ceph的手动安装步骤，以及在安装过程遇到的问题和解决办法。<br>文中使用的机器个数是三台机器，每台机器四块盘，一共12个OSD，3个ceph-mon。<br><strong>注：本文操作步骤的实践环境操作系统为debian</strong></p>
+<h2 id="Ceph手动安装步骤"><a href="#Ceph手动安装步骤" class="headerlink" title="Ceph手动安装步骤"></a>Ceph手动安装步骤</h2><p>手动安装部署参考文档：<a href="https://docs.ceph.com/en/latest/install/manual-deployment/" target="_blank" rel="noopener">https://docs.ceph.com/en/latest/install/manual-deployment/</a></p>
+<h3 id="第一个mon节点"><a href="#第一个mon节点" class="headerlink" title="第一个mon节点"></a>第一个mon节点</h3><h4 id="准备要素"><a href="#准备要素" class="headerlink" title="准备要素"></a>准备要素</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">unique identifier：fsid作为集群的唯一标识</span><br><span class="line">cluster name：集群名字</span><br><span class="line">monitor name：mon节点hostname</span><br><span class="line">mon map：初始的mon-map需要fsid，集群名字，以及最少一个节点</span><br><span class="line">mon keyring：mon节点keyring，为之后的bootstrap做准备</span><br><span class="line">admin keyring：作为ceph-admin的用户的keyring，管理员权限，安装部署以及ceph cli都需要使用到</span><br></pre></td></tr></table></figure>
+<h4 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h4><ol>
+<li><p>配置文件准备<br>（1）检查目录/etc/ceph<br>（2）在该目录下创建配置文件ceph.conf<br>（3）配置文件示例，参照如下，osd部分暂时不需要用到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[global]</span><br><span class="line">fsid = &#123;cluster-id&#125;  #generate with uuidgen</span><br><span class="line">mon initial members = &#123;hostname&#125;[, &#123;hostname&#125;]</span><br><span class="line">mon host = &#123;ip-address&#125;[, &#123;ip-address&#125;]</span><br><span class="line">public network = &#123;network&#125;[, &#123;network&#125;]</span><br><span class="line">cluster network = &#123;network&#125;[, &#123;network&#125;]</span><br><span class="line">auth cluster required = cephx</span><br><span class="line">auth service required = cephx</span><br><span class="line">auth client required = cephx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成mon的keyring</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-authtool --create-keyring /tmp/ceph.mon.keyring --gen-key -n mon. --cap mon &apos;allow *&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成admin的keyring，client.admin</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --cap mon &apos;allow *&apos; --cap osd &apos;allow *&apos; --cap mds &apos;allow *&apos; --cap mgr &apos;allow *&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成bootstrap-osd的keyring，client.bootstrap-osd</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-authtool --create-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring --gen-key -n client.bootstrap-osd --cap mon &apos;profile bootstrap-osd&apos; --cap mgr &apos;allow r&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将刚刚生成的keyring添加到ceph.mon.keyring</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-authtool /tmp/ceph.mon.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring</span><br><span class="line">sudo ceph-authtool /tmp/ceph.mon.keyring --import-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更改用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chown ceph:ceph /tmp/ceph.mon.keyring</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用hostname，host ip，以及fsid，生成mon_map</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">monmaptool --create --add &#123;hostname&#125; &#123;ip-address&#125; --fsid &#123;uuid&#125; /tmp/monmap</span><br><span class="line">monmaptool --create --add cld-mon1-10088 10.248.32.15 --fsid 0bba3be9-0a1c-41db-a619-26ffea20161e /tmp/monmap</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成mon默认存放目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -u ceph mkdir /var/lib/ceph/mon/ceph-mon-node1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用更改生成的mon_map以及keyring来为mon daemon生成文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo -u ceph ceph-mon [--cluster &#123;cluster-name&#125;] --mkfs -i &#123;hostname&#125; --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring</span><br><span class="line">sudo -u ceph ceph-mon --mkfs -i cld-mon1-10088 --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>确认配置文件无误，并存放在/etc/ceph/目录下</p>
+</li>
+<li><p>启动monitor</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl start ceph-mon@mon-node1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查确认</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph -s</span><br></pre></td></tr></table></figure>
+</li>
 </ol>
-<blockquote>
-<p><strong>启示</strong>： 要是有种数据结构，能顺序存储运算数，<br>并在需要时“倒序”输出就好了，还真有，那就是堆栈！</p>
-</blockquote>
-<hr>
-<h3 id="堆栈的抽象数据类型描述"><a href="#堆栈的抽象数据类型描述" class="headerlink" title="堆栈的抽象数据类型描述"></a>堆栈的抽象数据类型描述</h3><blockquote>
-<p><strong>堆栈(Stack)</strong> ： 具有一定操作约束的线性表<br>  只在一端（栈顶，Top）做<strong>插入、删除</strong>操作  </p>
-</blockquote>
-<p>  插入数据 ： 入栈（Push ）<br>  删除 数据 ： 出栈（Pop ）<br>  后入先出： ：Last In First Out （LIFO）</p>
-<p>类型名称:  堆栈（Stack ）<br>数据对象集： 一个有0 个或多个元素的有穷线性表。<br>操作集： 长度为MaxSize 的堆栈S ∈ Stack ，堆栈元素item ∈ ElementType<br>1 、Stack CreateStack( int MaxSize ) ：  生成空堆栈，其最大长度为MaxSize ；<br>2 、int IsFull( Stack S, int MaxSize ) ：判断堆栈S 是否已满；<br>3 、void Push( Stack S, ElementType item ) ：将元素item 压入堆栈；<br>4 、int IsEmpty ( Stack S ) ：判断堆栈S 是否为空；<br>5 、ElementType Pop( Stack S ) ：删除并返回栈顶元素；  </p>
-<p>Push  和 Pop  可以穿插 交替 进行；<br>按照操作系列<br>(1)Push(S,A), Push(S,B),Push((S,C),Pop(S),Pop(S),Pop(S)<br>堆栈输出是？<br>(2)  而Push(S,A), Pop(S),Push(S,B),Push((S,C),Pop(S),Pop(S)<br>堆栈输出是?</p>
-<p>答案：（1）CBA （2）ACB</p>
-<p><strong>思考</strong>：如果三个字符按ABC顺序压入堆栈<br>• ABC 的所有排列都可能是出栈的序列 吗？<br>• 可以产生CAB这样的序列吗？</p>
-<hr>
-<h3 id="栈的顺序存储实现"><a href="#栈的顺序存储实现" class="headerlink" title="栈的顺序存储实现"></a>栈的顺序存储实现</h3><p>栈的顺序存储结构通常由一个<strong>一维数组</strong>和一个记录<strong>栈顶</strong>元素位置的变量组成。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MaxSize <span class="meta-string">&lt; 储存数据元素的最大个数&gt;</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">SNode</span> *<span class="title">Stack</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SNode</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    ElementType Data[MaxSize];</span><br><span class="line">    <span class="keyword">int</span> Top;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><strong>入栈</strong></li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Push</span><span class="params">(Stack PtrS, ElementType item)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(Ptrs-&gt;Top == MaxSize<span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Stack is full!"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        PtrS-&gt;Data[++(PtrS-&gt;Top)] = item;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>出栈</strong></li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ElementType <span class="title">Pop</span><span class="params">( Stack PtrS )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ( PtrS-&gt;Top == <span class="number">-1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(“ 堆栈空”);</span><br><span class="line">        <span class="keyword">return</span> ERROR; <span class="comment">/* ERROR 是ElementType 的特殊值，标志错误*/</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> (PtrS-&gt;Data[(PtrS-&gt;Top)--]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>[练习]</strong><br>请用一个数组实现两个堆栈，要求最大地利用数组空间，使<br>数组只要有空间入栈操作就可以成功。</p>
-</blockquote>
-<p>【分析】  一种比较聪明的方法是使这两个栈分别从数组的<strong>两头开始向中间生长</strong>；当两个栈的<strong>栈顶指针相遇</strong>时，表示两个栈都满了。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MaxSize <span class="meta-string">&lt; 存储数据元素的最大个数&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DStack</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    ElementType Data[MaxSize];</span><br><span class="line">    <span class="keyword">int</span> Top1; <span class="comment">/*  堆栈１的栈顶指针 */</span></span><br><span class="line">    <span class="keyword">int</span> Top2; <span class="comment">/*  堆栈２的栈顶指针 */</span></span><br><span class="line">&#125; S;</span><br><span class="line">S.Top1 = <span class="number">-1</span>;</span><br><span class="line">S.Top2 = MaxSize;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Push</span><span class="params">( struct DStack *PtrS, ElementType item, <span class="keyword">int</span> Tag )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Tag作为区分两个堆栈的标志，取值为1和2 */</span></span><br><span class="line">    <span class="keyword">if</span> ( PtrS-&gt;Top2 – PtrS-&gt;Top1 == <span class="number">1</span>)</span><br><span class="line">    &#123; <span class="comment">/*堆栈满*/</span></span><br><span class="line">        <span class="built_in">printf</span>(“ 堆栈满”); <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( Tag == <span class="number">1</span> ) <span class="comment">/* 对第一个堆栈操作 */</span></span><br><span class="line">        PtrS-&gt;Data[++(PtrS-&gt;Top1)] = item;</span><br><span class="line">    <span class="keyword">else</span> <span class="comment">/* 对第二个堆栈操作 */</span></span><br><span class="line">        PtrS-&gt;Data[--(PtrS-&gt;Top2)] = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">ElementType <span class="title">Pop</span><span class="params">( struct DStack *PtrS, <span class="keyword">int</span> Tag )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Tag作为区分两个堆栈的标志，取值为1和2 */</span></span><br><span class="line">    <span class="keyword">if</span> ( Tag == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* 对第一个堆栈操作 */</span></span><br><span class="line">        <span class="keyword">if</span> ( PtrS-&gt;Top1 == <span class="number">-1</span> )</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">/*堆栈1空 */</span></span><br><span class="line">            <span class="built_in">printf</span>(“ 堆栈<span class="number">1</span> 空”); <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> PtrS-&gt;Data[(PtrS-&gt;Top1)--];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123; <span class="comment">/* 对第二个堆栈操作 */</span></span><br><span class="line">        <span class="keyword">if</span> ( PtrS-&gt;Top2 == MaxSize )</span><br><span class="line">        &#123; <span class="comment">/*堆栈2空 */</span></span><br><span class="line">            <span class="built_in">printf</span>(“ 堆栈<span class="number">2</span> 空”);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> PtrS-&gt;Data[(PtrS-&gt;Top2)++];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="堆栈的链式存储实现"><a href="#堆栈的链式存储实现" class="headerlink" title="堆栈的链式存储实现"></a>堆栈的链式存储实现</h3><p>栈的链式存储结构 实际上就是一个<strong>单链表</strong>，叫做<strong>链栈</strong> 。插入和删<br>除操作只能在链栈的栈顶进行。 那栈顶指针Top应该在链表的哪一头呢？</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">SNode</span> *<span class="title">Stack</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SNode</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    ElementType Data;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">SNode</span> *<span class="title">Next</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">Stack <span class="title">CreateStack</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/*  构建一个堆栈的头结点，返回指针 */</span></span><br><span class="line">    Stack S;</span><br><span class="line">    S =(Stack)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct SNode));</span><br><span class="line">    S-&gt;Next = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">return</span> S;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">IsEmpty</span><span class="params">(Stack S)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* 判断堆栈S 是否为空 ， 若为空函数返回整数1 ， 否则返回0 */</span></span><br><span class="line">    <span class="keyword">return</span> ( S-&gt;Next == <span class="literal">NULL</span> );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Push</span><span class="params">( ElementType item, Stack S)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/*  将元素item 压入堆栈S */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">SNode</span> *<span class="title">TmpCell</span>;</span></span><br><span class="line">    TmpCell= (struct SNode *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct SNode));</span><br><span class="line">    TmpCell-&gt;Element = item;</span><br><span class="line">    TmpCell-&gt;Next = S-&gt;Next;</span><br><span class="line">    S-&gt;Next = TmpCell;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">ElementType <span class="title">Pop</span><span class="params">(Stack S)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/*  删除并返回堆栈S 的栈顶元素 */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">SNode</span> *<span class="title">FirstCell</span>;</span></span><br><span class="line">    ElementType TopElem;</span><br><span class="line">    <span class="keyword">if</span>( IsEmpty( S )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(“ 堆栈空”); <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        FirstCell = S-&gt;Next;</span><br><span class="line">        S-&gt;Next = FirstCell-&gt;Next;</span><br><span class="line">        TopElem = FirstCell -&gt;Element;</span><br><span class="line">        <span class="built_in">free</span>(FirstCell);</span><br><span class="line">        <span class="keyword">return</span> TopElem;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="堆栈的应用"><a href="#堆栈的应用" class="headerlink" title="堆栈的应用"></a>堆栈的应用</h3><h4 id="中缀表达式求值"><a href="#中缀表达式求值" class="headerlink" title="中缀表达式求值"></a>中缀表达式求值</h4><p><strong>基本策略</strong>：将中缀表达式转换为后缀表达式，然后求值<br>如何将中缀表达式转换为后缀？<br><strong>观察一个简单例子： 2+9/3-5 -&gt; 2 9 3 / + 5 -</strong></p>
-<ol>
-<li>运算数相对顺序不变</li>
-<li>运算符号顺序发生改变<br> 需要存储“等待中”的运算符号<br> 要将当前运算符号与“等待中”的最后一个运算符号比较</li>
+<h3 id="添加OSD-使用blustore"><a href="#添加OSD-使用blustore" class="headerlink" title="添加OSD, 使用blustore"></a>添加OSD, 使用blustore</h3><p>Create the OSD.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh &#123;node-name&#125;</span><br><span class="line">sudo ceph-volume lvm create --data &#123;data-path&#125;</span><br></pre></td></tr></table></figure></p>
+<p>For example:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh node1</span><br><span class="line">sudo ceph-volume lvm create --data /dev/vdc2</span><br></pre></td></tr></table></figure></p>
+<p><strong>注意：在使用NVMe盘时，其盘符为/dev/nvme0n1之类的，别忘了前面的/dev</strong><br>添加OSD用上面的命令操作就行，也可以分下面两步来做：<br>Prepare the OSD.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh &#123;node-name&#125;</span><br><span class="line">sudo ceph-volume lvm prepare --data &#123;data-path&#125; &#123;data-path&#125;</span><br></pre></td></tr></table></figure></p>
+<p>For example:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh node1</span><br><span class="line">sudo ceph-volume lvm prepare --data /dev/vdc2</span><br></pre></td></tr></table></figure></p>
+<p>Once prepared, the ID and FSID of the prepared OSD are required for activation. These can be obtained by listing OSDs in the current server:<br>sudo ceph-volume lvm list<br>Activate the OSD:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-volume lvm activate &#123;ID&#125; &#123;FSID&#125;</span><br></pre></td></tr></table></figure></p>
+<p>For example:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-volume lvm activate 0 a7f64266-0894-4f1e-a635-d0aeaca0e993</span><br></pre></td></tr></table></figure></p>
+<h3 id="添加OSD-使用filestore"><a href="#添加OSD-使用filestore" class="headerlink" title="添加OSD, 使用filestore"></a>添加OSD, 使用filestore</h3><p><strong>注意：添加OSD时bluestore与filestore二选一就可以了</strong><br>创建osd<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-volume lvm create --filestore --data &#123;data-path&#125; --journal &#123;journal-path&#125;</span><br></pre></td></tr></table></figure></p>
+<p>prepare osd<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-volume lvm prepare --filestore --data &#123;data-path&#125; --journal &#123;journal-path&#125;</span><br><span class="line">#prepare完成后，可以查看到他的id以及osd的fsid</span><br><span class="line">sudo ceph-volume lvm list</span><br></pre></td></tr></table></figure></p>
+<p>activate osd<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-volume lvm activate --filestore &#123;ID&#125; &#123;FSID&#125;</span><br><span class="line">#sudo ceph-volume lvm activate --filestore 0 a7f64266-0894-4f1e-a635-d0aeaca0e993</span><br></pre></td></tr></table></figure></p>
+<h3 id="添加mgr"><a href="#添加mgr" class="headerlink" title="添加mgr"></a>添加mgr</h3><ol>
+<li><p>添加密钥  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph auth get-or-create mgr.$name mon &apos;allow profile mgr&apos; osd &apos;allow *&apos; mds &apos;allow *&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建mgr目录并把密钥写入keyring文件中  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir /var/lib/ceph/mgr/ceph-$name</span><br><span class="line">#写入刚刚创建的keyring</span><br><span class="line">vim /var/lib/ceph/mgr/ceph-$name/keyring</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动mgr</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-mgr -i $name</span><br></pre></td></tr></table></figure>
+</li>
 </ol>
-<p><strong>中缀表达式如何转换为后缀表达式</strong></p>
-<p>从头到尾读取<strong><em>中缀表达式的每个对象</em></strong> ，对不同对象按不同的情况处理。<br>①  <strong>运算数</strong>：直接输出；<br>②  <strong>左括号</strong>：压入堆栈；<br>③  <strong>右括号</strong>：将<strong>栈顶的运算符弹出</strong>并<strong>输出，直到遇到左括号</strong>（ 出栈，不输出）；<br>④  <strong>运算符</strong>：<br>• 若<strong>优先级大于栈顶运算符</strong>时，则把它压栈；<br>• 若<strong>优先级小于等于栈顶运算符</strong>时，将<strong>栈顶运算符弹出并输出</strong>；再比<br>较新的栈顶运算符，直到该运算符大于栈顶运算符优先级为止，然后将该<strong>运算符压栈</strong>；<br>⑤ 若各对象<strong>处理完毕</strong>，则把堆栈中存留的<strong>运算符一并输出</strong>。</p>
-<h4 id="堆栈的其他应用："><a href="#堆栈的其他应用：" class="headerlink" title="堆栈的其他应用："></a>堆栈的其他应用：</h4><p> 函数调用及递归实现<br> 深度优先搜索<br> 回溯算法<br> <strong>…</strong></p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p>[浙江大学PTA]</p>
-<p>[浙江大学数据结构公开课]</p>
+<h3 id="安装dashboard"><a href="#安装dashboard" class="headerlink" title="安装dashboard"></a>安装dashboard</h3><ol>
+<li>安装ceph-mgr-dashboard包，14版本要单独装这个包  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install ceph-mgr-dashboard</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol start="2">
+<li><p>mgr enable dashboad  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph mgr module enable dashboard</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>开启self证书  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph dashboard create-self-signed-cert</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置用户名登录密码  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph dashboard set-login-credentials admin admin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成ssl证书  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -nodes -x509   -subj &quot;/O=IT/CN=ceph-mgr-dashboard&quot; -days 3650   -keyout dashboard.key -out dashboard.crt -extensions v3_ca</span><br><span class="line">ceph dashboard set-ssl-certificate -i dashboard.crt</span><br><span class="line">ceph dashboard set-ssl-certificate-key -i dashboard.key</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启dashboard  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ceph mgr module disable dashboard</span><br><span class="line">ceph mgr module enable dashboard</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="Ceph安装过程中遇到的问题"><a href="#Ceph安装过程中遇到的问题" class="headerlink" title="Ceph安装过程中遇到的问题"></a>Ceph安装过程中遇到的问题</h2><p>本节主要介绍手动搭建Ceph集群过程中遇到的问题及其解决办法。<br><strong>注：本文操作步骤的实践环境操作系统为debian</strong></p>
+<h3 id="1-三台机器安装成功后的Ceph版本不一致"><a href="#1-三台机器安装成功后的Ceph版本不一致" class="headerlink" title="1. 三台机器安装成功后的Ceph版本不一致"></a>1. 三台机器安装成功后的Ceph版本不一致</h3><p>原因：source源的问题<br>解决办法：更新source源之后，apt-get update后，再重新安装</p>
+<h3 id="2-有两台机器Ceph无法安装成功，需要其他依赖组件，具体错误见下图"><a href="#2-有两台机器Ceph无法安装成功，需要其他依赖组件，具体错误见下图" class="headerlink" title="2. 有两台机器Ceph无法安装成功，需要其他依赖组件，具体错误见下图"></a>2. 有两台机器Ceph无法安装成功，需要其他依赖组件，具体错误见下图</h3><p><img src="https://z3.ax1x.com/2021/09/30/45v8KJ.png" alt=""><br>描述：三台机器source源设置一样<br>原因：另外两台机器上ceph相关的组件没有卸载干净，通过命令dpkg -l | grep rados可以看到<br>解决办法：将没有卸载干净的组件都卸载掉(apt-get autoremove –purge librados2)，然后apt-get install ceph即可。</p>
+<h3 id="3-ceph-mon-error-opening-mon-data-directory-at-‘-var-lib-ceph-mon-ceph-cld-mon1-12002’-13-Permission-denied"><a href="#3-ceph-mon-error-opening-mon-data-directory-at-‘-var-lib-ceph-mon-ceph-cld-mon1-12002’-13-Permission-denied" class="headerlink" title="3. ceph-mon: error opening mon data directory at ‘/var/lib/ceph/mon/ceph-cld-mon1-12002’: (13) Permission denied"></a>3. ceph-mon: error opening mon data directory at ‘/var/lib/ceph/mon/ceph-cld-mon1-12002’: (13) Permission denied</h3><p>出错原因：没有权限，在上一步操作创建目录时，使用“sudo mkdir /var/lib/ceph/mon/{cluster-name}-{hostname}”<br>改为使用“sudo -u ceph mkdir /var/lib/ceph/mon/{cluster-name}-{hostname}”即可。注意：hostname根据实际需要进行修改。</p>
+<h3 id="4-三个机器的ceph-mon进程启动以后，使用ceph-s命令无响应（卡住）"><a href="#4-三个机器的ceph-mon进程启动以后，使用ceph-s命令无响应（卡住）" class="headerlink" title="4. 三个机器的ceph-mon进程启动以后，使用ceph -s命令无响应（卡住）"></a>4. 三个机器的ceph-mon进程启动以后，使用ceph -s命令无响应（卡住）</h3><p>查看/var/log/ceph/ceph-mon目录下的日志，可以看到“BADAUTHORIZER”之类的错误，查看各节点上的keyring信息，发现果然keyring不一致。<br>错误原因：在同一个集群使用了不同的keyring导致认证不通过<br>解决办法：同一个集群使用统一的keyring信息，也就是在安装的时候，不用每个节点都去用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --cap mon &apos;allow *&apos; --cap osd &apos;allow *&apos; --cap mds &apos;allow *&apos; --cap mgr &apos;allow *&apos;</span><br></pre></td></tr></table></figure></p>
+<p>去生成client.admin.keyring，只用在一个节点上生成一次，其他节点也使用该keyring就可以了。<br>统一keyring后，问题得到解决，解决后的图：<br><img src="https://z3.ax1x.com/2021/09/30/45v02D.png" alt=""></p>
+<p>关于认证部分，可以看文档<a href="https://docs.ceph.com/en/pacific/architecture/" target="_blank" rel="noopener">https://docs.ceph.com/en/pacific/architecture/</a>的“HIGH AVAILABILITY AUTHENTICATION”高可用认证部分。</p>
+<h3 id="5-ceph-s出现3-monitors-have-not-enabled-msgr2"><a href="#5-ceph-s出现3-monitors-have-not-enabled-msgr2" class="headerlink" title="5. ceph -s出现3 monitors have not enabled msgr2"></a>5. ceph -s出现3 monitors have not enabled msgr2</h3><p>解决办法：执行ceph mon enable-msgr2<br>msgr2是什么？msgr2是指 msgr2协议，The messenger v2 protocol, or msgr2, is the second major revision on Ceph’s on-wire protocol.老的 Ceph 底层协议是用 SimpleMessenger 实现的，这个协议是它的修订版，解决了性能和安全问题。<br>参考文档：<a href="https://docs.ceph.com/en/latest/rados/configuration/msgr2/" target="_blank" rel="noopener">https://docs.ceph.com/en/latest/rados/configuration/msgr2/</a><br><strong>注意把msgr2和mgr区分开，mgr是Ceph的一个新的模块组件。</strong></p>
+<h3 id="6-Error-ENOENT-all-mgr-daemons-do-not-support-module-‘dashboard’-pass-–force-to-force-enablement"><a href="#6-Error-ENOENT-all-mgr-daemons-do-not-support-module-‘dashboard’-pass-–force-to-force-enablement" class="headerlink" title="6. Error ENOENT: all mgr daemons do not support module ‘dashboard’, pass –force to force enablement"></a>6. Error ENOENT: all mgr daemons do not support module ‘dashboard’, pass –force to force enablement</h3><p>现象：节点上已经安装了ceph-mgr-dashboard，使用“ceph mgr module enable dashboard”报上面的错误<br>解决办法：所有mgr节点都需要安装, 参考文章：<a href="http://poweroff.cn/ceph/390.html" target="_blank" rel="noopener">CEPH 开启MGR监控模块</a></p>
+<p><strong>如果所有节点都已经装了ceph-mgr-dashboard，那就再把–force加上</strong></p>
+<h3 id="7-使用ceph-s命令报错：Error-initializing-cluster-client-ObjectNotFound-‘error-calling-conf-read-file’"><a href="#7-使用ceph-s命令报错：Error-initializing-cluster-client-ObjectNotFound-‘error-calling-conf-read-file’" class="headerlink" title="7. 使用ceph -s命令报错：Error initializing cluster client: ObjectNotFound(‘error calling conf_read_file’,)"></a>7. 使用ceph -s命令报错：Error initializing cluster client: ObjectNotFound(‘error calling conf_read_file’,)</h3><p>解决办法：把其他节点上的ceph的配置拷贝到该节点（目录：/etc/ceph/ceph.conf）</p>
+<h3 id="8-使用ceph-s命令报错：-errno-2-error-connecting-to-the-cluster"><a href="#8-使用ceph-s命令报错：-errno-2-error-connecting-to-the-cluster" class="headerlink" title="8. 使用ceph -s命令报错：[errno 2] error connecting to the cluster"></a>8. 使用ceph -s命令报错：[errno 2] error connecting to the cluster</h3><p>解决办法：在其他可以执行该命令的节点上找到ceph.client.admin.keyring<br>find / -name ceph.client.admin.keyring<br>把该文件拷贝一份到报错节点即可。</p>
+<h3 id="9-Error-ENOENT-all-mgr-daemons-do-not-support-module-‘dashboard’-pass-–force-to-force-enablement"><a href="#9-Error-ENOENT-all-mgr-daemons-do-not-support-module-‘dashboard’-pass-–force-to-force-enablement" class="headerlink" title="9. Error ENOENT: all mgr daemons do not support module ‘dashboard’, pass –force to force enablement"></a>9. Error ENOENT: all mgr daemons do not support module ‘dashboard’, pass –force to force enablement</h3><p>解决办法：没有安装ceph-mgr-dashboard，在所有的mgr的节点上安装<br>如果安装上了还不行，就加“–force”。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://docs.ceph.com/en/latest/install/manual-deployment/" target="_blank" rel="noopener">Ceph手动安装</a><br><a href="https://docs.ceph.com/en/latest/rados/configuration/msgr2/" target="_blank" rel="noopener">https://docs.ceph.com/en/latest/rados/configuration/msgr2/</a><br><a href="https://drunkard.github.io/dev/msgr2/" target="_blank" rel="noopener">msgr2协议</a><br><a href="http://poweroff.cn/ceph/390.html" target="_blank" rel="noopener">CEPH 开启MGR监控模块</a><br><a href="https://drunkard.github.io/mgr/administrator/" target="_blank" rel="noopener">ceph-mgr 管理员指南</a></p>
 
       
     </div>
@@ -560,7 +600,7 @@
       </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-        <a href="/2017/11/05/单链表之堆栈/" title="线性表之堆栈">2017/11/05/单链表之堆栈/</a>
+        <a href="/2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/" title="Ceph手动安装步骤及安装过程中遇到的问题">2021/09/29/Ceph手动安装步骤及安装过程中遇到的问题/</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权： </strong>
@@ -572,9 +612,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
+            <a href="/tags/存储/" rel="tag"># 存储</a>
           
-            <a href="/tags/算法/" rel="tag"># 算法</a>
+            <a href="/tags/安装/" rel="tag"># 安装</a>
+          
+            <a href="/tags/Ceph/" rel="tag"># Ceph</a>
           
         </div>
       
@@ -587,8 +629,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/11/04/单链表/" rel="next" title="单链表">
-                <i class="fa fa-chevron-left"></i> 单链表
+              <a href="/2021/09/26/Ceph基本概念和常用命令/" rel="next" title="Ceph的基本概念和常用命令">
+                <i class="fa fa-chevron-left"></i> Ceph的基本概念和常用命令
               </a>
             
           </div>
@@ -596,10 +638,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/11/07/单链表之队列/" rel="prev" title="线性表之队列">
-                线性表之队列 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -752,7 +790,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题引入"><span class="nav-number">1.</span> <span class="nav-text">问题引入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆栈的抽象数据类型描述"><span class="nav-number">2.</span> <span class="nav-text">堆栈的抽象数据类型描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈的顺序存储实现"><span class="nav-number">3.</span> <span class="nav-text">栈的顺序存储实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆栈的链式存储实现"><span class="nav-number">4.</span> <span class="nav-text">堆栈的链式存储实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆栈的应用"><span class="nav-number">5.</span> <span class="nav-text">堆栈的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#中缀表达式求值"><span class="nav-number">5.1.</span> <span class="nav-text">中缀表达式求值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆栈的其他应用："><span class="nav-number">5.2.</span> <span class="nav-text">堆栈的其他应用：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph手动安装步骤"><span class="nav-number">1.</span> <span class="nav-text">Ceph手动安装步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一个mon节点"><span class="nav-number">1.1.</span> <span class="nav-text">第一个mon节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#准备要素"><span class="nav-number">1.1.1.</span> <span class="nav-text">准备要素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署步骤"><span class="nav-number">1.1.2.</span> <span class="nav-text">部署步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加OSD-使用blustore"><span class="nav-number">1.2.</span> <span class="nav-text">添加OSD, 使用blustore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加OSD-使用filestore"><span class="nav-number">1.3.</span> <span class="nav-text">添加OSD, 使用filestore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加mgr"><span class="nav-number">1.4.</span> <span class="nav-text">添加mgr</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装dashboard"><span class="nav-number">1.5.</span> <span class="nav-text">安装dashboard</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph安装过程中遇到的问题"><span class="nav-number">2.</span> <span class="nav-text">Ceph安装过程中遇到的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-三台机器安装成功后的Ceph版本不一致"><span class="nav-number">2.1.</span> <span class="nav-text">1. 三台机器安装成功后的Ceph版本不一致</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-有两台机器Ceph无法安装成功，需要其他依赖组件，具体错误见下图"><span class="nav-number">2.2.</span> <span class="nav-text">2. 有两台机器Ceph无法安装成功，需要其他依赖组件，具体错误见下图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-ceph-mon-error-opening-mon-data-directory-at-‘-var-lib-ceph-mon-ceph-cld-mon1-12002’-13-Permission-denied"><span class="nav-number">2.3.</span> <span class="nav-text">3. ceph-mon: error opening mon data directory at ‘/var/lib/ceph/mon/ceph-cld-mon1-12002’: (13) Permission denied</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-三个机器的ceph-mon进程启动以后，使用ceph-s命令无响应（卡住）"><span class="nav-number">2.4.</span> <span class="nav-text">4. 三个机器的ceph-mon进程启动以后，使用ceph -s命令无响应（卡住）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-ceph-s出现3-monitors-have-not-enabled-msgr2"><span class="nav-number">2.5.</span> <span class="nav-text">5. ceph -s出现3 monitors have not enabled msgr2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Error-ENOENT-all-mgr-daemons-do-not-support-module-‘dashboard’-pass-–force-to-force-enablement"><span class="nav-number">2.6.</span> <span class="nav-text">6. Error ENOENT: all mgr daemons do not support module ‘dashboard’, pass –force to force enablement</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-使用ceph-s命令报错：Error-initializing-cluster-client-ObjectNotFound-‘error-calling-conf-read-file’"><span class="nav-number">2.7.</span> <span class="nav-text">7. 使用ceph -s命令报错：Error initializing cluster client: ObjectNotFound(‘error calling conf_read_file’,)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-使用ceph-s命令报错：-errno-2-error-connecting-to-the-cluster"><span class="nav-number">2.8.</span> <span class="nav-text">8. 使用ceph -s命令报错：[errno 2] error connecting to the cluster</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Error-ENOENT-all-mgr-daemons-do-not-support-module-‘dashboard’-pass-–force-to-force-enablement"><span class="nav-number">2.9.</span> <span class="nav-text">9. Error ENOENT: all mgr daemons do not support module ‘dashboard’, pass –force to force enablement</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
