@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Ceph之RBD及CephFS]]></title>
+    <url>%2F2021%2F10%2F04%2FCeph%E5%88%9B%E5%BB%BA%E4%BD%BF%E7%94%A8RBD%E5%92%8CCephFS%2F</url>
+    <content type="text"><![CDATA[本文主要介绍如何在搭建好的Ceph环境上创建RBD以及如何创建CephFS。 创建RBD并将其挂载到操作系统1、创建rbd使用的pool12345678#32 32: PG数和PGP数(PG内包含的对象);PG会随着容量的增加也会动态的扩容；生产上需要提前规划好数量ceph osd pool create rbd 32 32#给rbd使用的pool标识成rbdceph osd pool application enable rbd rbd #查看rbd的pool[root@cephnode01 my-cluster]# ceph osd pool ls detailpool 5 &apos;rbd&apos; replicated size 3 min_size 2 crush_rule 0 object_hash rjenkins pg_num 32 pgp_num 32 autoscale_mode warn last_change 68 flags hashpspool stripe_width 0 2、创建一个10G的块设备1rbd create --size 10240 image01 3、查看块设备123rbd lsrbd info image01rados -p rbd ls --all 4、禁用当前系统内核不支持的feature1rbd feature disable image01 exclusive-lock, object-map, fast-diff, deep-flatten 5、将块设备映射到系统内核12rbd map image01 rbd showmapped 6、格式化块设备镜像1mkfs.xfs /dev/rbd0 7、mount到本地1mount /dev/rbd0 /mnt 8、创建文件并查看12345678910111213141516[root@cephnode01 my-cluster]# touch /mnt/&#123;a..g&#125;lcx.txt[root@cephnode01 my-cluster]# rados -p rbd ls --all rbd_data.28209e4598ff7.0000000000000500 rbd_id.image01 rbd_header.28209e4598ff7 rbd_data.28209e4598ff7.0000000000000820 rbd_directory rbd_data.28209e4598ff7.0000000000000460 rbd_data.28209e4598ff7.00000000000006e0 rbd_info rbd_data.28209e4598ff7.00000000000000a0 rbd_data.28209e4598ff7.00000000000009ff rbd_data.28209e4598ff7.00000000000005a0 rbd_data.28209e4598ff7.0000000000000000 rbd_data.28209e4598ff7.0000000000000780... 9、取消块设备和内核映射12umount /mntrbd unmap image01 10、删除RBD块设备1rbd rm image01 如果想在其他机器上使用ceph块设备需要下载ceph-common客户端 创建CephFS启动MDS（MDS是CephFS使用的元数据管理服务）创建CephFS需要MDS，首先介绍MDS的启动： 1. 创建mds存放目录123mkdir -p /var/lib/ceph/mds/&#123;cluster-name&#125;-&#123;id&#125;例如：mkdir -p /var/lib/ceph/mds/ceph-jchuan-ceph-1 2. 创建keyring123ceph-authtool --create-keyring /var/lib/ceph/mds/&#123;cluster-name&#125;-&#123;id&#125;/keyring --gen-key -n mds.&#123;id&#125;例如：ceph-authtool --create-keyring /var/lib/ceph/mds/ceph-jchuan-ceph-1/keyring --gen-key -n mds.jchuan-ceph-1 3. 导入keyring并设置权限1234ceph auth add mds.&#123;id&#125; osd &quot;allow rwx&quot; mds &quot;allow&quot; mon &quot;allow profile mds&quot; -i /var/lib/ceph/mds/&#123;cluster&#125;-&#123;id&#125;/keyringchmod 644 /var/lib/ceph/mds/&#123;cluster&#125;-&#123;id&#125;/keyring例如：ceph auth add mds.jchuan-ceph-1 osd &quot;allow rwx&quot; mds &quot;allow&quot; mon &quot;allow profile mds&quot; -i /var/lib/ceph/mds/ceph-jchuan-ceph-1/keyring 4. 添加到ceph.conf12[mds.&#123;id&#125;]host = &#123;id&#125; 5. 安装ceph-mds(原文档少了这一步，执行下一步就会启动不成功，因为找不到ceph-mds)1apt-get install ceph-mds 6. 手动启动进程或者直接用systemctl启动123systemctl start ceph-mds@jchuan-ceph-1或者ceph-mds --cluster &#123;cluster-name&#125; -i &#123;id&#125; -m &#123;mon-hostname&#125;:&#123;mon-port&#125; [-f] 创建启用CephFSCeph文件系统至少需要两个RADOS池，一个用于数据，一个用于元数据 1. 创建数据pool1ceph osd pool create cephfs_data 256 256 2. 创建Metadata池1ceph osd pool create cephfs_metadata 128 128 3. 启用pool1ceph fs new cephfs cephfs_metadata cephfs_data 4. 挂载CephFS挂载CephFS可以使用FUSE client或者kernel client(挂载cephfs有两种方式，kernel driver和fuse):FUSE client是最容易访问的，也是最容易升级到存储集群使用的Ceph版本的，而kernel client能够提供更好的性能。当遇到bug或者性能问题时，尝试使用其他客户端通常是有指导意义的，以便查明bug是否属于特定的客户端(然后让开发人员知道)。 挂载CephFS前的通用先决条件：在挂载CephFS前，确保client机器（将挂载和使用CephFS的那台机器）有一份Ceph配置文件的复本（即ceph.conf）以及一个CephX用户有权限访问MDS的keyring。这两个文件必须已经存在于Ceph MON所在的主机上。（1）为客户端主机生成一个最小的conf文件，并将其放在一个标准位置(如果已经存在ceph.conf就忽略该步骤):123# on client hostmkdir -p -m 755 /etc/cephssh &#123;user&#125;@&#123;mon-host&#125; &quot;sudo ceph config generate-minimal-conf&quot; | sudo tee /etc/ceph/ceph.conf （2）调整配置文件的权限1chmod 644 /etc/ceph/ceph.conf (3) 创建一个CephX用户并获取其密钥1ssh &#123;user&#125;@&#123;mon-host&#125; &quot;sudo ceph fs authorize cephfs client.foo / rw&quot; | sudo tee /etc/ceph/ceph.client.foo.keyring 在上面的命令中，用你自己的CephFS的名字取代“cephfs” 12创建完成后可以通过ceph auth list 查看keyring跟文件里面是否一致，权限是否正常chmod 600 /etc/ceph/ceph.client.foo.keyring (4) 用kernel driver挂载CephFS12mkdir /mnt/mycephfsmount -t ceph :/ /mnt/mycephfs -o name=foo 使用ceph-fuse挂载参考文档：https://docs.ceph.com/en/latest/cephfs/mount-using-fuse/ 遇到的错误及解决办法 遇到错误“unable to get monitor info from DNS SRV with service name: ceph-mon”原因：配置文件ceph.conf中没有相关的配置信息解决办法：去其他正常节点拷贝一份配置文件过来即可 遇到错误“[errno 2] error connecting to the cluster”解决办法：在其他可以执行该命令的节点上找到ceph.client.admin.keyringfind / -name ceph.client.admin.keyring把该文件拷贝一份到报错节点即可。 参考资料Ceph—RBD块设备介绍与创建探索RBD块存储接口分布式文件系统CephFSceph-fuse挂载参考文档]]></content>
+      <categories>
+        <category>分布式存储</category>
+      </categories>
+      <tags>
+        <tag>Ceph</tag>
+        <tag>RBD</tag>
+        <tag>CephFS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[清理Ceph环境]]></title>
     <url>%2F2021%2F10%2F02%2F%E6%B8%85%E7%90%86Ceph%E7%8E%AF%E5%A2%83%2F</url>
     <content type="text"><![CDATA[本文主要介绍如何清理Ceph环境。 清理Ceph环境步骤(debian系统)非正常卸载每台节点执行：12345678910111213141516171819sudo su -/etc/init.d/ceph stop或者ps aux|grep ceph ｜grep -v grep |awk &apos;&#123;print $2&#125;&apos;|xargs kill -9ps aux|grep ceph｜grep -v grep |awk &apos;&#123;print $2&#125;&apos;|xargs kill -9rm -rf /var/lib/ceph/osd/*rm -rf /var/lib/ceph/mon/*rm -rf /var/lib/ceph/mds/*rm -rf /var/lib/ceph/bootstrap-mds/*rm -rf /var/lib/ceph/bootstrap-osd/*rm -rf /var/lib/ceph/bootstrap-rgw/*rm -rf /var/lib/ceph/bootstrap-mgr/*rm -rf /var/lib/ceph/tmp/*rm -rf /etc/ceph/*rm -rf /var/run/ceph/*列出 Ubuntu 和 Debian 上已安装的与Ceph相关的软件包：apt list --installed | grep ceph 删除Ceph相关的软件包：apt-get autoremove --purge ceph 检查是否卸载干净：123dpkg -l | grep rados如果还有继续卸载：apt-get autoremove –purge librados2 正常卸载如果是为了测试，搭建好的ceph环境而且是正常工作的，那么卸载之前安装环境。查看命令帮助123456789[root@ceph-mon1 ~]# ceph-deploy -huninstall: Remove Ceph packages from remote hosts.(仅仅会卸载ceph软件包)purge: Remove Ceph packages from remote hosts and purge allData.(卸载ceph软件包而且还会清除所有数据)Purgedata: Purge (delete, destroy, discard, shred) any Ceph data from /var/lib/ceph(删除所有关于ceph的数据文件位于/var/lib/ceph下)Forgetkeys: Remove authentication keys from the local directory.(将卸载节点的认证密钥从本地目录移除)&lt;br&gt;&lt;br&gt;&lt;br&gt;示例： 一、安装ceph-deploy软件1dnf install ceph-deploy -y 二、软件环境：三个节点环境123456789101112131415161718#卸载ceph软件包ceph-deploy purge controller1ceph-deploy purge controller2ceph-deploy purge controller3 #删除各种配置文件和生成的数据文件#controller1上面执行ceph-deploy purgedata controller1#controller2上面执行ceph-deploy purgedata controller2#controller3上面执行ceph-deploy purgedata controller3 #将卸载节点的认证密钥从本地目录移除ceph-deploy forgetkeys&lt;br&gt;&lt;br&gt;#检查ceph-mon是否启动ps -ef|grep ceph or ps -A|grep ceph&lt;br&gt;&lt;br&gt;#启动ceph-monceph-mon --id=1 三、软件环境：单节点环境123ceph-deploy purge controller1ceph-deploy purgedata controller1ceph-deploy forgetkeys 参考资料]]></content>
@@ -229,8 +242,8 @@
         <category>云计算</category>
       </categories>
       <tags>
-        <tag>docker registry</tag>
         <tag>harbor</tag>
+        <tag>docker registry</tag>
         <tag>harbor离线包</tag>
       </tags>
   </entry>
@@ -410,9 +423,9 @@
       </categories>
       <tags>
         <tag>日常积累</tag>
-        <tag>crontab</tag>
         <tag>开机启动</tag>
         <tag>监控</tag>
+        <tag>crontab</tag>
         <tag>shell</tag>
       </tags>
   </entry>
@@ -582,8 +595,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>strace</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -595,8 +608,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>awk</tag>
         <tag>日常积累</tag>
+        <tag>awk</tag>
       </tags>
   </entry>
   <entry>
@@ -709,8 +722,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>问题定位</tag>
         <tag>gdb</tag>
+        <tag>问题定位</tag>
       </tags>
   </entry>
   <entry>
@@ -735,9 +748,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
-        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
+        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
