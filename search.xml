@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[FUSE介绍]]></title>
+    <url>%2F2021%2F10%2F06%2FFUSE%E4%BB%8B%E7%BB%8D%2F</url>
+    <content type="text"><![CDATA[本文主要介绍： FUSE的基本概念 为什么需要FUSE FUSE的原理 如何使用FUSE 常见的FUSE实现有哪些 FUSE 是什么？ FUSE 是 Filesystem in Userspace 的缩写，也就是常说的用户态文件系统。Linux内核官方文档对 FUSE 的解释如下： What is FUSE?FUSE is a userspace filesystem framework. It consists of a kernel module (fuse.ko), a userspace library (libfuse.*) and a mount utility (fusermount). 划重点：FUSE 是一个用户空间文件系统的框架，这套框架包含3个组件： 内核模块 fuse.ko ：用来接收VFS传递下来的IO请求，并且把这个IO封装之后通过管道发送到用户态； 用户态 lib 库 libfuse ：解析内核态转发出来的协议包，拆解成常规的 IO 请求； mount 工具 fusermount ； 这 3 个组件一起完成一件事：可以在用户态实现文件系统，并且让IO在内核态和用户态文件系统之间自由穿梭。 为什么会需要FUSEFUSE被称为用户空间文件系统，为什么要强调用户空间呢？接触过Linux内核的同学大概会知道，早期的文件系统开发只能在内核中。文件系统一般是实现在内核里面的，比如，Ext4、Fat32、NTFS(Kernel原生版)等常见的文件系统，其代码都在内核中，内核开发的难点在于调试和排查故障，而FUSE特殊之处就是，其文件系统的核心逻辑是在用户空间实现的。 有了FUSE之后，我们就可以在用户态空间实现文件系统。其优点是：开发调试效率高，不会出现内核态那种出现bug很容易就导致OS重启的情况。缺点是：会损失性能 内核文件系统早期的文件系统是位于内核之中， 处于VFS之下，块设备之上的一个位置。对上呈现文件存储实现，对下管理裸块设备。也就是说早期文件系统是内核的一个模块。那就可以理解了，内核模块的开发之所以艰难就是难在调试和排障，用户态的程序你可以随意 debug，出问题最多也就是 panic，coredump，内核态的程序出了问题就是宕机（我早期在做存储驱动开发的时候受够了内核驱动开发的苦，一出问题存储设备重启，要差不多20分钟才能重启起来，然后再去dmesg看日志信息，排查问题很麻烦），所有现场都丢失，你只能通过日志，kdump 等手段来排查。 没有FUSE的IO流程示意图下图是没有FUSE的时候，IO经过内核文件系统的一个大概流程 比较详细的流程图 带FUSE的IO流程示意图注意：图中简化了用户态之上的逻辑处理。 FUSE 原理首先看一眼 wiki 上有对 FUSE 的 ls -l /tmp/fuse 命令的演示图：这个图的意思是： 背景：一个用户态文件系统，挂载点为 /tmp/fuse ，用户二进制程序文件为 ./hello（该二进制程序可以理解为用户自己根据自身需求实现的文件系统）; 当执行 ls -l /tmp/fuse 命令的时候，流程如下：(1) IO 请求先进内核，经VFS传递给内核 FUSE 文件系统模块；(2) 内核 FUSE 模块把请求发给到用户态，由 ./hello 程序接收并且处理。处理完成之后，响应原路返回； 简化的 IO 动画示意图：通过这两张图，对 FUSE IO 的流程应该就清晰了，内核 FUSE 模块在内核态中间做协议封装和协议解析的工作，它接收从VFS下来的请求并按照 FUSE 协议转发到用户态，然后接收用户态的响应，并随后回复给用户。FUSE在这条IO路径是做了一个透明中转站的作用，用户完全不感知这套框架。我们把中间的 FUSE 当作一个黑盒遮住，就更容易理解了。 fuse.ko和libfuse库的作用这两个模块一个位于内核，一个位于用户态，是配套使用的，最核心的功能是协议封装和解析。 举个例子，内核 fuse.ko用于接收VFS下来的IO请求，然后封装成 FUSE 数据包，转发给用户态。这个时候，用户态文件系统收到这个 FUSE 数据包，它如果想要看懂这个数据包，就必须实现一套FUSE协议的代码，这套代码是公开透明的，属于FUSE框架的公共的代码，这种代码不需要让所有的用户文件系统都重复实现一遍，于是libfuse库就诞生了。 FUSE 协议格式接下来我们看下FUSE数据传输的数据格式（FUSE协议的格式），请求包和响应包是什么样子的？ FUSE 请求包FUSE 请求包分为两部分： Header ： 这个是所有请求共用的，比如 open 请求，read 请求，write 请求，getxattr 请求，头部都至少有这个结构体，Header 结构体能描述整个 FUSE 请求，其中字段能区分请求类型； Payload ：这个东西是每个 IO 类型会是不同的，比如 read 请求就没这个，write 请求就有这个，因为 write 请求是携带数据的； 12345678910type inHeader struct &#123; Len uint32Opcode uint32 Unique uint64 Nodeid uint64 Uid uint32 Gid uint32 Pid uint32 _ uint32&#125; Len: 是整个请求的字节数长度（Header + Payload） Opcode: 请求的类型，比如区分 open、read、write 等等； Unique: 请求唯一标识（和响应中要对应） Nodeid: 请求针对的文件 nodeid，目标文件或者文件夹的 nodeid； Uid: 文件/文件夹操作的进程的用户 ID Gid: 文件/文件夹操作的进程的用户组 ID Pid: 文件/文件夹操作的进程的进程 ID FUSE 响应包FUSE 响应包也分为两部分： Header ：这个结构体也是在数据头部的，所有 IO 类型的响应都至少有这个结构体。该结构体用于描述整个响应请求； Payload ：每个请求的类型可能不同，比如 read 请求就会有这个，因为要携带 read 出来的用户数据，write 请求就不会有；12345type outHeader struct &#123; Len uint32 Error int32 Unique uint64&#125; Len: 整个响应的字节数长度（ Header + Payload ）； Error: 响应错误码，成功返回 0，其他对应着系统的错误代码，负数； Unique: 对应者请求的唯一标识，和请求对应； 内核态、用户态的纽带现在对数据协议的格式，转发和转运的模块我们也知道了。现在还差一个关键的点：数据包的通道，换句话说，内核模块的“包裹”发到哪里？用户程序又从哪里读取拿到这个“包裹”。 答案是：/dev/fuse ，这个虚设备文件就是内核模块和用户程序的桥梁。 这样一切都顺理成章了，整个过程中，用户的IO通过正常的系统调用进来，走到内核文件系统FUSE，FUSE文件系统把这个IO请求按照FUSE协议封装起来，打包成特定的格式，通过 /dev/fuse 这个管道传递到用户态。在此之前有守护进程监听这个管道，看到有消息出来之后，立马读出来，然后利用libfuse库解析协议，之后就是用户文件系统的代码逻辑了。 该过程示意图如下（省略了拆解包的步骤）： FUSE 的使用现在我们知道了 FUSE 框架的 3 大组件，FUSE 的数据包协议，现在就尝试着使用一下 FUSE 文件系统。 以下命令在 ubuntu 16 版本上执行的。 Linux 内核是否支持？前面说过内核里面也有一个 fuse.ko 模块，这个模块是公用的，内核的位置也是位于文件系统层。我们想要自制一个文件系统，那么第一步需要确保内核支持这个模块。可以直接运行如下命令，如果没有报错，说明你的 Linux 机器支持 fuse 模块，并且已经加载。1root@ubuntu:~# modprobe fuse 如果当前 Linux 不支持这个内核模块，那么就会报错，比如（ubuntu16）：12root@ubuntu:~# modprobe xyzmodprobe: FATAL: Module xyz not found in directory /lib/modules/4.4.0-142-generic 或者也可以去目录1/lib/modules/4.4.0-142-generic/kernel/fs/ 里看是否有 fuse 这个目录。 挂载FUSE内核文件系统，便于管理FUSE这个内核文件系统其实是可以挂载，也可以不挂载，挂载了主要是方便管理多个用户系统而已，FUSE内核文件系统的 Type 名称为 fusectl，挂载命令：1mount -t fusectl none /sys/fs/fuse/connections 可以用 df -aT 命令查看：12root@ubuntu:~# df -aT|grep -i fusectlfusectl fusectl 0 0 0 - /sys/fs/fuse/connections 通过挂载内核 fuse 文件系统，可以看到所有实现的用户文件系统，如下：1234root@ubuntu:~# ls -l /sys/fs/fuse/connections/total 0dr-x------ 2 root root 0 May 29 19:58 39dr-x------ 2 root root 0 May 29 20:00 42 在 /sys/fs/fuse/connections 对应两个目录，目录名为 Unique ID，能够唯一标识一个用户文件系统。这里表示内核 fuse 模块通过 /dev/fuse 设备文件，建立了两个通信管道，分别对应了两个用户文件系统，可以在用 df -aT 对照确认：1234root@ubuntu:~# df -aT|grep -i fusefusectl fusectl 0 0 0 - /sys/fs/fuse/connectionslxcfs fuse.lxcfs 0 0 0 - /var/lib/lxcfshelloworld fuse.hellofs 0 0 0 - /mnt/myfs 每个 Uniqe ID 名录下，有若干个文件，通过这些文件，我们可以获取到当前用户文件系统的状态，或跟 fuse 文件系统交互，比如：123456root@ubuntu:~# ls -l /sys/fs/fuse/connections/42/total 0--w------- 1 root root 0 May 29 20:00 abort-rw------- 1 root root 0 May 29 20:00 congestion_threshold-rw------- 1 root root 0 May 29 20:00 max_background-r-------- 1 root root 0 May 29 20:00 waiting waiting 文件：cat 一下就能获取到当前正在处理的 IO 请求数； abort 文件：该文件写入任何字符串，都会终止这个用户文件系统和上面所有的请求； 用户文件系统怎么挂载？用户文件系统怎么挂载（比如上面的 hellofs 和 lxcfs ）？ 这就需要用到了 FUSE 框架的第3个组件了，fusermount 工具，这个工具就是专门用来方便挂载用户文件系统才诞生的。1fusermount -o fsname=helloworld,subtype=hellofs -- /mnt/myfs/ FUSE 的作用在于使用户能够绕开内核代码来编写文件系统，但是请注意，文件系统要实现对具体的设备的操作的话必须要使用设备驱动提供的接口，而设备驱动位于内核空间，这时可以直接读写块设备文件，就相当于只把文件系统摘到用户态，用户直接管理块设备空间。 FUSE 能做什么？通过上面的介绍，这个问题应该很好回答，就是有了FUSE后，理论上我们能在用户态实现我们想实现的文件系统。FUSE 能够把VFS 下来的IO请求转发到用户态，用户程序处理之后，经由 FUSE 框架回应给用户。有了FUSE后，我们就可以把文件系统的实现全部放到用户态实现了。 FUSE 的实现有哪些？实现了 FUSE 的用户态文件系统有非常多的例子，比如，GlusterFS，SSHFS，CephFS，Lustre，GmailFS，EncFS，S3FS等等 上面这些都是实现了 fuse 的用户态程序： GmailFS 可以让我们管理文件一样，管理邮件； S3FS 可以让我们管理文件一样，管理对象； 总结通过这篇文章，我们了解了 FUSE 的知识点，总结如下： FUSE框架就是内核开发者为了能在用户态进行文件系统开发的需求开发出来的； FUSE 框架的3大组件分别是：内核 fuse 模块，用户态 libfuse 库，fusermount 挂载工具； 内核FUSE模块用于接收VFS的请求，并且通过 /dev/fuse 建立的管道，把封装后的请求发往用户态； libfuse 则是用户态封装用来解析 FUSE 数据包协议的库代码，服务于所有的用户态文件系统； /dev/fuse 就是连接内核 fuse 和用户态文件系统的纽带； fusermount 则是用户态文件系统用来挂载的工具 参考资料Linux内核官方FUSE介绍FUSE 文件系统FUSE(Filesystem in Userspace)]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>用户态</tag>
+        <tag>文件系统</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Ceph之RBD及CephFS]]></title>
     <url>%2F2021%2F10%2F04%2FCeph%E5%88%9B%E5%BB%BA%E4%BD%BF%E7%94%A8RBD%E5%92%8CCephFS%2F</url>
     <content type="text"><![CDATA[本文主要介绍如何在搭建好的Ceph环境上创建RBD以及如何创建CephFS。 创建RBD并将其挂载到操作系统1、创建rbd使用的pool12345678#32 32: PG数和PGP数(PG内包含的对象);PG会随着容量的增加也会动态的扩容；生产上需要提前规划好数量ceph osd pool create rbd 32 32#给rbd使用的pool标识成rbdceph osd pool application enable rbd rbd #查看rbd的pool[root@cephnode01 my-cluster]# ceph osd pool ls detailpool 5 &apos;rbd&apos; replicated size 3 min_size 2 crush_rule 0 object_hash rjenkins pg_num 32 pgp_num 32 autoscale_mode warn last_change 68 flags hashpspool stripe_width 0 2、创建一个10G的块设备1rbd create --size 10240 image01 3、查看块设备123rbd lsrbd info image01rados -p rbd ls --all 4、禁用当前系统内核不支持的feature1rbd feature disable image01 exclusive-lock, object-map, fast-diff, deep-flatten 5、将块设备映射到系统内核12rbd map image01 rbd showmapped 6、格式化块设备镜像1mkfs.xfs /dev/rbd0 7、mount到本地1mount /dev/rbd0 /mnt 8、创建文件并查看12345678910111213141516[root@cephnode01 my-cluster]# touch /mnt/&#123;a..g&#125;lcx.txt[root@cephnode01 my-cluster]# rados -p rbd ls --all rbd_data.28209e4598ff7.0000000000000500 rbd_id.image01 rbd_header.28209e4598ff7 rbd_data.28209e4598ff7.0000000000000820 rbd_directory rbd_data.28209e4598ff7.0000000000000460 rbd_data.28209e4598ff7.00000000000006e0 rbd_info rbd_data.28209e4598ff7.00000000000000a0 rbd_data.28209e4598ff7.00000000000009ff rbd_data.28209e4598ff7.00000000000005a0 rbd_data.28209e4598ff7.0000000000000000 rbd_data.28209e4598ff7.0000000000000780... 9、取消块设备和内核映射12umount /mntrbd unmap image01 10、删除RBD块设备1rbd rm image01 如果想在其他机器上使用ceph块设备需要下载ceph-common客户端 创建CephFS启动MDS（MDS是CephFS使用的元数据管理服务）创建CephFS需要MDS，首先介绍MDS的启动： 1. 创建mds存放目录123mkdir -p /var/lib/ceph/mds/&#123;cluster-name&#125;-&#123;id&#125;例如：mkdir -p /var/lib/ceph/mds/ceph-jchuan-ceph-1 2. 创建keyring123ceph-authtool --create-keyring /var/lib/ceph/mds/&#123;cluster-name&#125;-&#123;id&#125;/keyring --gen-key -n mds.&#123;id&#125;例如：ceph-authtool --create-keyring /var/lib/ceph/mds/ceph-jchuan-ceph-1/keyring --gen-key -n mds.jchuan-ceph-1 3. 导入keyring并设置权限1234ceph auth add mds.&#123;id&#125; osd &quot;allow rwx&quot; mds &quot;allow&quot; mon &quot;allow profile mds&quot; -i /var/lib/ceph/mds/&#123;cluster&#125;-&#123;id&#125;/keyringchmod 644 /var/lib/ceph/mds/&#123;cluster&#125;-&#123;id&#125;/keyring例如：ceph auth add mds.jchuan-ceph-1 osd &quot;allow rwx&quot; mds &quot;allow&quot; mon &quot;allow profile mds&quot; -i /var/lib/ceph/mds/ceph-jchuan-ceph-1/keyring 4. 添加到ceph.conf12[mds.&#123;id&#125;]host = &#123;id&#125; 5. 安装ceph-mds(原文档少了这一步，执行下一步就会启动不成功，因为找不到ceph-mds)1apt-get install ceph-mds 6. 手动启动进程或者直接用systemctl启动123systemctl start ceph-mds@jchuan-ceph-1或者ceph-mds --cluster &#123;cluster-name&#125; -i &#123;id&#125; -m &#123;mon-hostname&#125;:&#123;mon-port&#125; [-f] 创建启用CephFSCeph文件系统至少需要两个RADOS池，一个用于数据，一个用于元数据 1. 创建数据pool1ceph osd pool create cephfs_data 256 256 2. 创建Metadata池1ceph osd pool create cephfs_metadata 128 128 3. 启用pool1ceph fs new cephfs cephfs_metadata cephfs_data 4. 挂载CephFS挂载CephFS可以使用FUSE client或者kernel client(挂载cephfs有两种方式，kernel driver和fuse):FUSE client是最容易访问的，也是最容易升级到存储集群使用的Ceph版本的，而kernel client能够提供更好的性能。当遇到bug或者性能问题时，尝试使用其他客户端通常是有指导意义的，以便查明bug是否属于特定的客户端(然后让开发人员知道)。 挂载CephFS前的通用先决条件：在挂载CephFS前，确保client机器（将挂载和使用CephFS的那台机器）有一份Ceph配置文件的复本（即ceph.conf）以及一个CephX用户有权限访问MDS的keyring。这两个文件必须已经存在于Ceph MON所在的主机上。（1）为客户端主机生成一个最小的conf文件，并将其放在一个标准位置(如果已经存在ceph.conf就忽略该步骤):123# on client hostmkdir -p -m 755 /etc/cephssh &#123;user&#125;@&#123;mon-host&#125; &quot;sudo ceph config generate-minimal-conf&quot; | sudo tee /etc/ceph/ceph.conf （2）调整配置文件的权限1chmod 644 /etc/ceph/ceph.conf (3) 创建一个CephX用户并获取其密钥1ssh &#123;user&#125;@&#123;mon-host&#125; &quot;sudo ceph fs authorize cephfs client.foo / rw&quot; | sudo tee /etc/ceph/ceph.client.foo.keyring 在上面的命令中，用你自己的CephFS的名字取代“cephfs” 12创建完成后可以通过ceph auth list 查看keyring跟文件里面是否一致，权限是否正常chmod 600 /etc/ceph/ceph.client.foo.keyring (4) 用kernel driver挂载CephFS12mkdir /mnt/mycephfsmount -t ceph :/ /mnt/mycephfs -o name=foo 使用ceph-fuse挂载参考文档：https://docs.ceph.com/en/latest/cephfs/mount-using-fuse/ 遇到的错误及解决办法 遇到错误“unable to get monitor info from DNS SRV with service name: ceph-mon”原因：配置文件ceph.conf中没有相关的配置信息解决办法：去其他正常节点拷贝一份配置文件过来即可 遇到错误“[errno 2] error connecting to the cluster”解决办法：在其他可以执行该命令的节点上找到ceph.client.admin.keyringfind / -name ceph.client.admin.keyring把该文件拷贝一份到报错节点即可。 参考资料Ceph—RBD块设备介绍与创建探索RBD块存储接口分布式文件系统CephFSceph-fuse挂载参考文档]]></content>
@@ -423,9 +436,9 @@
       </categories>
       <tags>
         <tag>日常积累</tag>
+        <tag>crontab</tag>
         <tag>开机启动</tag>
         <tag>监控</tag>
-        <tag>crontab</tag>
         <tag>shell</tag>
       </tags>
   </entry>
@@ -595,8 +608,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>strace</tag>
         <tag>日常积累</tag>
+        <tag>strace</tag>
       </tags>
   </entry>
   <entry>
@@ -608,8 +621,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>awk</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -722,8 +735,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>gdb</tag>
         <tag>问题定位</tag>
+        <tag>gdb</tag>
       </tags>
   </entry>
   <entry>
@@ -748,9 +761,9 @@
       </categories>
       <tags>
         <tag>总结</tag>
+        <tag>shell脚本</tag>
         <tag>Linux</tag>
         <tag>问题定位</tag>
-        <tag>shell脚本</tag>
       </tags>
   </entry>
   <entry>
