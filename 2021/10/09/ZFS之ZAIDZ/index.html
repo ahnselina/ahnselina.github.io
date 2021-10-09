@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="数据结构,算法,">
+  <meta name="keywords" content="Linux,文件系统,ZFS,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="本文主要回顾排序算法中的选择排序，主要有如下内容：1.为什么要学习O( n^2 )的排序算法2.一句白话说选择排序3.选择排序的具体实现  为什么要学习O( n^2 )的排序算法学习过算法的我们都知道，时间复杂度为O( n^2 )的算法多半不是最佳算法，那为什么我们也要学习并掌握这种类型的算法呢，其实这种类型算法一般都具有如下特点：  编码简单，易于实现，也就是我们很容易想到 此外可以在简单算法的">
-<meta name="keywords" content="数据结构,算法">
+<meta name="keywords" content="Linux,文件系统,ZFS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="选择排序">
-<meta property="og:url" content="https://www.a-programmer.top/2018/04/04/选择排序/index.html">
+<meta property="og:title" content="ZFS之ZAIDZ">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/09/ZFS之ZAIDZ/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
-<meta property="og:description" content="本文主要回顾排序算法中的选择排序，主要有如下内容：1.为什么要学习O( n^2 )的排序算法2.一句白话说选择排序3.选择排序的具体实现  为什么要学习O( n^2 )的排序算法学习过算法的我们都知道，时间复杂度为O( n^2 )的算法多半不是最佳算法，那为什么我们也要学习并掌握这种类型的算法呢，其实这种类型算法一般都具有如下特点：  编码简单，易于实现，也就是我们很容易想到 此外可以在简单算法的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-29T13:49:48.259Z">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/09/5k68JJ.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/09/5k6rJH.png">
+<meta property="og:updated_time" content="2021-10-09T15:33:32.549Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="选择排序">
-<meta name="twitter:description" content="本文主要回顾排序算法中的选择排序，主要有如下内容：1.为什么要学习O( n^2 )的排序算法2.一句白话说选择排序3.选择排序的具体实现  为什么要学习O( n^2 )的排序算法学习过算法的我们都知道，时间复杂度为O( n^2 )的算法多半不是最佳算法，那为什么我们也要学习并掌握这种类型的算法呢，其实这种类型算法一般都具有如下特点：  编码简单，易于实现，也就是我们很容易想到 此外可以在简单算法的">
+<meta name="twitter:title" content="ZFS之ZAIDZ">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/10/09/5k68JJ.png">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://www.a-programmer.top/2018/04/04/选择排序/">
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/09/ZFS之ZAIDZ/">
 
 
 
 
 
-  <title>选择排序 | 成长录-知行合一</title>
+  <title>ZFS之ZAIDZ | 成长录-知行合一</title>
   
 
 
@@ -315,7 +315,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2018/04/04/选择排序/">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/09/ZFS之ZAIDZ/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ahnselina">
@@ -332,7 +332,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">选择排序</h1>
+          <h1 class="post-title" itemprop="name headline">ZFS之ZAIDZ</h1>
         
 
         <div class="post-meta">
@@ -344,8 +344,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-04T00:00:00+08:00">
-                2018-04-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-09T23:30:30+08:00">
+                2021-10-09
               </time>
             
 
@@ -367,8 +367,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/重温数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">重温数据结构</span>
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
                   </a>
                 </span>
 
@@ -385,8 +385,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/04/04/选择排序/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2018/04/04/选择排序/" itemprop="commentCount"></span>
+                <a href="/2021/10/09/ZFS之ZAIDZ/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/09/ZFS之ZAIDZ/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -413,7 +413,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,158 字
+                  4,262 字
                 </span>
               
 
@@ -429,7 +429,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  5 分钟
+                  16 分钟
                 </span>
               
             </div>
@@ -450,34 +450,50 @@
       
 
       
-        <p>本文主要回顾排序算法中的选择排序，主要有如下内容：<br>1.为什么要学习O( n^2 )的排序算法<br>2.一句白话说选择排序<br>3.选择排序的具体实现</p>
-<hr>
-<h3 id="为什么要学习O-n-2-的排序算法"><a href="#为什么要学习O-n-2-的排序算法" class="headerlink" title="为什么要学习O( n^2 )的排序算法"></a>为什么要学习O( n^2 )的排序算法</h3><p>学习过算法的我们都知道，时间复杂度为O( n^2 )的算法多半不是最佳算法，那为什么我们也要学习并掌握这种类型的算法呢，其实这种类型算法一般都具有如下特点：</p>
+        <p><img src="https://z3.ax1x.com/2021/10/09/5k68JJ.png" alt=""></p>
+<a id="more"></a>
+<p>介绍RAIDZ之前，首先需要我们对标准的RAID有一个了解，知道它有什么问题。如果标准的RAID很完美，那么就不需要再搞一个RAIDZ出来了。<br>本文主要介绍标准的RAID存在什么问题，然后介绍RAIDZ有什么特点，以及几种常见的RAIDZ和如何创建RAIDZ的zpool。</p>
+<h2 id="标准的基于奇偶检验的RAID"><a href="#标准的基于奇偶检验的RAID" class="headerlink" title="标准的基于奇偶检验的RAID"></a>标准的基于奇偶检验的RAID</h2><p>为了理解RAIDZ，首先需要理解基于奇偶检验的RAID级别，比如RAID5和RAID6。先看一下标准RAID-5的布局。RAID-5至少需要3块硬盘。在2个硬盘上，数据被条带化。然后计算一个奇偶校验位，其结果是集合中所有三个条带的异或，然后将奇偶校验写入磁盘。这种情况允许一个磁盘故障，并可以重新计算恢复数据。此外，在RAID-5中，阵列中没有单个硬盘专门用于校验数据。而是把奇偶校验分布在所有的磁盘上。因此，任何磁盘都可能发生故障，但数据仍然可以恢复。<br>然而，还是有个问题。假设在RAID-5分条中写入数据，但在写入奇偶校验之前发生了断电。您现在有了不一致的数据。ZFS的创建者Jeff Bonwick将此称为“RAID-5 write hole”。实际上，对于所有基于奇偶校验的RAID阵列来说，无论多小，这都是一个问题。如果存在写入数据块而不写入奇偶位的任何可能性，那么我们就有“write hole”。糟糕的是，基于软件的RAID不知道存在这个问题。现在，有一些软件可以识别奇偶校验与数据不一致，但它们很慢并且也不可靠。因此，基于软件的RAID已经不再受到存储管理员的青睐。相反，昂贵(而且容易发生故障)的且带有备份电源的硬件卡，已经变得司空见惯。</p>
+<p>除了上面的问题，还有一个很大的性能问题需要处理。如果正在写入分条的数据小于分条的大小，则必须从分条的其余部分读取数据，并重新计算奇偶校验。这将导致您读写与应用程序无关的数据。<br>不是只读取活的、运行的数据，而是花大量时间读取“死的”或旧的数据。因此，昂贵的电池支持的NVRAM硬件RAID卡可以向用户隐藏这个延迟，然而NVRAM缓冲区只有在这个条带数据被刷到磁盘前有效。</p>
+<p>由于有这两种缺陷：RAID-5写入漏洞和将数据写入小于条带大小的磁盘，ZFS的原子事务性质不喜欢硬件解决方案，因为这是不可能的，也不喜欢现有的软件解决方案，因为它可能导致数据损坏。因此，需要重新考虑基于奇偶校验的RAID。</p>
+<h2 id="ZFS-RAIDZ"><a href="#ZFS-RAIDZ" class="headerlink" title="ZFS RAIDZ"></a>ZFS RAIDZ</h2><p>RAIDZ与RAID5不同，RAIDZ不是在创建时静态设置条带宽度，而是动态设置条带宽度。每个以事务方式刷新到磁盘的块都有自己的条带宽度。每次RAIDZ写都是一次全分条写。并且，奇偶校验位与条带同时刷新，完全消除RAID-5“write hole”问题。所以，在停电的情况下，你要么有最新的数据刷新，要么没有。但是，磁盘不会是不一致的。</p>
+<p><img src="https://z3.ax1x.com/2021/10/09/5k6rJH.png" alt=""></p>
+<p>然而，这里有一个陷阱。使用标准化的基于奇偶校验的RAID，逻辑就像“每个磁盘XORs为零”一样简单。对于动态可变条带宽度(如RAIDZ)，这是不行的。相反，我们必须提取ZFS元数据来确定每次读取时的RAIDZ条带大小等信息。如果您注意的话，您会注意到，如果文件系统和RAID是独立的产品，那么这种情况是不可能的;您的RAID卡不知道您的文件系统，反之亦然。这就是ZFS胜出的原因。</p>
+<p>而且，由于ZFS了解底层RAID，除非磁盘已满，否则性能不会成为问题。读取文件系统元数据以构建RAID分条意味着只读取实时运行的数据。不需要担心读取“死”数据或未分配的空间。因此，文件系统的元数据遍历在许多方面实际上可以更快。您不需要昂贵的NVRAM来缓冲写操作，也不需要它作为RAID “write hole”时的电池备份。因此，ZFS又回到了“廉价磁盘冗余阵列”的老承诺。事实上，强烈建议您使用便宜的SATA磁盘，而不是昂贵的光纤通道或用于ZFS的SAS磁盘。</p>
+<h3 id="有自愈能力的RAID"><a href="#有自愈能力的RAID" class="headerlink" title="有自愈能力的RAID"></a>有自愈能力的RAID</h3><p>假设由于某种原因，阵列中的磁盘上有坏数据。ZFS可以检测无声错误，并动态地修复它们。这就是我成为ZFS粉丝的最大原因。当应用程序请求数据时，ZFS构造我们上面了解到的条带，并将每个块与元数据中的默认校验值(当前为fletcher4)进行比较。如果读到的条带校验值不匹配，ZFS会找到损坏的块，然后读取奇偶校验，并通过组合重构修复它。然后它将修复的数据返回给应用程序。这一切都是在ZFS本身中完成的，无需特殊硬件的帮助。</p>
+<p>RAIDZ级别的另一个方面是，如果条带比阵列中的磁盘长，如果出现磁盘故障，则没有足够的具有奇偶校验的数据可以重建数据。因此，ZFS将在条带中镜像一些数据，以防止这种情况发生。</p>
+<p>同样，如果您的RAID和文件系统是独立的产品，那么它们并不知道彼此，因此检测和修复静默数据错误是不可能的。因此，解决了RAIDZ的基本概念问题之后，让我们构建一些RAIDZ池。和我之前的文章一样，我将使用5个USB u盘/dev/sde， /dev/sdf， /dev/sdg， /dev/sdh和/dev/sdi，它们的大小都是8gb。</p>
+<h3 id="RAIDZ-1"><a href="#RAIDZ-1" class="headerlink" title="RAIDZ-1"></a>RAIDZ-1</h3><p>RAIDZ-1类似于RAID-5，它有一个分布在阵列中所有磁盘上的奇偶校验位。条带宽度是可变的，可以覆盖阵列中磁盘的某一确切宽度，可以覆盖更少的磁盘，也可以覆盖更多的磁盘，如上面的图所示。RAIDZ-1能容忍一个磁盘损坏而不丢失数据。2个硬盘故障，可能导致数据丢失。RAIDZ-1要求硬盘数不少于3块。存储的容量将是数组中的磁盘数量乘以最小磁盘的存储容量，减去一个奇偶校验磁盘(我将在另一篇文章中讨论zpool存储容量大小的注意事项)。所以在我的例子中，我应该有大约16GB的可用磁盘。<br> 为了设置一个带有raidz1的zpool，我们使用“raidz1”VDEV，在本例中只使用3个USB驱动器:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># zpool create tank raidz1 sde sdf sdg</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: pool</span><br><span class="line"> state: ONLINE</span><br><span class="line"> scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME          STATE     READ WRITE CKSUM</span><br><span class="line">        pool          ONLINE       0     0     0</span><br><span class="line">          raidz1-0    ONLINE       0     0     0</span><br><span class="line">            sde       ONLINE       0     0     0</span><br><span class="line">            sdf       ONLINE       0     0     0</span><br><span class="line">            sdg       ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
+<p>继续之前清理刚创建的zpool<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool destroy tank</span><br></pre></td></tr></table></figure></p>
+<h3 id="RAIDZ-2"><a href="#RAIDZ-2" class="headerlink" title="RAIDZ-2"></a>RAIDZ-2</h3><p>RAIDZ-2与RAID-6相似，在阵列中的所有磁盘上都有一个双奇偶校验位。条带宽度是可变的，可以覆盖阵列中磁盘的某一确切宽度，可以覆盖更少的磁盘，也可以覆盖更多的磁盘。RAIDZ-2能容忍最多两盘故障。如果出现3盘故障，将导致数据丢失。RAIDZ-2至少需要4块硬盘。<br>存储的容量将是阵列中的磁盘数量乘以最小磁盘的存储容量，减去两个奇偶校验磁盘。所以在我的例子中，我应该有大约16GB的可用磁盘。<br>为了使用RAIDZ-2设置zpool，我们使用“raidz2”VDEV:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># zpool create tank raidz2 sde sdf sdg sdh</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: pool</span><br><span class="line"> state: ONLINE</span><br><span class="line"> scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME          STATE     READ WRITE CKSUM</span><br><span class="line">        pool          ONLINE       0     0     0</span><br><span class="line">          raidz2-0    ONLINE       0     0     0</span><br><span class="line">            sde       ONLINE       0     0     0</span><br><span class="line">            sdf       ONLINE       0     0     0</span><br><span class="line">            sdg       ONLINE       0     0     0</span><br><span class="line">            sdh       ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
+<p>清理环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool destroy tank</span><br></pre></td></tr></table></figure></p>
+<h3 id="RAIDZ-3"><a href="#RAIDZ-3" class="headerlink" title="RAIDZ-3"></a>RAIDZ-3</h3><p>RAIDZ-3没有可以与之比较的标准化RAID级别。但是，它是RAIDZ-1和RAIDZ-2的逻辑延续，因为在阵列中的所有磁盘上都有一个三重奇偶校验位。条带宽度是可变的，可以覆盖阵列中磁盘的确切宽度，也可以覆盖更少的磁盘，也可以覆盖更多的磁盘，如上图所示。RAIDZ-3能容忍3盘故障。4块硬盘故障，会导致数据丢失。 RAIDZ-3至少需要5块硬盘。存储的容量将是阵列中的磁盘数量乘以最小磁盘的存储，减去3个奇偶校验磁盘。所以在我的例子中，我应该有大约16GB的可用磁盘。<br> 为了使用RAIDZ-3设置zpool，我们使用“raidz3”VDEV:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># zpool create tank raidz3 sde sdf sdg sdh sdi</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: pool</span><br><span class="line"> state: ONLINE</span><br><span class="line"> scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME          STATE     READ WRITE CKSUM</span><br><span class="line">        pool          ONLINE       0     0     0</span><br><span class="line">          raidz3-0    ONLINE       0     0     0</span><br><span class="line">            sde       ONLINE       0     0     0</span><br><span class="line">            sdf       ONLINE       0     0     0</span><br><span class="line">            sdg       ONLINE       0     0     0</span><br><span class="line">            sdh       ONLINE       0     0     0</span><br><span class="line">            sdi       ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
+<p>清理环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool destroy tank</span><br></pre></td></tr></table></figure></p>
+<h3 id="混合RAIDZ"><a href="#混合RAIDZ" class="headerlink" title="混合RAIDZ"></a>混合RAIDZ</h3><p>不幸的是，基于奇偶校验的RAID速度很慢，特别是在单个条带中有许多磁盘时(例如48磁盘的JBOD)。为了提高速度，将单个大型RAIDZ VDEV分割为多个RAIDZ VDEV的条带可能不是一个坏主意。这将消耗您可用的磁盘空间来存储，但可以极大地提高性能。当然，与前面的RAIDZ VDEV一样，每个嵌套的RAIDZ VDEV中的条带宽度是可变的。对于每个RAIDZ级别，您可以在每个VDEV中丢失最多这么多磁盘。因此，如果您有一个由三个RAIDZ-1 VDEV组成的条带，那么您总共可以容忍三个磁盘故障，每个VDEV一个磁盘故障。可用空间的计算方法类似。在本例中，由于每个VDEV中的奇偶校验存储，您将减去三个磁盘空间（因为用来存储校验数据了）。</p>
+<p> 为了说明这个概念，让我们假设我们有一个12磁盘的存储服务器，我们希望在最大化条带性能的同时损失尽可能少的磁盘。因此，我们将创建4个RAIDZ-1 vdev，每个RAIDZ-1包含3个磁盘。这将使占用我们4个可用于存储数据的磁盘（用于存储校验数据），但它也将使我们能够承受4个磁盘故障，并且跨4个vdev的条带将会提高性能。</p>
+<p>为了设置一个带有4个raidz1 VDEV的zpool，我们在命令中使用了4次“raidz1”VDEV。注意，为了清晰起见，我强调了什么时候在命令中输入”raidz1”:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"># zpool create tank raidz1 sde sdf sdg raidz1 sdh sdi sdj raidz1 sdk sdl sdm raidz1 sdn sdo sdp</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: pool</span><br><span class="line"> state: ONLINE</span><br><span class="line"> scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME          STATE     READ WRITE CKSUM</span><br><span class="line">        pool          ONLINE       0     0     0</span><br><span class="line">          raidz1-0    ONLINE       0     0     0</span><br><span class="line">            sde       ONLINE       0     0     0</span><br><span class="line">            sdf       ONLINE       0     0     0</span><br><span class="line">            sdg       ONLINE       0     0     0</span><br><span class="line">          raidz1-1    ONLINE       0     0     0</span><br><span class="line">            sdh       ONLINE       0     0     0</span><br><span class="line">            sdi       ONLINE       0     0     0</span><br><span class="line">            sdj       ONLINE       0     0     0</span><br><span class="line">          raidz1-2    ONLINE       0     0     0</span><br><span class="line">            sdk       ONLINE       0     0     0</span><br><span class="line">            sdl       ONLINE       0     0     0</span><br><span class="line">            sdm       ONLINE       0     0     0</span><br><span class="line">          raidz1-3    ONLINE       0     0     0</span><br><span class="line">            sdn       ONLINE       0     0     0</span><br><span class="line">            sdo       ONLINE       0     0     0</span><br><span class="line">            sdp       ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
+<p>注意，现在有四个RAIDZ-1 VDEVs。正如在之前的文章中提到的，ZFS条带跨多个VDEVs。因此，这个设置本质上是RAIDZ-1+0。每个RAIDZ-1 VDEV将接收发送到池的数据的1/4，然后每个条带块将在每个VDEV中的磁盘上进一步条带化。嵌套的VDEVs可以在池被大规模分段之后很长一段时间保持良好的性能。</p>
+<p>清理环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool destroy tank</span><br></pre></td></tr></table></figure></p>
+<h3 id="关于RAIDZ的一些想法"><a href="#关于RAIDZ的一些想法" class="headerlink" title="关于RAIDZ的一些想法"></a>关于RAIDZ的一些想法</h3><p>关于何时使用RAIDZ-1/2/3，何时不使用，存在各种建议。有人说RAIDZ-1和RAIDZ-3应该使用奇数个硬盘。RAIDZ-1至少3块硬盘，且不超过7块硬盘;RAIDZ-3可以7用块盘，且不超过15块硬盘。RAIDZ-2应该使用偶数个磁盘，从6个磁盘开始，不能超过12个。这是为了确保实际写入数据的磁盘数量是偶数，并最大化阵列的性能。</p>
+<p>如果超出这些建议，我个人会使用RAID-1+0设置。这很大程度上是由于重建数据所需要的时间(称为“resilvering”——后面会有文章介绍这个)。由于计算奇偶校验位非常昂贵，因此与RAID-1+0相比，RAIDZ数组中的磁盘越多，该操作的成本就越高。</p>
+<p>此外，我还看到了关于磁盘大小的建议，说RAIDZ-1每个磁盘不超过1TB, RAIDZ-2每个磁盘不超过2TB, RAIDZ-3每个磁盘不超过3TB。对于超过这些值的大小的，应该使用带条纹的2路或3路镜像。我不能确定这些说法是否有效。但是，我可以告诉您，在磁盘数量较少的情况下，您应该使用能够适应您的缺点的RAID级别。在4盘RAID阵列中，如前所述，计算多个奇偶校验位会降低性能。此外，4盘RAID最多能容忍两个磁盘故障(如果使用RAID-1+0或RAIDZ-2)。RAIDZ-1介于两者之间，在这种情况下，可以容忍单个磁盘故障，同时仍然保持良好的性能水平。如果数组中有12个磁盘，那么可能更适合RAIDZ-1+0或RAIDZ-3，因为出现多个磁盘故障的几率会增加。</p>
+<p> 最后，您需要理解你的存储问题并对你的硬盘进行基准测试。将它们放在不同的RAID配置中，并使用IOZone 3等工具对阵列进行基准测试和压力测试。你需要知道要在磁盘上存储什么数据。你要知道磁盘安装在什么类型的硬件上。你要知道你需要什么样的性能表现。这是你的决定，如果你花时间做研究、作业和调查，你会得出正确的决定。可能有“最佳实践”，但它们只适用于某种具体情况。<strong>总之，就是说每个人需要根据自己的性能需求，硬盘性能和硬件能力来选择最适合他们自己的RAID配置</strong>。</p>
+<p>最后，在性能方面，镜像的读和写总是优于RAIDZ级别。此外，RAIDZ-1将优于RAIDZ-2，而RAIDZ-2将优于RAIDZ-3。需要计算的奇偶校验位越多，读取和写入数据所需的时间就越长。当然，您总是可以在VDEVs中添加条带以最大化某些性能。嵌套的RAID级别(如RAID-1+0)被认为是“RAID级别中的凯迪拉克”，这是由于可以在没有奇偶校验的情况下丢失磁盘的灵活性和从条带获得的吞吐量。因此，简而言之，从最快到最慢的排序如下：</p>
 <ul>
-<li>编码简单，易于实现，也就是我们很容易想到</li>
-<li>此外可以在简单算法的基础上再做改进</li>
-<li>特殊场景下，简单的排序算法更为有效</li>
-<li>由简入难，从简单的排序算法思想再推演出复杂的排序算法</li>
+<li>RAID-0 (fastest)</li>
+<li>RAID-1</li>
+<li>RAIDZ-1</li>
+<li>RAIDZ-2</li>
+<li>RAIDZ-3 (slowest)</li>
 </ul>
-<h3 id="一句白话说选择排序"><a href="#一句白话说选择排序" class="headerlink" title="一句白话说选择排序"></a>一句白话说选择排序</h3><p>一句白话说选择排序：选择排序就是每次都从一堆元素中选出一个最小（大）的<br>详细一点就是：假设总共n个元素，第一趟从n个元素的数据序列中选出关键字最小/大的元素并放在最前/后位置，下一趟从n-1个元素中选出最小/大的元素并放在最前/后位置。以此类推，经过n-1趟完成排序。</p>
-<h3 id="选择排序的具体实现"><a href="#选择排序的具体实现" class="headerlink" title="选择排序的具体实现"></a>选择排序的具体实现</h3><ul>
-<li>C语言实现</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> *a, <span class="keyword">int</span> *b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> tmp = *a;</span><br><span class="line">    *a = *b;</span><br><span class="line">    *b = tmp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectionSort</span><span class="params">(<span class="keyword">int</span> arr[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//寻找[i， n)之间的最小值</span></span><br><span class="line">        <span class="keyword">int</span> minIndex = i;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; n; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(arr[j] &lt; arr[minIndex])</span><br><span class="line">            &#123;</span><br><span class="line">                minIndex = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        swap(&amp;arr[i], &amp;arr[minIndex]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a[<span class="number">10</span>] = &#123;<span class="number">10</span>,<span class="number">9</span>,<span class="number">8</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">5</span>,<span class="number">4</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>&#125;;</span><br><span class="line">    selectionSort(a, <span class="number">10</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d "</span>, a[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>C++实现</li>
-</ul>
-<p>清单1：头文件<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> SELECTIONSORT_STUDENT_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SELECTIONSORT_STUDENT_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Student</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="built_in">string</span> name;</span><br><span class="line">    <span class="keyword">int</span> score;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>&lt;(<span class="keyword">const</span> Student &amp;otherStudent)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> score != otherStudent.score ? score &lt; otherStudent.score : name &lt; otherStudent.name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">friend</span> ostream&amp; <span class="keyword">operator</span>&lt;&lt;(ostream &amp;os, <span class="keyword">const</span> Student &amp;student)</span><br><span class="line">    &#123;</span><br><span class="line">        os&lt;&lt;<span class="string">"Student: "</span>&lt;&lt;student.name&lt;&lt;<span class="string">" "</span>&lt;&lt;student.score&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> os;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// SELECTIONSORT_STUDENT_H</span></span></span><br></pre></td></tr></table></figure></p>
-<p>清单2：具体实现<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"Student.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectionSort</span><span class="params">(T arr[], <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">     &#123;</span><br><span class="line">         <span class="keyword">int</span> minIndex = i;</span><br><span class="line">         <span class="keyword">for</span>(<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; n; j++)</span><br><span class="line">         &#123;</span><br><span class="line">             <span class="keyword">if</span>(arr[j] &lt; arr[minIndex])</span><br><span class="line">             &#123;</span><br><span class="line">                 minIndex = j;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         swap(arr[i], arr[minIndex]);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a[<span class="number">10</span>] = &#123;<span class="number">10</span>,<span class="number">9</span>,<span class="number">8</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">5</span>,<span class="number">4</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>&#125;;</span><br><span class="line">    selectionSort(a, <span class="number">10</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;a[i]&lt;&lt;<span class="string">" "</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">float</span> b[<span class="number">4</span>] = &#123;<span class="number">4.4</span>, <span class="number">3.3</span>, <span class="number">2.2</span>, <span class="number">1.1</span>&#125;;</span><br><span class="line">    selectionSort(b, <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;b[i]&lt;&lt;<span class="string">" "</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">string</span> c[<span class="number">4</span>] = &#123;<span class="string">"D"</span>, <span class="string">"C"</span>, <span class="string">"B"</span>, <span class="string">"A"</span>&#125;;</span><br><span class="line">    selectionSort(c, <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;c[i]&lt;&lt;<span class="string">" "</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    Student d[<span class="number">4</span>] = &#123;</span><br><span class="line">    &#123;<span class="string">"D"</span>,<span class="number">90</span>&#125;, </span><br><span class="line">    &#123;<span class="string">"C"</span>, <span class="number">100</span>&#125;,</span><br><span class="line">    &#123;<span class="string">"Bob"</span>,<span class="number">95</span>&#125;, </span><br><span class="line">    &#123;<span class="string">"A"</span>,<span class="number">95</span>&#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">    selectionSort(d, <span class="number">4</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;d[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>上述C++代码中用了到运算符重载，简单回顾一下：<br><strong>为什么要对运算符进行重载：</strong><br>C++预定义中的运算符的操作对象只局限于基本的内置数据类型，但是对于我们自定义的类型（类）是没有办法操作的。但是大多时候我们需要对我们定义的类型进行类似的运算，这个时候就需要我们对这么运算符进行重新定义，赋予其新的功能，以满足自身的需求。<br><strong>C++运算符重载的实质：</strong><br>运算符重载的实质就是函数重载或函数多态。运算符重载是一种形式的C++多态。目的在于让人能够用同名的函数来完成不同的基本操作。要重载运算符，需要使用被称为运算符函数的特殊函数形式，运算符函数形式：operatorp（argument-list）//operator 后面的’p’为要重载的运算符符号。<br>即：</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;返回类型说明符&gt; <span class="keyword">operator</span> &lt;运算符符号&gt;(&lt;参数表&gt;)  </span><br><span class="line">&#123;  </span><br><span class="line">     &lt;函数体&gt;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>可以看到使用了模板或者其他语言中的泛型后，这样的一个程序的通用性就非常强，前面的C语言实现只能针对一种类型的数据进行排序！ </p>
-</blockquote>
-<hr>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>RAIDZ尽管和RAID5有很多地方类似，但是RAIDZ并不是RAID5.<br>RAID5的缺陷：  </p>
+<ol>
+<li>RAID5最显著的缺点就是<strong>“write hole”</strong>，因为他无法提供任何安全的机制保证写校验码的时候不出现故障。而如果此时断电，那么将造成parity是错误的，当然后期利用这个错误的parity更新的新的数据块将更是错误的。而此时用户并不知道。  </li>
+<li>RAID5另一个问题是性能问题。如果正在写入分条的数据小于分条的大小，则必须从分条的其余部分读取数据，并重新计算奇偶校验。这将导致读写与应用程序无关的数据。</li>
+</ol>
+<p>RAIDZ具有两个显著的特点<br><strong>特点一</strong>：<br>避免了读旧数据-修改parity-写数据的RAID写磁盘模式，而是通过full stripe write的方式完成写数据操作。这样一次性写入 保证了即使断电，也不会出现不一致的状况。要么写成功，要么什么都没做。<br><strong>特点二</strong>：<br>就是动态条带化的特点。抛弃的传统的stripe都是固定长度的特点。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://pthree.org/2012/12/05/zfs-administration-part-ii-raidz/" target="_blank" rel="noopener">https://pthree.org/2012/12/05/zfs-administration-part-ii-raidz/</a>  </p>
+
       
     </div>
     
@@ -529,7 +545,7 @@
       </li>
     <li class="post-copyright-link">
       <strong>本文链接：</strong>
-        <a href="/2018/04/04/选择排序/" title="选择排序">2018/04/04/选择排序/</a>
+        <a href="/2021/10/09/ZFS之ZAIDZ/" title="ZFS之ZAIDZ">2021/10/09/ZFS之ZAIDZ/</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权： </strong>
@@ -541,9 +557,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
           
-            <a href="/tags/算法/" rel="tag"># 算法</a>
+            <a href="/tags/文件系统/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
           
         </div>
       
@@ -556,8 +574,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/04/01/GDB定位死锁问题/" rel="next" title="gdb用法总结">
-                <i class="fa fa-chevron-left"></i> gdb用法总结
+              <a href="/2021/10/08/ZFS的一些基本概念/" rel="next" title="ZFS的一些基本概念">
+                <i class="fa fa-chevron-left"></i> ZFS的一些基本概念
               </a>
             
           </div>
@@ -565,10 +583,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/04/05/插入排序/" rel="prev" title="插入排序">
-                插入排序 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -721,7 +735,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要学习O-n-2-的排序算法"><span class="nav-number">1.</span> <span class="nav-text">为什么要学习O( n^2 )的排序算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一句白话说选择排序"><span class="nav-number">2.</span> <span class="nav-text">一句白话说选择排序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选择排序的具体实现"><span class="nav-number">3.</span> <span class="nav-text">选择排序的具体实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#标准的基于奇偶检验的RAID"><span class="nav-number">1.</span> <span class="nav-text">标准的基于奇偶检验的RAID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZFS-RAIDZ"><span class="nav-number">2.</span> <span class="nav-text">ZFS RAIDZ</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有自愈能力的RAID"><span class="nav-number">2.1.</span> <span class="nav-text">有自愈能力的RAID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAIDZ-1"><span class="nav-number">2.2.</span> <span class="nav-text">RAIDZ-1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAIDZ-2"><span class="nav-number">2.3.</span> <span class="nav-text">RAIDZ-2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAIDZ-3"><span class="nav-number">2.4.</span> <span class="nav-text">RAIDZ-3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#混合RAIDZ"><span class="nav-number">2.5.</span> <span class="nav-text">混合RAIDZ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于RAIDZ的一些想法"><span class="nav-number">2.6.</span> <span class="nav-text">关于RAIDZ的一些想法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
