@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.a-programmer.top/2021/10/10/ZFS%E4%B9%8BZFS%20intent%20log/</loc>
-    <lastmod>2021-10-09</lastmod>
+    <loc>https://www.a-programmer.top/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/</loc>
+    <lastmod>2021-10-11</lastmod>
   </url>  <url>
-    <loc>https://www.a-programmer.top/2021/10/09/ZFS%E4%B9%8BZAIDZ/</loc>
-    <lastmod>2021-10-09</lastmod>
+    <loc>https://www.a-programmer.top/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/</loc>
+    <lastmod>2021-10-11</lastmod>
   </url>  <url>
-    <loc>https://www.a-programmer.top/2021/10/08/ZFS%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</loc>
-    <lastmod>2021-10-08</lastmod>
+    <loc>https://www.a-programmer.top/2021/10/09/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89ZFS%20intent%20log/</loc>
+    <lastmod>2021-10-11</lastmod>
+  </url>  <url>
+    <loc>https://www.a-programmer.top/2021/10/08/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%8C%EF%BC%89ZAIDZ/</loc>
+    <lastmod>2021-10-11</lastmod>
+  </url>  <url>
+    <loc>https://www.a-programmer.top/2021/10/07/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%80%EF%BC%89%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</loc>
+    <lastmod>2021-10-11</lastmod>
   </url>  <url>
     <loc>https://www.a-programmer.top/2021/10/06/FUSE%E4%BB%8B%E7%BB%8D/</loc>
     <lastmod>2021-10-08</lastmod>
