@@ -89,9 +89,9 @@
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/12/5nXPT1.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/12/5nXVSO.md.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/12/5nXumd.png">
-<meta property="og:image" content="https://z3.ax1x.com/2021/10/12/5nXW7R.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/12/5nX7cD.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/12/5nXLBd.png">
-<meta property="og:updated_time" content="2021-10-12T15:32:46.578Z">
+<meta property="og:updated_time" content="2021-10-13T14:40:26.507Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZFS系列（七）写时复制">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/10/12/5nX7cD.png">
@@ -483,7 +483,7 @@
 <p> 如前所述，COW会产生很多的碎片磁盘。这可能会对性能产生巨大影响。因此，需要做一些工作来提前分配块，以最小化碎片。有两种基本方法:使用b树预分配区段，或者使用slab方法，为复制标记磁盘的slab。ZFS使用slab方法，而Btrfs使用b树方法。</p>
 <p>通常，文件系统以4KB大小的块写入数据。ZFS以128KB大小的块的形式写入数据。其次，slab分配器将分配一个slab，然后将这个slab分割成多个128 KB的块。第三，ZFS每5秒向磁盘同步一次数据。所有剩余数据将在30秒后刷到磁盘。这使得大量数据在slab中同时被刷新到磁盘。因此，这大大增加了相似数据在同一slab中的概率。因此，在实践中，即使COW正在碎片化文件系统，我们也可以做一些事情来极大地减少碎片。</p>
 <p>不仅ZFS使用COW模型，Btrfs、NILFS、WAFL和新的Microsoft文件系统ReFS也使用COW模型。许多虚拟化技术使用COW来存储VM镜像，例如Qemu。COW文件系统是数据存储的未来。我们将在以后的帖子中更详细地讨论快照，以及COW模型是如何发挥作用的。</p>
-<h2 id="其他资料对ZFS-COW的介绍"><a href="#其他资料对ZFS-COW的介绍" class="headerlink" title="其他资料对ZFS COW的介绍"></a>其他资料对ZFS COW的介绍</h2><p>首先说下ZFS的copy on write 这个技术并不复杂，看下图比较清晰，<br><img src="https://z3.ax1x.com/2021/10/12/5nXumd.png" alt=""><br>图－1: 可以看到uberblock实际上是Merkle Tree的root. 它记录了文件系统的所有状态，当检索一个数据块的时候, 会从uberblock这里一路往下查找metadata block同时比较checksum, 直到找到对应的数据块。<br>图－2: 当写一个新的block 时，没有performance的影响，当修改一个旧的block时，需要先copy一份, 实际上会带来一些performance的问题, 实际上所有的metadata和checksum都是需要复制新建。 但COW和Transaction技术一起，可以对数据的一致性得到比较好的保护。<br>图－3: 数据已经写入，上层的metadata和checksum的数据也已经修改好，但uberblock还没被更新，这个时候断电重新启动，数据不会丢失，我们仍然可用找到修改的数据, 然后将uberblock原子的更新。<br>图－4: uberblock是通过原子的方式，所有绿色的部分都已经更新。<br>COW 带来另一个好处是Snapshot，Replication非常方便, 如下图:<br><img src="https://z3.ax1x.com/2021/10/12/5nXW7R.png" alt=""><br>做snapshot只需要找上图中不同颜色的相关的数据指针即可！<br>再看Replication, 如下图:<br><img src="https://z3.ax1x.com/2021/10/12/5nXLBd.png" alt=""><br>这里Merkle Tree的每个父亲节点都有一个birth time的元数据，birth time代表着transaction group的ID.这时如果想要复制19-37之间的数据就非常的容易，找到所有birth time大于19的父亲节点再使用数据指针和checksum的数据，找到对应的数据块即可用。</p>
+<h2 id="其他资料对ZFS-COW的介绍"><a href="#其他资料对ZFS-COW的介绍" class="headerlink" title="其他资料对ZFS COW的介绍"></a>其他资料对ZFS COW的介绍</h2><p>首先说下ZFS的copy on write 这个技术并不复杂，看下图比较清晰，<br><img src="https://z3.ax1x.com/2021/10/12/5nXumd.png" alt=""><br>图－1: 可以看到uberblock实际上是Merkle Tree的root. 它记录了文件系统的所有状态，当检索一个数据块的时候, 会从uberblock这里一路往下查找metadata block同时比较checksum, 直到找到对应的数据块。<br>图－2: 当写一个新的block 时，没有performance的影响，当修改一个旧的block时，需要先copy一份, 实际上会带来一些performance的问题, 实际上所有的metadata和checksum都是需要复制新建。 但COW和Transaction技术一起，可以对数据的一致性得到比较好的保护。<br>图－3: 数据已经写入，上层的metadata和checksum的数据也已经修改好，但uberblock还没被更新，这个时候断电重新启动，数据不会丢失，我们仍然可用找到修改的数据, 然后将uberblock原子的更新。<br>图－4: uberblock是通过原子的方式，所有绿色的部分都已经更新。<br>COW 带来另一个好处是Snapshot，Replication非常方便, 如下图:<br><img src="https://z3.ax1x.com/2021/10/12/5nX7cD.png" alt=""><br>做snapshot只需要找上图中不同颜色的相关的数据指针即可！<br>再看Replication, 如下图:<br><img src="https://z3.ax1x.com/2021/10/12/5nXLBd.png" alt=""><br>这里Merkle Tree的每个父亲节点都有一个birth time的元数据，birth time代表着transaction group的ID.这时如果想要复制19-37之间的数据就非常的容易，找到所有birth time大于19的父亲节点再使用数据指针和checksum的数据，找到对应的数据块即可用。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://pthree.org/2012/12/14/zfs-administration-part-ix-copy-on-write/" target="_blank" rel="noopener">https://pthree.org/2012/12/14/zfs-administration-part-ix-copy-on-write/</a></p>
 <p><a href="https://linux.cn/article-7422-1.html" target="_blank" rel="noopener">ZFS 那点事</a></p>
 
@@ -581,6 +581,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2021/10/14/ZFS系列（八）创建文件系统/" rel="prev" title="ZFS系列（八）创建文件系统">
+                ZFS系列（八）创建文件系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -661,7 +665,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">80</span>
+                  <span class="site-state-item-count">81</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
