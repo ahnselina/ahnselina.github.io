@@ -95,9 +95,9 @@
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePnxK.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePMrD.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePtRP.png">
-<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eCE1f.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/15/5850oR.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePcR0.png">
-<meta property="og:updated_time" content="2021-10-11T14:44:34.070Z">
+<meta property="og:updated_time" content="2021-10-15T15:08:20.622Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZFS系列（四）The Adjustable Replacement Cache">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/10/11/5eCE1f.png">
@@ -423,7 +423,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3,627 字
+                  3,640 字
                 </span>
               
 
@@ -462,7 +462,7 @@
       
         <p><img src="https://z3.ax1x.com/2021/10/11/5eCE1f.png" alt=""></p>
 <a id="more"></a>
-<p>本文继续ZFS管理系列文章，这里将介绍另一个zpool VDEV，叫做可调整可替换缓存(简称ARC)。</p>
+<p>本文继续ZFS管理系列文章，这里将介绍另一个zpool VDEV，叫做可调整可替换缓存(简称ARC，当然也有翻译为自适应缓存的)。</p>
 <h2 id="传统缓存"><a href="#传统缓存" class="headerlink" title="传统缓存"></a>传统缓存</h2><p> Linux和其他操作系统上的缓存机制使用的是最近最少使用的缓存算法。LRU算法的工作方式是，当应用程序读取数据块时，它们被放到缓存中。当越来越多的数据被读取并放入缓存时，缓存将被填满。然而，缓存是先进先出(FIFO)算法。因此，当缓存已满时，较旧的页面将被推出缓存。即使那些旧页面被更频繁地访问。把整个过程想象成一条传送带。块被放在缓存中最近使用的部分。当读取更多的块时，将旧块推到缓存中最近使用最少的部分，直到它们从传送带上脱落，或者换句话说被逐出。<br><img src="https://z3.ax1x.com/2021/10/11/5eClhq.png" alt=""></p>
 <p>当从磁盘读取较大的顺序读并将其放入缓存时，它倾向于从缓存中逐出更频繁请求的页面。即使这些新读取的数据只需要一次。因此，从缓存的角度来看，它最终会产生大量无用的、不再需要的数据。当然，当请求更新的数据块时，它最终会被替换。</p>
 <p>当然除了LRU，还有最少使用频率(LFU)缓存。但是，LFU会遇到一个问题，即如果较新的数据读取的频次不够多，很可能会从缓存中淘汰。因此，如果还要读取这些新数据将会有大量的磁盘请求，这就违背了使用缓存的初衷。因此，似乎最明显的方法就是以某种方式将两者结合起来——同时拥有一个LRU和一个LFU。</p>
@@ -508,7 +508,7 @@
 </ol>
 <p><img src="https://z3.ax1x.com/2021/10/11/5ePtRP.png" alt=""></p>
 <ol start="8">
-<li>不幸的是，我们的缓存太小，无法存储该页面。所以，我们必须把MRU增加一页来存储这个新的“幽灵命中的页面”。但是，我们的缓存只有这么大，所以我们必须将MFU的大小减少1，以便为MRU腾出空间。当然，该算法以类似的方式工作在MFU和ghost MFU。ghost MFU的“幽灵命中”会增大MFU，当然同时需要缩小MRU来为新页面腾出空间。<br><img src="https://z3.ax1x.com/2021/10/11/5eCE1f.png" alt=""></li>
+<li>不幸的是，我们的缓存太小，无法存储该页面。所以，我们必须把MRU增加一页来存储这个新的“幽灵命中的页面”。但是，我们的缓存只有这么大，所以我们必须将MFU的大小减少1，以便为MRU腾出空间。当然，该算法以类似的方式工作在MFU和ghost MFU。ghost MFU的“幽灵命中”会增大MFU，当然同时需要缩小MRU来为新页面腾出空间。<br><img src="https://z3.ax1x.com/2021/10/15/5850oR.png" alt=""></li>
 </ol>
 <p>所以，想象一下两种截然相反的工作f负载。第一种工作负载从磁盘读取大量随机数据，几乎没有重复。MRU可能会占缓存的大部分，而MFU只占很小的一部分。缓存已经根据系统所承受的负载调整了自己。但是，考虑第二种工作负载，它不断地反复读取相同的数据，只有很少的新读取数据。在这种情况下，MFU可能会占据大部分缓存，而MRU不会。因此，缓存被调整来适应系统所承受的负载。</p>
 <p> 还记得我们前面提到的传统缓存方案吗?Linux内核使用LRU方案将缓存的页面交换到磁盘。因此，它总是倾向于最近的缓存命中，而不是频繁的缓存命中。如果您只需要一次读取大量块，那么这可能会产生严重的后果。您将把频繁缓存的页面交换到磁盘，即使新读取的数据只需要一次。因此，您可能会以THE SWAP OF DEATH结束，因为频繁请求的页面必须从交换区域返回磁盘。使用ARC，我们修改缓存以适应这种负载(因此，它被称为“Adaptive Read cache”)。</p>
