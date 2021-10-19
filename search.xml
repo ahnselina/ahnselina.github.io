@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[ZFS系列（十一）发送与接收文件系统]]></title>
+    <url>%2F2021%2F10%2F17%2FZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%2F</url>
+    <content type="text"><![CDATA[通过前面一篇文章，你对快照特性已经很了解了，现在让我们把视线转移到ZFS的另一个明珠上，即它的从一个主机往另一个主机发送和接受整个文件系统的能力。这是非常了不起的功能，我不清楚其他文件系统在不借助第三方工具（比如”dd”和”nc”）是不是可以做到这一点。 ZFS发送发送一个ZFS文件系统，意味着对一个数据集做快照，然后发送这个快照。这样确保了在发送数据时始终保持一致，这是ZFS的关键所在。默认情况下，我们将数据发送到一个文件。然后，我们可以将该文件移动到离线备份、另一个存储服务器或者其他任何地方。ZFS发送相对于“dd”的优点是，您不需要使文件系统离线来获取数据。在我看来，这是非常棒的特性。要将文件系统发送到文件，首先必须制作数据集的快照。创建快照后，可以发送快照。这会产生一个输出流，把该输出流必须重定向到一个文件即可。命令如下:12# zfs snapshot tank/test@tuesday# zfs send tank/test@tuesday &gt; /backup/test-tuesday.img 现在，你的大脑应该在思考。您可以使用一整套Unix实用程序来操作数据。所以，与其存储原始数据，不如使用“xz”工具压缩它?确实可以这样：1# zfs send tank/test@tuesday | xz &gt; /backup/test-tuesday.img.xz 想要加密?你可以使用OpenSSL或GnuPG:1# zfs send tank/test@tuesday | xz | openssl enc -aes-256-cbc -a -salt &gt; /backup/test-tuesday.img.xz.asc ZFS接收接收ZFS文件系统是另一方面。在有数据流的地方，可以将数据导入到完整的可写文件系统中。如果不能对文件中的数据进行任何操作，那么将文件系统发送到映像文件就没有多大意义了。 就像“zfs send”对流进行操作一样，“zfs receive”也进行同样的操作。那么，假设我们想要接收“/backup/test-tuesday.img“文件系统。我们可以将它接收到任何存储池，它将创建必要的数据集。1# zfs receive tank/test2 &lt; /backup/test-tuesday.img 当然，在我们的发送示例中，我压缩并加密了发送的文件系统。所以，为了反转这个过程，我以相反的顺序执行命令:1# openssl enc -d -aes-256-cbc -a -in /storage/temp/testzone.gz.ssl | unxz | zfs receive tank/test2 “zfs recv”命令可以作为快捷方式使用。 发送命令与接收命令结合“zfs发送”和“zfs接收”都对输入和输出流进行操作。因此，将一个文件系统发送到另一个文件系统是有意义的。当然，我们可以在本地这样做:1# zfs send tank/test@tuesday | zfs receive pool/test 这是完全可以接受的，但是在同一个存储服务器上保留文件系统的多个副本并没有太大意义。相反，将文件系统发送到远程机器会更有意义。你可以用OpenSSH简单地做到这一点:1# zfs send tank/test@tuesday | ssh user@server.example.com &quot;zfs receive pool/test&quot; 看看这个命令是多么的简单。您从快照中获取实时的、运行的和一致的数据，并将该数据发送到另一个服务器。这对于离线存储备份来说是史诗级的。在您的ZFS存储服务器上，您将经常运行数据集的快照，然后，启动一个夜间cron作业，您可以使用“zfs receive”将最新的快照“zfs send”到一个离线存储服务器。由于运行的是一个安全、严密的系统，所以需要使用OpenSSL和XZ加密数据，非常简单便捷。 总结我禁不住再次强调发送和接收ZFS文件系统的简单性。这是使ZFS成为存储市场的有力竞争者的最大的特性之一。利用这个特性结合crontab，就可以使用ZFS发送和接收对数据进行离线备份。您可以发送文件系统而不卸载它们。您可以在接收端更改数据集属性。所有数据都保持一致，您还可以将它与其他Unix工具结合使用（如上文介绍的压缩工具和加密工具等）。 参考资料https://pthree.org/2012/12/20/zfs-administration-part-xiii-sending-and-receiving-filesystems/]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>文件系统</tag>
+        <tag>ZFS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[ZFS系列（十）快照和克隆]]></title>
     <url>%2F2021%2F10%2F16%2FZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86%2F</url>
     <content type="text"><![CDATA[ZFS里面的快照和Linux LVM中的快照是类似的。快照是只读的，它是你做快照的时候的文件系统的一份镜像复本。可以想象成对外部世界的一个数字照片，即使外部世界发生了变化，然而那个照片还是保留了拍下照片的那个时候的外部世界的样子。 您可以在池中保留至多2^64个快照，ZFS快照是持久化的，即使重启也不会丢失，而且它们不需要任何额外的备份存储;它们与其他数据一样使用相同的存储池。如果您还记得我们关于“写时复制”文件系统特性的文章，您应该会记得我们关于Merkle树的讨论。ZFS快照是处于该状态的Merkle树的副本，但我们要确保该Merkle树的快照永远不会被修改。 创建快照几乎是瞬时的，而且成本低廉。但是，一旦数据开始更改，快照将开始存储数据。如果您有多个快照，那么将在所有快照中将记录多个增量。然而，根据您的需要，快照仍然可以非常便宜。 创建快照 你可以创建两种类型快照：池快照和数据集快照。您想要哪种类型的快照取决于您。但是，您必须为快照指定一个名。快照名的语法为: pool/dataset@snapshot-name pool@snapshot-name 创建快照需要使用“zfs snapshot”命令，比如，要对数据集“tank/test”创建快照，应该执行如下命令：1# zfs snapshot tank/test@tuesday 因为快照是一类只读的文件系统，所以无法像标准的ZFS数据集或者存储池那样可以进行属性修改，比如你想对一个快照启用压缩特性，将会发生如下情况：12# zfs set compression=lzjb tank/test@fridaycannot set property for &apos;tank/test@friday&apos;: this property can not be modified for snapshots 列出快照快照可以通过两种方式显示:通过访问数据集根目录下的隐藏的”.zfs”目录，或者使用“zfs list”命令。首先，让我们讨论隐藏目录。12345# ls -a /tank/test./ ../ boot.tar text.tar text.tar.2# cd /tank/test/.zfs/# ls -a./ ../ shares/ snapshot/ 即使使用“ls -a”命令，“.zfs”目录也不可见，不过我们可以cd到这个目录中去。如果你想让“.zfs”目录可见，你可以更改该数据集上的“snapdir”属性。有效值是”hidden”和”visible”。默认情况下，它是隐藏的。让我们来试试：123# zfs set snapdir=visible tank/test# ls -a /tank/test./ ../ boot.tar text.tar text.tar.2 .zfs/ 另一种显示快照的方法是使用”zfs list”命令，并传入”-t snapshot”参数，如下所示:123456789101112131415161718# zfs list -t snapshotNAME USED AVAIL REFER MOUNTPOINTpool/cache@2012:12:18:51:2:19:00 0 - 525M -pool/cache@2012:12:18:51:2:19:15 0 - 525M -pool/home@2012:12:18:51:2:19:00 18.8M - 28.6G -pool/home@2012:12:18:51:2:19:15 18.3M - 28.6G -pool/log@2012:12:18:51:2:19:00 184K - 10.4M -pool/log@2012:12:18:51:2:19:15 184K - 10.4M -pool/swap@2012:12:18:51:2:19:00 0 - 76K -pool/swap@2012:12:18:51:2:19:15 0 - 76K -pool/vmsa@2012:12:18:51:2:19:00 0 - 1.12M -pool/vmsa@2012:12:18:51:2:19:15 0 - 1.12M -pool/vmsb@2012:12:18:51:2:19:00 0 - 1.31M -pool/vmsb@2012:12:18:51:2:19:15 0 - 1.31M -tank@2012:12:18:51:2:19:00 0 - 43.4K -tank@2012:12:18:51:2:19:15 0 - 43.4K -tank/test@2012:12:18:51:2:19:00 0 - 37.1M -tank/test@2012:12:18:51:2:19:15 0 - 37.1M - 注意，默认情况下，该命令将显示所有池的所有快照。如果希望输出更具体，可以查看给定父节点的所有快照，无论它是数据集还是存储池。您只需要传递“-r”参数以进行递归，然后提供父节点名称。在本例中，我将只看“tank”的快照，而忽略“pool”中的快照:12345# zfs list -r -t snapshot tankNAME USED AVAIL REFER MOUNTPOINTtank@2012:12:18:51:2:19:00 0 - 43.4K -tank@2012:12:18:51:2:19:15 0 - 43.4K -tank/test@2012:12:18:51:2:19:00 0 - 37.1M - 消耗快照与销毁存储池或ZFS数据集一样，也可以使用类似的方法销毁快照。要销毁快照，使用“zfs destroy”命令，并提供要销毁的快照作为参数:1# zfs destroy tank/test@2012:12:18:51:2:19:15 需要知道的一件重要的事情是，如果快照存在，它就被认为是数据集的子文件系统。因此，在销毁所有快照和嵌套数据集之前，不能删除数据集。12345# zfs destroy tank/testcannot destroy &apos;tank/test&apos;: filesystem has childrenuse &apos;-r&apos; to destroy the following datasets:tank/test@2012:12:18:51:2:19:15tank/test@2012:12:18:51:2:19:00 重命名快照可以重命名快照，但是必须在创建快照的存储池和ZFS数据集中重命名快照。重命名快照非常简单:1# zfs rename tank/test@2012:12:18:51:2:19:15 tank/test@tuesday-19:15 回滚快照如果不讨论将文件系统回滚到上一个快照，那么关于快照的讨论就不完整。 回滚到上一个快照将丢弃该快照与当前时间之间的任何数据更改。默认情况下，只能回滚到最近的快照。为了回滚到更早的快照，您必须销毁当前时间和希望回滚到的快照之间的所有快照。如果这还不够，则必须在开始回滚之前卸载文件系统。这意味着停机时间。 要回滚“tank/test”数据集到“tuesday”快照，我们会发出以下命令:12345# zfs rollback tank/test@tuesdaycannot rollback to &apos;tank/test@tuesday&apos;: more recent snapshots existuse &apos;-r&apos; to force deletion of the following snapshots:tank/test@wednesdaytank/test@thursday 与上面提到的一样，我们必须删除“@wednesday”和“@thursday”快照，然后才能回滚到“@tuesday”快照。 ZFS克隆ZFS克隆是一个从快照“升级”的可写文件系统。克隆只能从快照创建，只要克隆存在，对快照的依赖就会保持。这意味着，如果你克隆了快照，就不能直接销毁这个快照。克隆依赖快照提供给它的数据，所以在销毁快照之前，必须先销毁克隆。 创建克隆几乎是瞬时的，就像快照一样，最初并不会占用任何额外的空间。相反，它会占用快照的所有初始空间。当数据在克隆中被修改时，它开始占用与快照分离的空间。 创建ZFS克隆使用“zfs clone”命令、要克隆的快照和新文件系统的名称来创建克隆。克隆不需要驻留在与克隆相同的数据集中，但它需要驻留在相同的存储池中。 例如，如果我想克隆“tank/test@tuesday”快照，并给它命名为“tank/tuesday”，我将运行以下命令:1234567# zfs clone tank/test@tuesday tank/tuesday# dd if=/dev/zero of=/tank/tuesday/random.img bs=1M count=100# zfs list -r tankNAME USED AVAIL REFER MOUNTPOINTtank 161M 2.78G 44.9K /tanktank/test 37.1M 2.78G 37.1M /tank/testtank/tuesday 124M 2.78G 161M /tank/tuesday 销毁克隆与销毁数据集或快照一样，我们使用“zfs destroy”命令。再强调一遍，在您销毁克隆之前，不能销毁快照。所以，如果我们想要摧毁“tank/tuesday”的克隆，用如下命令，就像销毁其他数据集一样:1# zfs destroy tank/tuesday 结语因为保存快照非常便宜，所以建议经常对数据集进行快照。Sun Microsystems提供了一个Time Slider ，它是GNOME Nautilus文件管理器的一部分。Time Slider 保存快照的方式如下: 频率–每15分钟做一次快照，保留4张快照 每小时–每小时快照，保留24张快照 Daily –每天快照，保留31个快照 每周–每周快照，保留7个快照 Monthly–每月快照，保留12个快照不幸的是，Time Slider 不是标准GNOME桌面的一部分，所以GNU/Linux上没有。 然而，Linux上的ZFS开发人员已经创建了一个“zfs-auto-snapshot”包，如果运行Ubuntu，你可以从项目的PPA中安装它。如果你运行的是另一种GNU/Linux操作系统，您可以轻松地编写一个Bash或Python脚本来模拟该功能，并将其放在您的根用户的crontab中。 因为快照和克隆都很便宜，所以建议您充分利用它们。克隆对于测试部署虚拟机或从生产环境克隆的开发环境非常有用。而且可以很容易地销毁它们，而不会影响创建快照的父数据集。 参考资料https://pthree.org/2012/12/19/zfs-administration-part-xii-snapshots-and-clones/]]></content>
@@ -162,8 +175,8 @@
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>文件系统</tag>
         <tag>用户态</tag>
+        <tag>文件系统</tag>
       </tags>
   </entry>
   <entry>
@@ -421,8 +434,8 @@
         <category>云计算</category>
       </categories>
       <tags>
-        <tag>docker registry</tag>
         <tag>harbor</tag>
+        <tag>docker registry</tag>
         <tag>harbor离线包</tag>
       </tags>
   </entry>
@@ -528,9 +541,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -578,9 +591,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -774,8 +787,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>strace</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -787,8 +800,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>awk</tag>
         <tag>日常积累</tag>
+        <tag>awk</tag>
       </tags>
   </entry>
   <entry>
