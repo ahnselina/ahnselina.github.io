@@ -87,7 +87,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://z3.ax1x.com/2021/11/17/IhdUG4.png">
 <meta property="og:image" content="https://z3.ax1x.com/2021/11/17/IhaWD0.png">
-<meta property="og:updated_time" content="2021-11-16T17:20:40.220Z">
+<meta property="og:updated_time" content="2021-11-16T17:52:28.156Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NVMe over RDMA的环境上安装ZFS">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/11/17/IhdUG4.png">
@@ -413,7 +413,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,645 字
+                  2,689 字
                 </span>
               
 
@@ -453,7 +453,8 @@
         <p><img src="https://z3.ax1x.com/2021/11/17/IhdUG4.png" alt=""><br><a id="more"></a></p>
 <p>本文主要介绍将NVMe盘通过RDMA映射到远端机器后，再在该机器上安装ZFS。<br>如何安装NVMe over RDMA，请参考上一篇文章：<a href="http://www.a-programmer.top/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">NVMe over RDMA的安装配置</a>。</p>
 <p>说明：本文所有命令执行的系统为debian。</p>
-<h2 id="安装ZFS"><a href="#安装ZFS" class="headerlink" title="安装ZFS"></a>安装ZFS</h2><p>直接使用”apt install -y zfsutils-linux”安装ZFS,会出现问题，详细解决办法请参考遇到的错误及解决办法。</p>
+<h2 id="安装ZFS"><a href="#安装ZFS" class="headerlink" title="安装ZFS"></a>安装ZFS</h2><p>直接使用”apt install -y zfsutils-linux”安装ZFS,会出现问题，详细解决办法请参考本文后面的<strong>遇到的错误及解决办法</strong>。</p>
+<p>可直接按如下步骤进行安装：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. apt-get install dpkg-dev linux-headers-$(uname -r) linux-image-amd64</span><br><span class="line">2. apt-get install zfs-dkms zfsutils-linux</span><br><span class="line">3. modprobe zfs</span><br></pre></td></tr></table></figure></p>
 <h2 id="创建存储池"><a href="#创建存储池" class="headerlink" title="创建存储池"></a>创建存储池</h2><h3 id="创建ZFS存储池（普通存储池，相当于RAID0，无冗余）"><a href="#创建ZFS存储池（普通存储池，相当于RAID0，无冗余）" class="headerlink" title="创建ZFS存储池（普通存储池，相当于RAID0，无冗余）"></a>创建ZFS存储池（普通存储池，相当于RAID0，无冗余）</h3><p>1.机器上要有相应的硬盘，本文以NVMe盘为例，nvme0n1和nvme1n1。<br>2.查看存储池状态：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zpool status   </span><br><span class="line">no pools available</span><br></pre></td></tr></table></figure>
 <p>3.创建ZFS存储池，以nvme0n1和nvme1n1为例：<br>创建好后，用zpool status查看是如下结果，如遇到错误请参考后面的解决办法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># zpool create mypool nvme0n1 nvme1n1</span><br><span class="line"># zpool status</span><br><span class="line">  pool: mypool</span><br><span class="line"> state: ONLINE</span><br><span class="line">  scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">	NAME        STATE     READ WRITE CKSUM</span><br><span class="line">	mypool      ONLINE       0     0     0</span><br><span class="line">	  nvme0n1   ONLINE       0     0     0</span><br><span class="line">	  nvme1n1   ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
