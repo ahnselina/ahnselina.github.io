@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[NVMe namespace]]></title>
+    <url>%2F2021%2F10%2F30%2FNVMe%20namespace%2F</url>
+    <content type="text"><![CDATA[本文主要介绍NVMe namespace。阅读完本文后，你会了解NVMe中的namespace概念，知道其作用及如何管理，并且可以了解常用的命令。 什么是NVMe namespaceNVMe 命名空间，不是块的物理隔离，而是可由主机软件寻址的逻辑块的隔离。 主机软件希望将NVMe SSD分解为多个名称空间的原因有很多:为了逻辑隔离、多租户、安全隔离(每个名称空间加密)、为了恢复目的对名称空间进行写保护、为了提高写性能和持久性而进行的overprovisioning等等。 命名空间(namespace)大小、容量和使用量命名空间的数据结构包含相关的字段–大小，容量和使用量： 命名空间大小（NSZE）字段定义了命名空间在逻辑块中的总大小(LBA 0到n-1)。 命名空间容量（NCAP）字段定义了在任何时间点可以分配的逻辑块的最大数目。 命名空间使用量（NUSE）字段定义命名空间中当前分配的逻辑块的数量。这允许主机软件记录设备是如何响应deallocate命令的。在格式化之后，期望是这个值为零(没有使用量)，但在写入之后，使用量会增加，直到收到一个deallocate命令(有时称为“TRIM”)。 nvme id命令包含了命名空间(namespace)能力的信息除了了解命名空间(namespace)的大小和使用情况外，另一个重要属性是LBA格式。这有助于主机软件知道发送到命名空间(namespace)的命令的最佳大小，硬盘是否支持保护信息(端到端数据保护)等。 该图是linux上报告“nvme id 命名空间”命令的输出的屏幕截图 注意:命名空间可以附加到两个或多个控制器，称为共享命名空间。相反，命名空间可能只附加到一个控制器，称为私有命名空间。两者都由主机决定。 命名空间(namespace)如何管理有两个命令集：管理命令集和attachment命令集命名空间管理：Create, Modify, or Delete命名空间attachment：Attach or detach 一旦主机创建了名称空间，它就不可见了。 每个命名空间(namespace)由一个相应的NSID(命名空间ID)标识，每个命名空间(namespace)需要连接到子系统中的控制器。图1:attached命名空间(Private和Shared) NS A: Private，附加到控制器0 | NS B: Shared，附加到控制器0和1 | NS C z: Private，附加到控制器1 在图1中，主机创建了三个命名空间(namespace)。这不仅展示了NVMe子系统的抽象，还展示了如何利用私有和共享命名空间。每个命名空间被视为独立的目标设备。 多命名空间多租户一个用例可能涉及有两个或多个用户使用一个NVMe SSD。多个用户使用一个SSD会引起对服务一致性、专用性能和必须购买多个SSD的成本的担忧。这个时候namespace就起作用了，每个租户之间的逻辑隔离允许所有者根据租户的工作负载习惯处理每个命名空间。SSD仍然可以使用磨损级别，并在命名空间(namespace)之间共享用于垃圾收集的空闲区域。这与NVM Sets不同，在NVM Sets中，期望物理隔离，而不是命名空间(namespace)，后者是逻辑隔离。 图2:多租户用例 OverprovisioningSSD将使用未写入的LBA和一定数量的空闲区域进行垃圾收集、损耗均衡等。通过减少与设备上NAND闪存数量相关的命名空间(namespace)大小(称为预留空间)，这将提高耐久性、性能和服务质量。 例子：3.84TB NVMe SSD，典型的空闲区域和命名空间大小 主机不能直接访问未供应的空间，而是允许控制器在垃圾收集、TRIMs等期间使用该空闲区域。 预留空间不仅对一个命名空间(namespace)有用，在多个名称空间的情况下也是如此。每个名称空间的预留空间的百分比可以增加或减少，以满足每个名称空间遇到的最频繁的工作负载。 使用nvme cli对命名空间(namespace)预留空间的步骤是：1.从每个控制器分离所有命名空间(namespace)(spec建议先分离，但也可以删除)。1nvme detach-ns /dev/nvme0 –namespace-id=1 –controllers=0 2.删除已分离的每个命名空间(namespace)1nvme delete-ns /dev/nvme0 –namespace-id=1 3.根据需要的容量，创建一个新的命名空间(对每个命名空间重复)从7.68TB变到6.14TB1nvme create-ns /dev/nvme0 –nsze 11995709440 –ncap 1199570940 –flbas 0 –dps 0 –nmic 0 4.将新的命名空间附加到所需的控制器1nvme attach-ns /dev/nvme0 –namespace-id=1 –controllers=0 5.置设备以使目标对主机可见。12nvme reset /dev/nvme0nvme list 参考资料https://nvmexpress.org/resources/nvm-express-technology-features/nvme-namespaces/]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>ZFS</tag>
+        <tag>NVMe</tag>
+        <tag>NVMeoF</tag>
+        <tag>RDMA</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[测试NVMe over RDMA上的ZFS遇到的问题]]></title>
     <url>%2F2021%2F10%2F29%2F%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%2F</url>
-    <content type="text"><![CDATA[本文主要介绍在测试构建在NVMe over RDMA上的ZFS遇到的问题及解决方法。 问题：contains a corrupt primary EFI label.zpool create nvme_over_rdma_zfs_pool raidz2 nvme0n1 nvme0n2 nvme0n3 nvme0n4 nvme1n1 nvme1n2invalid vdev specificationuse ‘-f’ to override the following errors:/dev/nvme0n2 contains a corrupt primary EFI label. 解决方法：1wipefs -a /dev/nvme0n2 问题：使用nvme delete-ns /dev/nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了解决方法：https://www.ibm.com/docs/en/linux-on-systems?topic=drive-deleting-stray-nvme-namespaces-nvme 问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败解决方法：尝试了想修改nvme子系统中盘符，但是nvme子系统此时不让进行修改，想卸载nvmet也不行。最后发现重启之后就可以了。 问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）解决方法：为了使命令行中执行insmod命令安装的驱动能在重启之后还有的解决方法大致有一下两种方法：（1）直接编译内核，把想安装的驱动在编译内核的时候给编译进去，这种方法比较麻烦，花的时候也比较的多，一般不采用这种方法（这种方法网上有很多资料可以参考）。（2）这种方法比较简单：就是在启动脚本中加载模块，这样每次开机启动都自动加载相应的驱动模块。具体的方式如下： 在文件/etc/rc.local中加载你想要的模块程序即可，比如我想再系统启动的时候自动给我完成：卸载r8169驱动、然后安装r8168驱动、同时重启网络服务器的工作，那么我在该文件中的exit 0 之前写如下的语句：1234567rmmod r8169#（卸载相应的驱动）insmod /usr/src/r8168.ko#(这个是r8168.ko文件放的绝对路径)，这步是安装相应的驱动ifconfig eth0 downifconfig eth0 up 然后保存，重新启动reboot之后，系统就将自动完成我们想要的那几步工作。 在加载好驱动之后，还需要在脚本中执行自己想要做的设置！ 加载NVME模块及NVME映射相关的配置：12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849#!/bin/bashLOG=&quot;/var/log/nvme_over_rdma.log&quot;NVME_SUBSYSTEM_PATH=&quot;/sys/kernel/config/nvmet/subsystems/&quot;NVME_SUBSYSTEM_DIR=&quot;mon1_nvme&quot;NVME_PORT_PATH=&quot;/sys/kernel/config/nvmet/ports&quot;NAME_SPACE_NUM=11PORT=4420echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) start installing nvme driver...&quot; | tee -a $&#123;LOG&#125;# 加载模块modprobe nvmetmodprobe nvmet-rdmamodprobe nvme-rdma# 创建nvme的subsystemecho &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) create the subsystem of nvme.&quot; | tee -a $&#123;LOG&#125;mkdir /sys/kernel/config/nvmet/subsystems/$NVME_SUBSYSTEM_DIRcd /sys/kernel/config/nvmet/subsystems/$NVME_SUBSYSTEM_DIRecho 1 &gt; attr_allow_any_hostj=1;for i in `lsscsi | grep nvme | awk &apos;&#123;print $4&#125;&apos;`;do # 创建命名空间 echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) create namespace $&#123;NAME_SPACE_NUM&#125;.&quot; | tee -a $&#123;LOG&#125;; mkdir namespaces/$NAME_SPACE_NUM; # 设置NVME盘的设备路径 echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) set the NVMe disk device path: $i.&quot; | tee -a $&#123;LOG&#125;; echo -n $i &gt; namespaces/$&#123;NAME_SPACE_NUM&#125;/device_path; echo 1 &gt; namespaces/$&#123;NAME_SPACE_NUM&#125;/enable; # 创建NVME的port echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) create the NVMe&apos;s port:$&#123;PORT&#125;.&quot; | tee -a $&#123;LOG&#125;; mkdir $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;; # 设置rdma的ip echo `ifconfig bond1 | grep inet | awk &apos;&#123;print $2&#125;&apos;` &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_traddr; echo rdma &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_trtype; echo $&#123;PORT&#125; &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_trsvcid; echo ipv4 &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_adrfam; ln -s $&#123;NVME_SUBSYSTEM_PATH&#125;/$&#123;NVME_SUBSYSTEM_DIR&#125; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/subsystems/$&#123;NVME_SUBSYSTEM_DIR&#125;; ((j++)); ((PORT++)); ((NAME_SPACE_NUM++));doneecho &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) installed nvme success.&quot; | tee -a $&#123;LOG&#125; NVMe over RDMA的ZFS客户端重启后，ZFS存储池没了解决方法：需要重新加载1modprobe nvme-rdma 然后尝试重新创池发现”is part of potentially active pool ‘nvme_over_rdma_zfs_pool’”类型错误，其实是正常的，那些盘原本已经被我创建了存储池，不让创建是对的，所以解决办法是恢复原先创建的那个存储池。 恢复方法为：1zpool import -n nvme_over_rdma_zfs_pool -F 把上面的存储池的名字换成你自己的要恢复的存储池名字。[HELP] Trying to recreate an existing pool 通过NVMe over RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化通过NVMe over RDMA映射到一个客户端上组建的ZFS，重启后端NVMe盘的机器后，盘符会发生改变，然后ZFS存储池中会检测到原来的那个盘符故障，然后也没法用”zpool replace”命令。 解决方法： 重启客户端(即创建ZFS存储池的那台机器) 重新加载nvme-rdma 使用“nvme connect xxx”命令重新连接其他机器上的NVMe盘 重新import存储池1zpool import -n nvme_over_rdma_zfs_pool -F 在创建ZFS存储池的时候，最佳实践是不要使用/dev/sda这样的字盘符来创建存储池，可以使用”/dev/disk/by-id/xxx”这样字独一无二的标识符来创池。 参考资料加载驱动后开机重启后没有驱动的解决方法 [HELP] Trying to recreate an existing pool zpool lost after reboot zpools don’t automatically mount after boot]]></content>
+    <content type="text"><![CDATA[本文主要介绍在测试构建在NVMe over RDMA上的ZFS遇到的问题及解决方法。 问题：contains a corrupt primary EFI label.1234zpool create nvme_over_rdma_zfs_pool raidz2 nvme0n1 nvme0n2 nvme0n3 nvme0n4 nvme1n1 nvme1n2invalid vdev specificationuse &apos;-f&apos; to override the following errors:/dev/nvme0n2 contains a corrupt primary EFI label. 解决方法：1wipefs -a /dev/nvme0n2 问题：使用nvme delete-ns /dev/nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了解决方法：https://www.ibm.com/docs/en/linux-on-systems?topic=drive-deleting-stray-nvme-namespaces-nvme 问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败解决方法：尝试了想修改nvme子系统中盘符，但是nvme子系统此时不让进行修改，想卸载nvmet也不行。最后发现重启之后就可以了。 问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）解决方法：为了使命令行中执行insmod命令安装的驱动能在重启之后还有的解决方法大致有一下两种方法：（1）直接编译内核，把想安装的驱动在编译内核的时候给编译进去，这种方法比较麻烦，花的时候也比较的多，一般不采用这种方法（这种方法网上有很多资料可以参考）。（2）这种方法比较简单：就是在启动脚本中加载模块，这样每次开机启动都自动加载相应的驱动模块。具体的方式如下： 在文件/etc/rc.local中加载你想要的模块程序即可，比如我想再系统启动的时候自动给我完成：卸载r8169驱动、然后安装r8168驱动、同时重启网络服务器的工作，那么我在该文件中的exit 0 之前写如下的语句：1234567rmmod r8169#（卸载相应的驱动）insmod /usr/src/r8168.ko#(这个是r8168.ko文件放的绝对路径)，这步是安装相应的驱动ifconfig eth0 downifconfig eth0 up 然后保存，重新启动reboot之后，系统就将自动完成我们想要的那几步工作。 在加载好驱动之后，还需要在脚本中执行自己想要做的设置！ 加载NVME模块及NVME映射相关的配置：12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849#!/bin/bashLOG=&quot;/var/log/nvme_over_rdma.log&quot;NVME_SUBSYSTEM_PATH=&quot;/sys/kernel/config/nvmet/subsystems/&quot;NVME_SUBSYSTEM_DIR=&quot;mon1_nvme&quot;NVME_PORT_PATH=&quot;/sys/kernel/config/nvmet/ports&quot;NAME_SPACE_NUM=11PORT=4420echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) start installing nvme driver...&quot; | tee -a $&#123;LOG&#125;# 加载模块modprobe nvmetmodprobe nvmet-rdmamodprobe nvme-rdma# 创建nvme的subsystemecho &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) create the subsystem of nvme.&quot; | tee -a $&#123;LOG&#125;mkdir /sys/kernel/config/nvmet/subsystems/$NVME_SUBSYSTEM_DIRcd /sys/kernel/config/nvmet/subsystems/$NVME_SUBSYSTEM_DIRecho 1 &gt; attr_allow_any_hostj=1;for i in `lsscsi | grep nvme | awk &apos;&#123;print $4&#125;&apos;`;do # 创建命名空间 echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) create namespace $&#123;NAME_SPACE_NUM&#125;.&quot; | tee -a $&#123;LOG&#125;; mkdir namespaces/$NAME_SPACE_NUM; # 设置NVME盘的设备路径 echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) set the NVMe disk device path: $i.&quot; | tee -a $&#123;LOG&#125;; echo -n $i &gt; namespaces/$&#123;NAME_SPACE_NUM&#125;/device_path; echo 1 &gt; namespaces/$&#123;NAME_SPACE_NUM&#125;/enable; # 创建NVME的port echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) create the NVMe&apos;s port:$&#123;PORT&#125;.&quot; | tee -a $&#123;LOG&#125;; mkdir $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;; # 设置rdma的ip echo `ifconfig bond1 | grep inet | awk &apos;&#123;print $2&#125;&apos;` &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_traddr; echo rdma &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_trtype; echo $&#123;PORT&#125; &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_trsvcid; echo ipv4 &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_adrfam; ln -s $&#123;NVME_SUBSYSTEM_PATH&#125;/$&#123;NVME_SUBSYSTEM_DIR&#125; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/subsystems/$&#123;NVME_SUBSYSTEM_DIR&#125;; ((j++)); ((PORT++)); ((NAME_SPACE_NUM++));doneecho &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;) installed nvme success.&quot; | tee -a $&#123;LOG&#125; NVMe over RDMA的ZFS客户端重启后，ZFS存储池没了解决方法：需要重新加载1modprobe nvme-rdma 然后尝试重新创池发现”is part of potentially active pool ‘nvme_over_rdma_zfs_pool’”类型错误，其实是正常的，那些盘原本已经被我创建了存储池，不让创建是对的，所以解决办法是恢复原先创建的那个存储池。 恢复方法为：1zpool import -n nvme_over_rdma_zfs_pool -F 把上面的存储池的名字换成你自己的要恢复的存储池名字。[HELP] Trying to recreate an existing pool 通过NVMe over RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化通过NVMe over RDMA映射到一个客户端上组建的ZFS，重启后端NVMe盘的机器后，盘符会发生改变，然后ZFS存储池中会检测到原来的那个盘符故障，然后也没法用”zpool replace”命令。 解决方法： 重启客户端(即创建ZFS存储池的那台机器) 重新加载nvme-rdma 使用“nvme connect xxx”命令重新连接其他机器上的NVMe盘 重新import存储池1zpool import -n nvme_over_rdma_zfs_pool -F 在创建ZFS存储池的时候，最佳实践是不要使用/dev/sda这样的字盘符来创建存储池，可以使用”/dev/disk/by-id/xxx”这样字独一无二的标识符来创池。 参考资料加载驱动后开机重启后没有驱动的解决方法 [HELP] Trying to recreate an existing pool zpool lost after reboot zpools don’t automatically mount after boot]]></content>
       <categories>
         <category>Linux</category>
       </categories>
@@ -686,9 +700,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -736,9 +750,9 @@
       </categories>
       <tags>
         <tag>LizardFS</tag>
+        <tag>lizardfs</tag>
         <tag>分布式存储</tag>
         <tag>文件存储</tag>
-        <tag>lizardfs</tag>
       </tags>
   </entry>
   <entry>
@@ -932,8 +946,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>日常积累</tag>
         <tag>strace</tag>
+        <tag>日常积累</tag>
       </tags>
   </entry>
   <entry>
@@ -945,8 +959,8 @@
       </categories>
       <tags>
         <tag>shell脚本</tag>
-        <tag>awk</tag>
         <tag>日常积累</tag>
+        <tag>awk</tag>
       </tags>
   </entry>
   <entry>

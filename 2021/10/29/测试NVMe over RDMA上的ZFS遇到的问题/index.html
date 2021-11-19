@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="成长录-知行合一">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://z3.ax1x.com/2021/11/17/IIVnhT.png">
-<meta property="og:updated_time" content="2021-11-17T14:55:50.322Z">
+<meta property="og:updated_time" content="2021-11-17T15:06:06.338Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="测试NVMe over RDMA上的ZFS遇到的问题">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/11/17/IIVnhT.png">
@@ -412,7 +412,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,291 字
+                  1,295 字
                 </span>
               
 
@@ -451,7 +451,7 @@
       
         <p><img src="https://z3.ax1x.com/2021/11/17/IIVnhT.png" alt=""><br><a id="more"></a></p>
 <p>本文主要介绍在测试构建在NVMe over RDMA上的ZFS遇到的问题及解决方法。</p>
-<h2 id="问题：contains-a-corrupt-primary-EFI-label"><a href="#问题：contains-a-corrupt-primary-EFI-label" class="headerlink" title="问题：contains a corrupt primary EFI label."></a>问题：contains a corrupt primary EFI label.</h2><p>zpool create nvme_over_rdma_zfs_pool raidz2 nvme0n1 nvme0n2 nvme0n3 nvme0n4 nvme1n1 nvme1n2<br>invalid vdev specification<br>use ‘-f’ to override the following errors:<br>/dev/nvme0n2 contains a corrupt primary EFI label.</p>
+<h2 id="问题：contains-a-corrupt-primary-EFI-label"><a href="#问题：contains-a-corrupt-primary-EFI-label" class="headerlink" title="问题：contains a corrupt primary EFI label."></a>问题：contains a corrupt primary EFI label.</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zpool create nvme_over_rdma_zfs_pool raidz2 nvme0n1 nvme0n2 nvme0n3 nvme0n4 nvme1n1 nvme1n2</span><br><span class="line">invalid vdev specification</span><br><span class="line">use &apos;-f&apos; to override the following errors:</span><br><span class="line">/dev/nvme0n2 contains a corrupt primary EFI label.</span><br></pre></td></tr></table></figure>
 <p><strong>解决方法</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wipefs -a /dev/nvme0n2</span><br></pre></td></tr></table></figure></p>
 <h2 id="问题：使用nvme-delete-ns-dev-nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了"><a href="#问题：使用nvme-delete-ns-dev-nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了" class="headerlink" title="问题：使用nvme delete-ns /dev/nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了"></a>问题：使用nvme delete-ns /dev/nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了</h2><p><strong>解决方法</strong>：<br><a href="https://www.ibm.com/docs/en/linux-on-systems?topic=drive-deleting-stray-nvme-namespaces-nvme" target="_blank" rel="noopener">https://www.ibm.com/docs/en/linux-on-systems?topic=drive-deleting-stray-nvme-namespaces-nvme</a></p>
 <h2 id="问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败"><a href="#问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败" class="headerlink" title="问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败"></a>问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败</h2><p><strong>解决方法</strong>：尝试了想修改nvme子系统中盘符，但是nvme子系统此时不让进行修改，想卸载nvmet也不行。<br>最后发现重启之后就可以了。</p>
@@ -570,6 +570,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2021/10/30/NVMe namespace/" rel="prev" title="NVMe namespace">
+                NVMe namespace <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -650,7 +654,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">97</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
