@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.a-programmer.top/2021/11/06/JuiceFS%E7%9A%84%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%8F%8AMac%E4%B8%8A%E5%AE%89%E8%A3%85JuiceFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</loc>
+    <lastmod>2021-11-29</lastmod>
+  </url>
+  <url>
     <loc>https://www.a-programmer.top/2021/10/31/vdbench%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/</loc>
     <lastmod>2021-11-27</lastmod>
   </url>
