@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="成长录-知行合一">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://z3.ax1x.com/2021/12/02/oNOv0e.png">
-<meta property="og:updated_time" content="2021-12-02T16:26:01.687Z">
+<meta property="og:updated_time" content="2021-12-02T16:54:55.766Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JuiceFS性能怎么样">
 <meta name="twitter:image" content="https://z3.ax1x.com/2021/12/02/oNOv0e.png">
@@ -606,7 +606,7 @@
 <ul>
 <li>format= 可选值为yes、no或restart，标识预处理目录和文件结构的方式<br>–yes表示删除目录和文件结构再重新创建<br>–no表示不删除目录和文件结构<br>–restart表示只创建未生成的目录或文件，并且增大未达到实际大小的文件</li>
 </ul>
-<h3 id="本来预期一个小时的测试，实际时间花了几个小时"><a href="#本来预期一个小时的测试，实际时间花了几个小时" class="headerlink" title="本来预期一个小时的测试，实际时间花了几个小时"></a>本来预期一个小时的测试，实际时间花了几个小时</h3><p>在测试多机多线程（但文件4M）场景时，实际测试完成时间花了几个小时，本来预期时一个小时完成的。<br>经研究发现跑测试的时候确实是一个小时，而每次测试完成后，因为选的运行参数format设置为<strong>yes</strong>，这样每次都会重新去准备测试环境，包括清理掉上次的环境，但是此时由于环境中有大量小文件，删除耗时很长，我自己尝试删除了一下，很久才完全删除。这就是实际整个测试花了几个小时的原因。</p>
+<h3 id="本来预期一个小时的测试，实际时间花了几个小时"><a href="#本来预期一个小时的测试，实际时间花了几个小时" class="headerlink" title="本来预期一个小时的测试，实际时间花了几个小时"></a>本来预期一个小时的测试，实际时间花了几个小时</h3><p>在测试多机多线程（大文件4M）场景时，实际测试完成时间花了几个小时，本来预期是一个小时完成的。<br>经研究发现跑测试的时候确实是一个小时，而每次测试完成后，因为选的运行参数format设置为<strong>yes</strong>，这样每次都会重新去准备测试环境，包括清理掉上次的环境，但是此时由于环境中有大量小文件，删除耗时很长，我自己尝试删除了一下，很久才完全删除。这就是实际整个测试花了几个小时的原因。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.a-programmer.top/2021/10/31/vdbench安装与使用/">vdbench安装使用</a>。</p>
 
       
@@ -699,6 +699,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2021/11/09/JuiceFS源码阅读（一）format流程/" rel="prev" title="JuiceFS源码阅读（一）format流程">
+                JuiceFS源码阅读（一）format流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -779,7 +783,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">102</span>
+                  <span class="site-state-item-count">103</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -801,7 +805,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">107</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
