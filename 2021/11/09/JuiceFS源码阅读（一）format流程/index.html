@@ -89,7 +89,7 @@
 <meta property="og:image" content="https://s4.ax1x.com/2021/12/08/ogfoIU.png">
 <meta property="og:image" content="https://s4.ax1x.com/2021/12/08/ogfbRJ.png">
 <meta property="og:image" content="https://s4.ax1x.com/2021/12/08/ogWRHK.png">
-<meta property="og:updated_time" content="2021-12-07T16:55:48.824Z">
+<meta property="og:updated_time" content="2021-12-07T17:05:30.249Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JuiceFS源码阅读（一）format流程">
 <meta name="twitter:image" content="https://s4.ax1x.com/2021/12/08/ogfra8.png">
@@ -473,7 +473,7 @@
 <p>整个format过程中最重要的两点是<strong>数据存储的创建</strong>和<strong>元数据服务的初始化</strong>。这两点对应代码中函数为createStorage()和m.Init()。那么这两个函数究竟做了什么事情呢。</p>
 <p>其实createStorage()主要是用传入的参数调用具体的对象存储，整个过程相当于创建了一个与对象存储连接的”client”，当然为了兼容市面上常见的对象存储，可以看到juicefs做了相当多的适配工作。这个createStorage的过程简单的说也就是根据参数去调用对应的对象存储，然后返回一个可以与对应的对象存储可以交互的”client”。</p>
 <p>m.init()其实就是进行元数据的初始化，那么究竟需要初始化些什么呢。目前juicefs支持redis，tikv，sql等元数据服务，所以也对这几种服务进行相应的初始化实现。其实简单的说，就是在初始化的时候会去验证是不是已经创建过该juicefs的元数据了，如果没有就会生成一些关于juicefs的元数据信息，然后把这些信息写入对应的元数据服务中，比如使用Redis就会写入Redis中。如果有对应的信息，说明已经创建过juicefs，那么就会校验更新，如果有信息不匹配就会报“cannot update format from ”错误之类的。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/juicedata/juicefs" target="_blank" rel="noopener">JuiceFS源码</a>。<br><a href="https://juicefs.com/blog/cn/posts/juicefs-office-hours-recap-2021-06-07/" target="_blank" rel="noopener">JuiceFS Office Hours 近期问题回顾</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/juicedata/juicefs" target="_blank" rel="noopener">JuiceFS源码</a><br><a href="https://juicefs.com/blog/cn/posts/juicefs-office-hours-recap-2021-06-07/" target="_blank" rel="noopener">JuiceFS Office Hours 近期问题回顾</a></p>
 
       
     </div>
@@ -565,6 +565,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2021/11/20/JuiceFS源码阅读（二）mount流程/" rel="prev" title="JuiceFS源码阅读（二）mount流程">
+                JuiceFS源码阅读（二）mount流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -645,7 +649,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">103</span>
+                  <span class="site-state-item-count">104</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -667,7 +671,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">109</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
