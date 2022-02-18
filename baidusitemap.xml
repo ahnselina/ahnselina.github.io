@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.a-programmer.top/2020/01/15/Leveldb%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/</loc>
+    <lastmod>2022-01-03</lastmod>
+  </url>
+  <url>
+    <loc>https://www.a-programmer.top/2019/05/16/raft%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90/</loc>
+    <lastmod>2022-01-03</lastmod>
+  </url>
+  <url>
     <loc>https://www.a-programmer.top/2021/11/20/JuiceFS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88%E4%BA%8C%EF%BC%89mount%E6%B5%81%E7%A8%8B/</loc>
     <lastmod>2021-12-20</lastmod>
   </url>
@@ -195,14 +203,6 @@
   <url>
     <loc>https://www.a-programmer.top/2019/11/16/%E8%A7%A3%E5%86%B3github%E7%BD%91%E7%AB%99%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E7%9A%84%E9%97%AE%E9%A2%98/</loc>
     <lastmod>2021-05-03</lastmod>
-  </url>
-  <url>
-    <loc>https://www.a-programmer.top/2019/05/16/raft%E5%8D%8F%E8%AE%AE%E8%A7%A3%E6%9E%90%20/</loc>
-    <lastmod>2021-04-22</lastmod>
-  </url>
-  <url>
-    <loc>https://www.a-programmer.top/2020/01/15/Leveldb%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/</loc>
-    <lastmod>2021-03-03</lastmod>
   </url>
   <url>
     <loc>https://www.a-programmer.top/2020/01/20/Leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%20--%20PUT%E6%B5%81%E7%A8%8B/</loc>
