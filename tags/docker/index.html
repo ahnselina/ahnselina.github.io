@@ -81,7 +81,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="成长录-知行合一">
-<meta property="og:url" content="https://www.a-programmer.top/tags/docker/index.html">
+<meta property="og:url" content="https://www.a-programmer.top/tags/Docker/index.html">
 <meta property="og:site_name" content="成长录-知行合一">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -115,13 +115,13 @@
 
 
 
-  <link rel="canonical" href="https://www.a-programmer.top/tags/docker/">
+  <link rel="canonical" href="https://www.a-programmer.top/tags/Docker/">
 
 
 
 
 
-  <title>标签: docker | 成长录-知行合一</title>
+  <title>标签: Docker | 成长录-知行合一</title>
   
 
 
@@ -303,7 +303,7 @@
 
     <div id="posts" class="posts-collapse">
       <div class="collection-title">
-        <h1>docker<small>标签</small>
+        <h1>Docker<small>标签</small>
         </h1>
       </div>
 
@@ -315,69 +315,17 @@
 
       <h2 class="post-title">
         
-            <a class="post-title-link" href="/2019/04/24/编译docker源码并由二进制启动docker/" itemprop="url">
+            <a class="post-title-link" href="/2022/07/23/一文带你了解虚拟化、虚拟机、Docker及裸金属服务器/" itemprop="url">
               
-                <span itemprop="name">编译docker源码并由二进制启动docker</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-04-24T13:31:30+08:00" content="2019-04-24">
-          04-24
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/04/16/docker registry 后端存储分析/" itemprop="url">
-              
-                <span itemprop="name">docker registry 后端存储分析</span>
+                <span itemprop="name">一文带你了解虚拟化、虚拟机、Docker及裸金属服务器</span>
               
             </a>
         
       </h2>
 
       <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-04-16T17:19:30+08:00" content="2019-04-16">
-          04-16
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/02/21/docker基础技术介绍/" itemprop="url">
-              
-                <span itemprop="name">docker基础技术介绍</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-02-21T14:54:08+08:00" content="2019-02-21">
-          02-21
+        <time class="post-time" itemprop="dateCreated" datetime="2022-07-23T23:30:30+08:00" content="2022-07-23">
+          07-23
         </time>
       </div>
 
@@ -439,7 +387,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">109</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -461,7 +409,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">120</span>
+                  <span class="site-state-item-count">124</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -1006,6 +954,72 @@
 
           if ('auto' === 'auto') {
             input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+
+ntFunction);
           } else {
             $('.search-icon').click(inputEventFunction);
             input.addEventListener('keypress', function (event) {
