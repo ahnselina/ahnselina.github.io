@@ -1,37 +1,1312 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ZFS,NVMe,NVMeoF,RDMA," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="测试NVMe over RDMA上的ZFS遇到的问题">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/29/%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/17/IIVnhT.png">
+<meta property="article:published_time" content="2021-10-29T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.042Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="ZFS">
+<meta property="article:tag" content="NVMe">
+<meta property="article:tag" content="NVMeoF">
+<meta property="article:tag" content="RDMA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/11/17/IIVnhT.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/29/测试NVMe over RDMA上的ZFS遇到的问题/"/>
+
+
+
+
+
+  <title>测试NVMe over RDMA上的ZFS遇到的问题 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/29/%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">测试NVMe over RDMA上的ZFS遇到的问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-29T23:30:30+08:00">
+                2021-10-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/29/%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/29/%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,295 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/11/17/IIVnhT.png" alt=""><br><span id="more"></span></p>
+<p>本文主要介绍在测试构建在NVMe over RDMA上的ZFS遇到的问题及解决方法。</p>
+<h2 id="问题：contains-a-corrupt-primary-EFI-label"><a href="#问题：contains-a-corrupt-primary-EFI-label" class="headerlink" title="问题：contains a corrupt primary EFI label."></a>问题：contains a corrupt primary EFI label.</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zpool create nvme_over_rdma_zfs_pool raidz2 nvme0n1 nvme0n2 nvme0n3 nvme0n4 nvme1n1 nvme1n2</span><br><span class="line">invalid vdev specification</span><br><span class="line">use &#x27;-f&#x27; to override the following errors:</span><br><span class="line">/dev/nvme0n2 contains a corrupt primary EFI label.</span><br></pre></td></tr></table></figure>
+<p><strong>解决方法</strong>：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wipefs -a /dev/nvme0n2</span><br></pre></td></tr></table></figure></p>
+<h2 id="问题：使用nvme-delete-ns-dev-nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了"><a href="#问题：使用nvme-delete-ns-dev-nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了" class="headerlink" title="问题：使用nvme delete-ns /dev/nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了"></a>问题：使用nvme delete-ns /dev/nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了</h2><p><strong>解决方法</strong>：<br><a target="_blank" rel="noopener" href="https://www.ibm.com/docs/en/linux-on-systems?topic=drive-deleting-stray-nvme-namespaces-nvme">https://www.ibm.com/docs/en/linux-on-systems?topic=drive-deleting-stray-nvme-namespaces-nvme</a></p>
+<h2 id="问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败"><a href="#问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败" class="headerlink" title="问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败"></a>问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败</h2><p><strong>解决方法</strong>：尝试了想修改nvme子系统中盘符，但是nvme子系统此时不让进行修改，想卸载nvmet也不行。<br>最后发现重启之后就可以了。</p>
+<h2 id="问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）"><a href="#问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）" class="headerlink" title="问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）"></a>问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）</h2><p><strong>解决方法</strong>：为了使命令行中执行insmod命令安装的驱动能在重启之后还有的解决方法大致有一下两种方法：<br>（1）直接编译内核，把想安装的驱动在编译内核的时候给编译进去，这种方法比较麻烦，花的时候也比较的多，一般不采用这种方法（这种方法网上有很多资料可以参考）。<br>（2）这种方法比较简单：就是在启动脚本中加载模块，这样每次开机启动都自动加载相应的驱动模块。具体的方式如下：<br>      在文件/etc/rc.local中加载你想要的模块程序即可，比如我想再系统启动的时候自动给我完成：卸载r8169驱动、然后安装r8168驱动、同时重启网络服务器的工作，那么我在该文件中的exit 0 之前写如下的语句：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">rmmod r8169#（卸载相应的驱动）</span><br><span class="line"></span><br><span class="line">insmod /usr/src/r8168.ko#(这个是r8168.ko文件放的绝对路径)，这步是安装相应的驱动</span><br><span class="line"></span><br><span class="line">ifconfig eth0 down</span><br><span class="line"></span><br><span class="line">ifconfig eth0 up</span><br></pre></td></tr></table></figure><br>然后保存，重新启动reboot之后，系统就将自动完成我们想要的那几步工作。</p>
+<p>在加载好驱动之后，还需要在脚本中执行自己想要做的设置！</p>
+<p>加载NVME模块及NVME映射相关的配置：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">LOG=&quot;/var/log/nvme_over_rdma.log&quot;</span><br><span class="line">NVME_SUBSYSTEM_PATH=&quot;/sys/kernel/config/nvmet/subsystems/&quot;</span><br><span class="line">NVME_SUBSYSTEM_DIR=&quot;mon1_nvme&quot;</span><br><span class="line">NVME_PORT_PATH=&quot;/sys/kernel/config/nvmet/ports&quot;</span><br><span class="line">NAME_SPACE_NUM=11</span><br><span class="line">PORT=4420</span><br><span class="line"></span><br><span class="line">echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;)  start installing nvme driver...&quot; | tee -a $&#123;LOG&#125;</span><br><span class="line"></span><br><span class="line"># 加载模块</span><br><span class="line">modprobe nvmet</span><br><span class="line">modprobe nvmet-rdma</span><br><span class="line">modprobe nvme-rdma</span><br><span class="line"></span><br><span class="line"># 创建nvme的subsystem</span><br><span class="line">echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;)  create the subsystem of nvme.&quot; | tee -a $&#123;LOG&#125;</span><br><span class="line">mkdir /sys/kernel/config/nvmet/subsystems/$NVME_SUBSYSTEM_DIR</span><br><span class="line">cd /sys/kernel/config/nvmet/subsystems/$NVME_SUBSYSTEM_DIR</span><br><span class="line">echo 1 &gt; attr_allow_any_host</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">j=1;</span><br><span class="line">for i in `lsscsi | grep nvme | awk &#x27;&#123;print $4&#125;&#x27;`;</span><br><span class="line">do</span><br><span class="line">    # 创建命名空间</span><br><span class="line">    echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;)  create namespace $&#123;NAME_SPACE_NUM&#125;.&quot; | tee -a $&#123;LOG&#125;;</span><br><span class="line">    mkdir namespaces/$NAME_SPACE_NUM;</span><br><span class="line">    # 设置NVME盘的设备路径</span><br><span class="line">    echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;)  set the NVMe disk device path: $i.&quot; | tee -a $&#123;LOG&#125;;</span><br><span class="line">    echo -n $i &gt; namespaces/$&#123;NAME_SPACE_NUM&#125;/device_path;</span><br><span class="line">    echo 1 &gt; namespaces/$&#123;NAME_SPACE_NUM&#125;/enable;</span><br><span class="line">    # 创建NVME的port</span><br><span class="line">    echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;)  create the NVMe&#x27;s port:$&#123;PORT&#125;.&quot; | tee -a $&#123;LOG&#125;;</span><br><span class="line">    mkdir $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;;</span><br><span class="line"></span><br><span class="line">    # 设置rdma的ip</span><br><span class="line">    echo `ifconfig bond1  | grep inet | awk &#x27;&#123;print $2&#125;&#x27;` &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_traddr;</span><br><span class="line">    echo rdma &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_trtype;</span><br><span class="line">    echo $&#123;PORT&#125; &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_trsvcid;</span><br><span class="line">    echo ipv4 &gt; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/addr_adrfam;</span><br><span class="line">    ln -s $&#123;NVME_SUBSYSTEM_PATH&#125;/$&#123;NVME_SUBSYSTEM_DIR&#125; $&#123;NVME_PORT_PATH&#125;/$&#123;j&#125;/subsystems/$&#123;NVME_SUBSYSTEM_DIR&#125;;</span><br><span class="line">    ((j++));</span><br><span class="line">    ((PORT++));</span><br><span class="line">    ((NAME_SPACE_NUM++));</span><br><span class="line"></span><br><span class="line">done</span><br><span class="line">echo &quot;$(date &quot;+%Y-%m-%d %H:%M:%S&quot;)  installed nvme success.&quot; | tee -a $&#123;LOG&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="NVMe-over-RDMA的ZFS客户端重启后，ZFS存储池没了"><a href="#NVMe-over-RDMA的ZFS客户端重启后，ZFS存储池没了" class="headerlink" title="NVMe over RDMA的ZFS客户端重启后，ZFS存储池没了"></a>NVMe over RDMA的ZFS客户端重启后，ZFS存储池没了</h2><p><strong>解决方法</strong>：<br>需要重新加载<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modprobe nvme-rdma</span><br></pre></td></tr></table></figure><br>然后尝试重新创池发现”is part of potentially active pool ‘nvme_over_rdma_zfs_pool’”类型错误，其实是正常的，那些盘原本已经被我创建了存储池，不让创建是对的，所以解决办法是恢复原先创建的那个存储池。</p>
+<p>恢复方法为：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool import -n nvme_over_rdma_zfs_pool -F</span><br></pre></td></tr></table></figure><br>把上面的存储池的名字换成你自己的要恢复的存储池名字。<br><a target="_blank" rel="noopener" href="https://www.reddit.com/r/zfs/comments/a5jdkp/help_trying_to_recreate_an_existing_pool/ebmxzlw/">[HELP] Trying to recreate an existing pool</a></p>
+<h2 id="通过NVMe-over-RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化"><a href="#通过NVMe-over-RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化" class="headerlink" title="通过NVMe over RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化"></a>通过NVMe over RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化</h2><p>通过NVMe over RDMA映射到一个客户端上组建的ZFS，重启后端NVMe盘的机器后，盘符会发生改变，然后ZFS存储池中会检测到原来的那个盘符故障，然后也没法用”zpool replace”命令。</p>
+<p><strong>解决方法</strong>：</p>
+<ol>
+<li>重启客户端(即创建ZFS存储池的那台机器) </li>
+<li>重新加载nvme-rdma </li>
+<li><strong>使用“nvme connect xxx”命令重新连接其他机器上的NVMe盘</strong></li>
+<li><strong>重新import存储池</strong><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool import -n nvme_over_rdma_zfs_pool -F</span><br></pre></td></tr></table></figure>
+在创建ZFS存储池的时候，最佳实践是不要使用/dev/sda这样的字盘符来创建存储池，可以使用”/dev/disk/by-id/xxx”这样字独一无二的标识符来创池。</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/liangxanhai/article/details/7748271">加载驱动后开机重启后没有驱动的解决方法</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.reddit.com/r/zfs/comments/a5jdkp/help_trying_to_recreate_an_existing_pool/ebmxzlw/">[HELP] Trying to recreate an existing pool</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.reddit.com/r/zfs/comments/gh4svd/zpool_lost_after_reboot/">zpool lost after reboot</a></p>
+<p><a target="_blank" rel="noopener" href="https://askubuntu.com/questions/404172/zpools-dont-automatically-mount-after-boot">zpools don’t automatically mount after boot</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/29/%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/" title="测试NVMe over RDMA上的ZFS遇到的问题">2021/10/29/测试NVMe over RDMA上的ZFS遇到的问题/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+            <a href="/tags/NVMe/" rel="tag"># NVMe</a>
+          
+            <a href="/tags/NVMeoF/" rel="tag"># NVMeoF</a>
+          
+            <a href="/tags/RDMA/" rel="tag"># RDMA</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/" rel="next" title="NVMe over RDMA的环境上安装ZFS">
+                <i class="fa fa-chevron-left"></i> NVMe over RDMA的环境上安装ZFS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/30/NVMe%20namespace/" rel="prev" title="NVMe namespace">
+                NVMe namespace <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9Acontains-a-corrupt-primary-EFI-label"><span class="nav-number">1.</span> <span class="nav-text">问题：contains a corrupt primary EFI label.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E4%BD%BF%E7%94%A8nvme-delete-ns-dev-nvme2n1%E5%88%A0%E9%99%A4%E8%AF%A5%E7%9B%98%E7%9A%84ns%E4%B9%8B%E5%90%8E%EF%BC%8C%E4%BD%BF%E7%94%A8lsblk%E7%9C%8B%E4%B8%8D%E8%A7%81%E8%AF%A5%E7%9B%98%E4%BA%86"><span class="nav-number">2.</span> <span class="nav-text">问题：使用nvme delete-ns &#x2F;dev&#x2F;nvme2n1删除该盘的ns之后，使用lsblk看不见该盘了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E7%94%B1%E4%BA%8E%E5%89%8D%E9%9D%A2%E6%A8%A1%E6%8B%9F%E6%8B%94%E7%9B%98%E5%92%8C%E9%87%8D%E6%96%B0%E6%8F%92%E7%9B%98%E5%90%8E%EF%BC%8C%E9%82%A3%E4%B8%AA%E7%9B%98%E7%AC%A6%E5%8F%91%E7%94%9F%E4%BA%86%E5%8F%98%E5%8C%96%EF%BC%8C%E6%89%80%E4%BB%A5%E5%AF%BC%E8%87%B4%E9%80%9A%E8%BF%87RDMA%E6%98%A0%E5%B0%84%E5%88%B0%E6%9C%AC%E5%9C%B0%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%88%9B%E6%B1%A0%E5%A4%B1%E8%B4%A5"><span class="nav-number">3.</span> <span class="nav-text">问题：由于前面模拟拔盘和重新插盘后，那个盘符发生了变化，所以导致通过RDMA映射到本地客户端创池失败</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E9%87%8D%E5%90%AF%E5%90%8E%E5%AE%89%E8%A3%85%E7%9A%84nvme%E7%9B%B8%E5%85%B3%E9%A9%B1%E5%8A%A8%E4%B8%8D%E8%A7%81%E4%BA%86%EF%BC%8C%E8%87%AA%E5%B7%B1%E5%81%9A%E7%9A%84%E8%AE%BE%E7%BD%AE%E4%B9%9F%E6%B6%88%E5%A4%B1%E4%BA%86%EF%BC%88%E8%BF%99%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%A9%B1%E5%8A%A8%E5%90%8E%E5%BC%80%E6%9C%BA%E9%87%8D%E5%90%AF%E5%90%8E%E6%B2%A1%E6%9C%89%E9%A9%B1%E5%8A%A8%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">问题：重启后安装的nvme相关驱动不见了，自己做的设置也消失了（这类加载驱动后开机重启后没有驱动的解决方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NVMe-over-RDMA%E7%9A%84ZFS%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%87%8D%E5%90%AF%E5%90%8E%EF%BC%8CZFS%E5%AD%98%E5%82%A8%E6%B1%A0%E6%B2%A1%E4%BA%86"><span class="nav-number">5.</span> <span class="nav-text">NVMe over RDMA的ZFS客户端重启后，ZFS存储池没了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87NVMe-over-RDMA%E6%98%A0%E5%B0%84%E7%BB%84%E5%BB%BA%E7%9A%84ZFS%E7%9A%84%E7%A1%AC%E7%9B%98%E7%9B%98%E7%AC%A6%EF%BC%8C%E5%9C%A8%E9%87%8D%E5%90%AF%E5%90%8E%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">通过NVMe over RDMA映射组建的ZFS的硬盘盘符，在重启后发生变化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

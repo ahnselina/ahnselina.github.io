@@ -1,37 +1,1361 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,文件系统,ZFS," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZFS系列（四）The Adjustable Replacement Cache">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eCE1f.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eClhq.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eCNB4.md.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eCD9x.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eCsgK.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eCfUA.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePe8x.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePnxK.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePMrD.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePtRP.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/15/5850oR.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5ePcR0.png">
+<meta property="article:published_time" content="2021-10-10T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.038Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="ZFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/10/11/5eCE1f.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/10/ZFS系列（四）ARC/"/>
+
+
+
+
+
+  <title>ZFS系列（四）The Adjustable Replacement Cache | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ZFS系列（四）The Adjustable Replacement Cache</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-10T23:30:30+08:00">
+                2021-10-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,640 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/10/11/5eCE1f.png" alt=""></p>
+<span id="more"></span>
+<p>本文继续ZFS管理系列文章，这里将介绍另一个zpool VDEV，叫做可调整可替换缓存(简称ARC，当然也有翻译为自适应缓存的)。</p>
+<h2 id="传统缓存"><a href="#传统缓存" class="headerlink" title="传统缓存"></a>传统缓存</h2><p> Linux和其他操作系统上的缓存机制使用的是最近最少使用的缓存算法。LRU算法的工作方式是，当应用程序读取数据块时，它们被放到缓存中。当越来越多的数据被读取并放入缓存时，缓存将被填满。然而，缓存是先进先出(FIFO)算法。因此，当缓存已满时，较旧的页面将被推出缓存。即使那些旧页面被更频繁地访问。把整个过程想象成一条传送带。块被放在缓存中最近使用的部分。当读取更多的块时，将旧块推到缓存中最近使用最少的部分，直到它们从传送带上脱落，或者换句话说被逐出。<br><img src="https://z3.ax1x.com/2021/10/11/5eClhq.png" alt=""></p>
+<p>当从磁盘读取较大的顺序读并将其放入缓存时，它倾向于从缓存中逐出更频繁请求的页面。即使这些新读取的数据只需要一次。因此，从缓存的角度来看，它最终会产生大量无用的、不再需要的数据。当然，当请求更新的数据块时，它最终会被替换。</p>
+<p>当然除了LRU，还有最少使用频率(LFU)缓存。但是，LFU会遇到一个问题，即如果较新的数据读取的频次不够多，很可能会从缓存中淘汰。因此，如果还要读取这些新数据将会有大量的磁盘请求，这就违背了使用缓存的初衷。因此，似乎最明显的方法就是以某种方式将两者结合起来——同时拥有一个LRU和一个LFU。</p>
+<h2 id="ZFS-ARC"><a href="#ZFS-ARC" class="headerlink" title="ZFS ARC"></a>ZFS ARC</h2><p>ZFS可调替换缓存(ARC)就是这样一种缓存机制，它既缓存最近的块请求，也缓存频繁的块请求。它是IBM专利“adaptive replacement cache”的实现，经过一些修改和扩展。</p>
+<p>在开始之前，我应该提一下，我从<a target="_blank" rel="noopener" href="http://www.c0t0d0s0.org/archives/5329-Some-insight-into-the-read-cache-of-ZFS-or-The-ARC.html">http://www.c0t0d0s0.org/archives/5329-Some-insight-into-the-read-cache-of-ZFS-or-The-ARC.html</a><br>学到了很多关于ZFS ARC的知识。下面是我在这里重复使用的那篇文章的图片。谢谢Joerg的精彩帖子。</p>
+<h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><ul>
+<li>Adjustable Replacement Cache(ARC) -驻留在物理RAM中的缓存。它是使用两个缓存构建的——最常用的缓存和最近使用的缓存。缓存目录索引指向缓存的指针，包括指向称为ghost常用缓存和ghost最近使用缓存的磁盘的指针。</li>
+<li>缓存目录-组成MRU, MFU，ghost MRU和ghost MFU缓存的指针的一个索引目录。 </li>
+<li>MRU缓存- ARC最近使用的缓存。文件系统中最近请求的块被缓存在这里。</li>
+<li>MFU缓存- ARC中最频繁使用的缓存。文件系统中最频繁请求的块都缓存在这里。</li>
+<li>Ghost MRU-将MRU缓存中的页面移回磁盘，以节省MRU的空间。指针仍然跟踪被逐出的页面在磁盘上的位置。</li>
+<li>Ghost MFU-将页面从MFU缓存中驱逐回磁盘，以节省MFU中的空间。指针仍然跟踪被逐出的页面在磁盘上的位置。</li>
+<li>2级Adjustable Replacement Cache(L2ARC)——位于物理内存之外的缓存，通常位于快速SSD上。它是RAM ARC字面上的、物理上的扩展。</li>
+</ul>
+<h2 id="ARC算法"><a href="#ARC算法" class="headerlink" title="ARC算法"></a>ARC算法</h2><p>这是IBM ARC工作方式的简化版本，但是它可以帮助您理解MRU和MFU的优先级是如何分配的。首先，让我们假设缓存中有8个页面。缓存中的四页将用于MRU，另外四页用于MFU。此外，还将有四个指针的ghost MRU和四个指针的ghost MFU。因此，缓存目录将引用16页的活动缓存或被淘汰的缓存。</p>
+<p><img src="https://z3.ax1x.com/2021/10/11/5eCNB4.md.png" alt=""></p>
+<ol>
+<li>正如预期的那样，当从文件系统中读取块A时，它将被缓存到MRU中。缓存目录中的一个索引指针将引用该MRU页面。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5eCD9x.png" alt=""></p>
+<ol start="2">
+<li>现在假设从文件系统中读取了一个不同的块(块B)。它也将被缓存到MRU中，并且缓存目录中的索引指针将引用第二个MRU页面。因为块B比块A读得更晚，所以它在MRU缓存中比块A有更高的优先级。现在MRU缓存中有两个页面。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5eCsgK.png" alt=""></p>
+<ol start="3">
+<li>现在假设块A再次从文件系统中读取。这将是对块A的第二次读取。结果，它被频繁地读取，所以它将被存储在MFU中。一个块必须被至少读两次才能存储在这里。此外，这也是最近的请求。因此，块不仅缓存在MFU中，它还在缓存目录的MRU中被引用。因此，尽管缓存中有两个页面，但缓存目录中有三个指针指向缓存中的两个块。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5eCfUA.png" alt=""></p>
+<ol start="4">
+<li>最终，缓存被上述类似的步骤填满，我们在MRU和缓存目录的MFU中都有指针。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5ePe8x.png" alt=""></p>
+<ol start="5">
+<li>这就是有趣的地方。假设我们现在需要从没有缓存的文件系统中读取一个新的块。由于鸽笼原理，我们要缓存的页面比存储的页面要多。因此，我们需要从缓存中取出一个页面。MRU中最老的页面(被称为最近最少使用的- LRU)会得到驱逐通知，并被ghost MRU引用。MRU中将有一个新的页面用于新读块。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5ePnxK.png" alt=""></p>
+<ol start="6">
+<li>当新的读块被从文件系统中读取后，如预期的那样，它被存储在MRU中并被引用。这样，我们就有了一个ghost MRU页面引用和一个已填满的缓存。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5ePMrD.png" alt=""></p>
+<ol start="7">
+<li>为了搅乱整个过程，让我们假设从文件系统中重新读取了最近被逐出的页面。因为ghost MRU知道它最近被从缓存中移除，我们称之为“幽灵缓存命中”。因为ZFS知道它最近被缓存了，所以我们需要将它带回MRU缓存中;而不是MFU缓存，因为它没有被MFU ghost引用。</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/10/11/5ePtRP.png" alt=""></p>
+<ol start="8">
+<li>不幸的是，我们的缓存太小，无法存储该页面。所以，我们必须把MRU增加一页来存储这个新的“幽灵命中的页面”。但是，我们的缓存只有这么大，所以我们必须将MFU的大小减少1，以便为MRU腾出空间。当然，该算法以类似的方式工作在MFU和ghost MFU。ghost MFU的“幽灵命中”会增大MFU，当然同时需要缩小MRU来为新页面腾出空间。<br><img src="https://z3.ax1x.com/2021/10/15/5850oR.png" alt=""></li>
+</ol>
+<p>所以，想象一下两种截然相反的工作f负载。第一种工作负载从磁盘读取大量随机数据，几乎没有重复。MRU可能会占缓存的大部分，而MFU只占很小的一部分。缓存已经根据系统所承受的负载调整了自己。但是，考虑第二种工作负载，它不断地反复读取相同的数据，只有很少的新读取数据。在这种情况下，MFU可能会占据大部分缓存，而MRU不会。因此，缓存被调整来适应系统所承受的负载。</p>
+<p> 还记得我们前面提到的传统缓存方案吗?Linux内核使用LRU方案将缓存的页面交换到磁盘。因此，它总是倾向于最近的缓存命中，而不是频繁的缓存命中。如果您只需要一次读取大量块，那么这可能会产生严重的后果。您将把频繁缓存的页面交换到磁盘，即使新读取的数据只需要一次。因此，您可能会以THE SWAP OF DEATH结束，因为频繁请求的页面必须从交换区域返回磁盘。使用ARC，我们修改缓存以适应这种负载(因此，它被称为“Adaptive Read cache”)。</p>
+<h2 id="ZFS-ARC扩展"><a href="#ZFS-ARC扩展" class="headerlink" title="ZFS ARC扩展"></a>ZFS ARC扩展</h2><p>前面的算法是IBM设计的ARC算法的简化版本。ZFS做了如下扩展:</p>
+<ul>
+<li>ZFS ARC将占用1/2的可用RAM。然而，这并不是静态的。如果您的服务器中有32GB的RAM，这并不意味着缓存总是16GB。相反，总缓存将根据内核的决定调整其大小。如果内核需要为调度的进程提供更多的RAM，则会调整ZFS ARC，以便为内核需要的任何内容腾出空间。但是，如果有ZFS ARC可以占用的空间，它就会占用它。</li>
+<li>ZFS ARC可以使用多种块大小，而IBM实现使用静态块大小。</li>
+<li>页面可以锁定在MRU或MFU，以防止驱逐。IBM实现没有这个特性。因此，在选择页面何时从缓存中被移除时，ZFS ARC算法会稍微复杂一些。</li>
+</ul>
+<h2 id="L2ARC"><a href="#L2ARC" class="headerlink" title="L2ARC"></a>L2ARC</h2><p> 2级ARC或L2ARC应该使用快速磁盘（比如SSD）。正如我在之前关于ZIL的文章中提到的，ZIL应该使用DRAM内存(不一定需要电池支持)，快速SSD，或10k以上的企业SAS或FC硬盘。如果您决定为您的ZIL和L2ARC使用相同的设备(这当然是可以接受的)，那么您应该对它进行分区，使ZIL占用很少的空间，比如512 MB或1 GB，并将其余的作为条带(RAID-0) L2ARC给池。在L2ARC中不需要持久化，因为缓存将在引导时被擦除。<br><img src="https://z3.ax1x.com/2021/10/11/5ePcR0.png" alt=""></p>
+<p> L2ARC是ARC在RAM中的扩展，当有L2ARC存在时，之前的算法保持不变。这意味着随着MRU或MFU的增长，它们不会同时共享RAM中的ARC和SSD中的L2ARC。这将对性能产生巨大的影响。相反，当一个页面即将被逐出时，一个遍历算法将MRU和MFU页面逐出到一个8 MB的缓冲区中，这个缓冲区稍后被设置为一个到L2ARC的原子写事务。这里的明显优势是，从缓存中删除页面的延迟不会受到影响。此外，如果大量的数据块被读到缓存中，这些块在L2ARC遍历之前被驱逐，而不是被发送到L2ARC。这将最大限度地减少大量顺序读取对L2ARC的污染。根据对数据的访问情况，填充L2ARC可能会非常慢，也可能非常快。</p>
+<h2 id="添加一个L2ARC"><a href="#添加一个L2ARC" class="headerlink" title="添加一个L2ARC"></a>添加一个L2ARC</h2><p><strong>警告</strong>:一些主板在重新启动时不会以一致的方式向Linux内核提供磁盘。因此，在一次引导时标识为/dev/sda的磁盘可能在下一次引导时标识为/dev/sdb。对于存储数据的主池，这不是问题，因为ZFS可以基于元数据几何结构重建VDEVs。然而，对于您的L2ARC和SLOG设备，不存在这样的元数据。那么，与其通过它们的/dev/sd?名字，将它们添加到池中，还不如用/dev/disk/by-id/*名称将其加入池中，因为这些是符号指针，指向不断变化的/dev/sd?文件。如果您没有注意到这个警告，那么您的L2ARC设备可能根本就不会被添加到您的混合池中，您需要稍后重新添加它。这可能会极大地影响应用程序的性能，这取决于是否存在一个快速的L2ARC。</p>
+<p>您可以使用“缓存”VDEV添加L2ARC。建议对L2ARC进行分条处理，使大小和速度都最大化。对于L2ARC来说，持久化数据是不必要的，所以它可以是不稳定的内存。假设我的池中有4个盘片磁盘，一个OCZ Revodrive SSD向系统提供两个60GB驱动器。我将在SSD上对驱动器进行分区，将4 GB给ZIL，其余留给L2ARC。这是如何将L2ARC添加到池中。在这里，我使用GNU parted首先创建分区，然后添加ssd。“/dev/disk/by-id/”中的设备分别指向“/dev/sda”和“/dev/sdb”。仅供参考。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"># parted /dev/sda unit s mklabel gpt mkpart primary zfs 2048 4G mkpart primary zfs 4G 109418255</span><br><span class="line"># parted /dev/sdb unit s mklabel gpt mkpart primary zfs 2048 4G mkpart primary zfs 4G 109418255</span><br><span class="line"># zpool add tank cache \</span><br><span class="line">/dev/disk/by-id/ata-OCZ-REVODRIVE_OCZ-33W9WE11E9X73Y41-part2 \</span><br><span class="line">/dev/disk/by-id/ata-OCZ-REVODRIVE_OCZ-X5RG0EIY7MN7676K-part2 \</span><br><span class="line">log mirror \</span><br><span class="line">/dev/disk/by-id/ata-OCZ-REVODRIVE_OCZ-69ZO5475MT43KNTU-part1 \</span><br><span class="line">/dev/disk/by-id/ata-OCZ-REVODRIVE_OCZ-9724MG8BII8G3255-part1</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: tank</span><br><span class="line"> state: ONLINE</span><br><span class="line"> scan: scrub repaired 0 in 1h8m with 0 errors on Sun Dec  2 01:08:26 2012</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME                                              STATE     READ WRITE CKSUM</span><br><span class="line">        tank                                              ONLINE       0     0     0</span><br><span class="line">          raidz1-0                                        ONLINE       0     0     0</span><br><span class="line">            sdd                                           ONLINE       0     0     0</span><br><span class="line">            sde                                           ONLINE       0     0     0</span><br><span class="line">            sdf                                           ONLINE       0     0     0</span><br><span class="line">            sdg                                           ONLINE       0     0     0</span><br><span class="line">        logs</span><br><span class="line">          mirror-1                                        ONLINE       0     0     0</span><br><span class="line">            ata-OCZ-REVODRIVE_OCZ-69ZO5475MT43KNTU-part1  ONLINE       0     0     0</span><br><span class="line">            ata-OCZ-REVODRIVE_OCZ-9724MG8BII8G3255-part1  ONLINE       0     0     0</span><br><span class="line">        cache</span><br><span class="line">          ata-OCZ-REVODRIVE_OCZ-69ZO5475MT43KNTU-part2    ONLINE       0     0     0</span><br><span class="line">          ata-OCZ-REVODRIVE_OCZ-9724MG8BII8G3255-part2    ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure><br> 此外，我可以用如下命令在任何时候检查L2ARC的大小:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#zpool iostat -v</span><br><span class="line">                                                     capacity     operations    bandwidth</span><br><span class="line">pool                                              alloc   free   read  write   read  write</span><br><span class="line">------------------------------------------------  -----  -----  -----  -----  -----  -----</span><br><span class="line">pool                                               824G  2.82T     11     60   862K  1.05M</span><br><span class="line">  raidz1                                           824G  2.82T     11     52   862K   972K</span><br><span class="line">    sdd                                               -      -      5     29   289K   329K</span><br><span class="line">    sde                                               -      -      5     28   289K   327K</span><br><span class="line">    sdf                                               -      -      5     29   289K   329K</span><br><span class="line">    sdg                                               -      -      7     35   289K   326K</span><br><span class="line">logs                                                  -      -      -      -      -      -</span><br><span class="line">  mirror                                          1.38M  3.72G      0     19      0   277K</span><br><span class="line">    ata-OCZ-REVODRIVE_OCZ-69ZO5475MT43KNTU-part1      -      -      0     19      0   277K</span><br><span class="line">    ata-OCZ-REVODRIVE_OCZ-9724MG8BII8G3255-part1      -      -      0     19      0   277K</span><br><span class="line">cache                                                 -      -      -      -      -      -</span><br><span class="line">  ata-OCZ-REVODRIVE_OCZ-69ZO5475MT43KNTU-part2    2.34G  49.8G      0      0    739  4.32K</span><br><span class="line">  ata-OCZ-REVODRIVE_OCZ-9724MG8BII8G3255-part2    2.23G  49.9G      0      0    801  4.11K</span><br><span class="line">------------------------------------------------  -----  -----  -----  -----  -----  -----</span><br></pre></td></tr></table></figure></p>
+<p>在这种情况下，我在L2ARC中使用了大约5GB的缓存数据(记住，它是条带的)，有足够的空间。事实上，上面的执行结果来自一个正在运行的32GB DDR2 RAM的系统。L2ARC在一周前修改并重新添加。这显示了我在我的系统上填充L2ARC的速度。你的情况可能有所不同，但花这么长时间也就不足为奇了。Ben Rockwood有一个Perl脚本，可以分解ARC和L2ARC的MRU, MFU，和ghost，以及其他。请访问<a target="_blank" rel="noopener" href="http://www.cuddletech.com/blog/pivot/entry.php?id=979">http://www.cuddletech.com/blog/pivot/entry.php?id=979 </a> (我对这个脚本没有任何经验)。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>ZFS可调可替换缓存改进了IBM的原始Adaptive Read Cache，同时保持了IBM设计的原形。然而，与传统的LRU和LFU缓存相比，ZFS ARC有巨大的优势。而且，通过在快速SSD或磁盘上添加L2ARC，我们可以快速检索大量数据，同时仍然允许主机内核根据需要调整内存需求。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://pthree.org/2012/12/07/zfs-administration-part-iv-the-adjustable-replacement-cache/">https://pthree.org/2012/12/07/zfs-administration-part-iv-the-adjustable-replacement-cache/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/" title="ZFS系列（四）The Adjustable Replacement Cache">2021/10/10/ZFS系列（四）ARC/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/09/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89ZFS%20intent%20log/" rel="next" title="ZFS系列（三）ZFS intent log">
+                <i class="fa fa-chevron-left"></i> ZFS系列（三）ZFS intent log
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/" rel="prev" title="ZFS系列（五）数据清理和数据重建">
+                ZFS系列（五）数据清理和数据重建 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E7%BC%93%E5%AD%98"><span class="nav-number">1.</span> <span class="nav-text">传统缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZFS-ARC"><span class="nav-number">2.</span> <span class="nav-text">ZFS ARC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AF%E8%AF%AD"><span class="nav-number">3.</span> <span class="nav-text">术语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARC%E7%AE%97%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">ARC算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZFS-ARC%E6%89%A9%E5%B1%95"><span class="nav-number">5.</span> <span class="nav-text">ZFS ARC扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#L2ARC"><span class="nav-number">6.</span> <span class="nav-text">L2ARC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%B8%80%E4%B8%AAL2ARC"><span class="nav-number">7.</span> <span class="nav-text">添加一个L2ARC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">9.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

@@ -1,37 +1,1322 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,文件系统,ZFS,快照,克隆," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZFS系列（十）快照和克隆">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/16/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/15/58yGut.png">
+<meta property="article:published_time" content="2021-10-16T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.038Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="ZFS">
+<meta property="article:tag" content="快照">
+<meta property="article:tag" content="克隆">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/10/15/58yGut.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/16/ZFS系列（十）快照和克隆/"/>
+
+
+
+
+
+  <title>ZFS系列（十）快照和克隆 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/16/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ZFS系列（十）快照和克隆</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-16T23:30:30+08:00">
+                2021-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/16/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/16/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,251 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/10/15/58yGut.png" alt=""></p>
+<span id="more"></span>
+<p>ZFS里面的快照和Linux LVM中的快照是类似的。快照是只读的，它是你做快照的时候的文件系统的一份镜像复本。可以想象成对外部世界的一个数字照片，即使外部世界发生了变化，然而那个照片还是保留了拍下照片的那个时候的外部世界的样子。</p>
+<p>您可以在池中保留至多2^64个快照，ZFS快照是持久化的，即使重启也不会丢失，而且它们不需要任何额外的备份存储;它们与其他数据一样使用相同的存储池。如果您还记得我们关于“写时复制”文件系统特性的文章，您应该会记得我们关于Merkle树的讨论。ZFS快照是处于该状态的Merkle树的副本，但我们要确保该Merkle树的快照永远不会被修改。</p>
+<p> 创建快照几乎是瞬时的，而且成本低廉。但是，一旦数据开始更改，快照将开始存储数据。如果您有多个快照，那么将在所有快照中将记录多个增量。然而，根据您的需要，快照仍然可以非常便宜。</p>
+<h2 id="创建快照"><a href="#创建快照" class="headerlink" title="创建快照"></a>创建快照</h2><p> 你可以创建两种类型快照：池快照和数据集快照。您想要哪种类型的快照取决于您。但是，您必须为快照指定一个名。快照名的语法为:</p>
+<ul>
+<li>pool/dataset@snapshot-name</li>
+<li>pool@snapshot-name</li>
+</ul>
+<p>创建快照需要使用“zfs snapshot”命令，比如，要对数据集“tank/test”创建快照，应该执行如下命令：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># zfs snapshot tank/test@tuesday</span><br></pre></td></tr></table></figure><br>因为快照是一类只读的文件系统，所以无法像标准的ZFS数据集或者存储池那样可以进行属性修改，比如你想对一个快照启用压缩特性，将会发生如下情况：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># zfs set compression=lzjb tank/test@friday</span><br><span class="line">cannot set property for &#x27;tank/test@friday&#x27;: this property can not be modified for snapshots</span><br></pre></td></tr></table></figure></p>
+<h2 id="列出快照"><a href="#列出快照" class="headerlink" title="列出快照"></a>列出快照</h2><p>快照可以通过两种方式显示:通过访问数据集根目录下的隐藏的”.zfs”目录，或者使用“zfs list”命令。首先，让我们讨论隐藏目录。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># ls -a /tank/test</span><br><span class="line">./  ../  boot.tar  text.tar  text.tar.2</span><br><span class="line"># cd /tank/test/.zfs/</span><br><span class="line"># ls -a</span><br><span class="line">./  ../  shares/  snapshot/</span><br></pre></td></tr></table></figure><br>即使使用“ls -a”命令，“.zfs”目录也不可见，不过我们可以cd到这个目录中去。如果你想让“.zfs”目录可见，你可以更改该数据集上的“snapdir”属性。有效值是”hidden”和”visible”。默认情况下，它是隐藏的。让我们来试试：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># zfs set snapdir=visible tank/test</span><br><span class="line"># ls -a /tank/test</span><br><span class="line">./  ../  boot.tar  text.tar  text.tar.2  .zfs/</span><br></pre></td></tr></table></figure><br>另一种显示快照的方法是使用”zfs list”命令，并传入”-t snapshot”参数，如下所示:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># zfs list -t snapshot</span><br><span class="line">NAME                              USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">pool/cache@2012:12:18:51:2:19:00      0      -   525M  -</span><br><span class="line">pool/cache@2012:12:18:51:2:19:15      0      -   525M  -</span><br><span class="line">pool/home@2012:12:18:51:2:19:00   18.8M      -  28.6G  -</span><br><span class="line">pool/home@2012:12:18:51:2:19:15   18.3M      -  28.6G  -</span><br><span class="line">pool/log@2012:12:18:51:2:19:00     184K      -  10.4M  -</span><br><span class="line">pool/log@2012:12:18:51:2:19:15     184K      -  10.4M  -</span><br><span class="line">pool/swap@2012:12:18:51:2:19:00       0      -    76K  -</span><br><span class="line">pool/swap@2012:12:18:51:2:19:15       0      -    76K  -</span><br><span class="line">pool/vmsa@2012:12:18:51:2:19:00       0      -  1.12M  -</span><br><span class="line">pool/vmsa@2012:12:18:51:2:19:15       0      -  1.12M  -</span><br><span class="line">pool/vmsb@2012:12:18:51:2:19:00       0      -  1.31M  -</span><br><span class="line">pool/vmsb@2012:12:18:51:2:19:15       0      -  1.31M  -</span><br><span class="line">tank@2012:12:18:51:2:19:00            0      -  43.4K  -</span><br><span class="line">tank@2012:12:18:51:2:19:15            0      -  43.4K  -</span><br><span class="line">tank/test@2012:12:18:51:2:19:00       0      -  37.1M  -</span><br><span class="line">tank/test@2012:12:18:51:2:19:15       0      -  37.1M  -</span><br></pre></td></tr></table></figure><br>注意，默认情况下，该命令将显示所有池的所有快照。<br>如果希望输出更具体，可以查看给定父节点的所有快照，无论它是数据集还是存储池。您只需要传递“-r”参数以进行递归，然后提供父节点名称。在本例中，我将只看“tank”的快照，而忽略“pool”中的快照:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># zfs list -r -t snapshot tank</span><br><span class="line">NAME                              USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">tank@2012:12:18:51:2:19:00           0      -  43.4K  -</span><br><span class="line">tank@2012:12:18:51:2:19:15           0      -  43.4K  -</span><br><span class="line">tank/test@2012:12:18:51:2:19:00      0      -  37.1M  -</span><br></pre></td></tr></table></figure></p>
+<h2 id="消耗快照"><a href="#消耗快照" class="headerlink" title="消耗快照"></a>消耗快照</h2><p>与销毁存储池或ZFS数据集一样，也可以使用类似的方法销毁快照。要销毁快照，使用“zfs destroy”命令，并提供要销毁的快照作为参数:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># zfs destroy tank/test@2012:12:18:51:2:19:15</span><br></pre></td></tr></table></figure><br>需要知道的一件重要的事情是，如果快照存在，它就被认为是数据集的子文件系统。因此，在销毁所有快照和嵌套数据集之前，不能删除数据集。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># zfs destroy tank/test</span><br><span class="line">cannot destroy &#x27;tank/test&#x27;: filesystem has children</span><br><span class="line">use &#x27;-r&#x27; to destroy the following datasets:</span><br><span class="line">tank/test@2012:12:18:51:2:19:15</span><br><span class="line">tank/test@2012:12:18:51:2:19:00</span><br></pre></td></tr></table></figure></p>
+<h2 id="重命名快照"><a href="#重命名快照" class="headerlink" title="重命名快照"></a>重命名快照</h2><p>可以重命名快照，但是必须在创建快照的存储池和ZFS数据集中重命名快照。重命名快照非常简单:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># zfs rename tank/test@2012:12:18:51:2:19:15 tank/test@tuesday-19:15</span><br></pre></td></tr></table></figure></p>
+<h2 id="回滚快照"><a href="#回滚快照" class="headerlink" title="回滚快照"></a>回滚快照</h2><p>如果不讨论将文件系统回滚到上一个快照，那么关于快照的讨论就不完整。</p>
+<p>回滚到上一个快照将丢弃该快照与当前时间之间的任何数据更改。默认情况下，只能回滚到最近的快照。为了回滚到更早的快照，您必须销毁当前时间和希望回滚到的快照之间的所有快照。如果这还不够，则必须在开始回滚之前卸载文件系统。这意味着停机时间。</p>
+<p>要回滚“tank/test”数据集到“tuesday”快照，我们会发出以下命令:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># zfs rollback tank/test@tuesday</span><br><span class="line">cannot rollback to &#x27;tank/test@tuesday&#x27;: more recent snapshots exist</span><br><span class="line">use &#x27;-r&#x27; to force deletion of the following snapshots:</span><br><span class="line">tank/test@wednesday</span><br><span class="line">tank/test@thursday</span><br></pre></td></tr></table></figure><br> 与上面提到的一样，我们必须删除“@wednesday”和“@thursday”快照，然后才能回滚到“@tuesday”快照。</p>
+<h2 id="ZFS克隆"><a href="#ZFS克隆" class="headerlink" title="ZFS克隆"></a>ZFS克隆</h2><p>ZFS克隆是一个从快照“升级”的可写文件系统。克隆只能从快照创建，只要克隆存在，对快照的依赖就会保持。这意味着，如果你克隆了快照，就不能直接销毁这个快照。克隆依赖快照提供给它的数据，所以在销毁快照之前，必须先销毁克隆。</p>
+<p>创建克隆几乎是瞬时的，就像快照一样，最初并不会占用任何额外的空间。相反，它会占用快照的所有初始空间。当数据在克隆中被修改时，它开始占用与快照分离的空间。</p>
+<h2 id="创建ZFS克隆"><a href="#创建ZFS克隆" class="headerlink" title="创建ZFS克隆"></a>创建ZFS克隆</h2><p>使用“zfs clone”命令、要克隆的快照和新文件系统的名称来创建克隆。克隆不需要驻留在与克隆相同的数据集中，但它需要驻留在相同的存储池中。 例如，如果我想克隆“tank/test@tuesday”快照，并给它命名为“tank/tuesday”，我将运行以下命令:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># zfs clone tank/test@tuesday tank/tuesday</span><br><span class="line"># dd if=/dev/zero of=/tank/tuesday/random.img bs=1M count=100</span><br><span class="line"># zfs list -r tank</span><br><span class="line">NAME           USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">tank           161M  2.78G  44.9K  /tank</span><br><span class="line">tank/test     37.1M  2.78G  37.1M  /tank/test</span><br><span class="line">tank/tuesday   124M  2.78G   161M  /tank/tuesday</span><br></pre></td></tr></table></figure></p>
+<h2 id="销毁克隆"><a href="#销毁克隆" class="headerlink" title="销毁克隆"></a>销毁克隆</h2><p>与销毁数据集或快照一样，我们使用“zfs destroy”命令。再强调一遍，在您销毁克隆之前，不能销毁快照。所以，如果我们想要摧毁“tank/tuesday”的克隆，用如下命令，就像销毁其他数据集一样:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># zfs destroy tank/tuesday</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p><strong>因为保存快照非常便宜，所以建议经常对数据集进行快照</strong>。Sun Microsystems提供了一个Time Slider ，它是GNOME Nautilus文件管理器的一部分。Time Slider 保存快照的方式如下:</p>
+<ul>
+<li>频率–每15分钟做一次快照，保留4张快照</li>
+<li>每小时–每小时快照，保留24张快照</li>
+<li>Daily –每天快照，保留31个快照</li>
+<li>每周–每周快照，保留7个快照</li>
+<li>Monthly–每月快照，保留12个快照<br>不幸的是，Time Slider 不是标准GNOME桌面的一部分，所以GNU/Linux上没有。 然而，Linux上的ZFS开发人员已经创建了一个“zfs-auto-snapshot”包，如果运行Ubuntu，你可以从项目的PPA中安装它。如果你运行的是另一种GNU/Linux操作系统，您可以轻松地编写一个Bash或Python脚本来模拟该功能，并将其放在您的根用户的crontab中。</li>
+</ul>
+<p>因为快照和克隆都很便宜，所以建议您充分利用它们。克隆对于测试部署虚拟机或从生产环境克隆的开发环境非常有用。而且可以很容易地销毁它们，而不会影响创建快照的父数据集。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://pthree.org/2012/12/19/zfs-administration-part-xii-snapshots-and-clones/">https://pthree.org/2012/12/19/zfs-administration-part-xii-snapshots-and-clones/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/16/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86/" title="ZFS系列（十）快照和克隆">2021/10/16/ZFS系列（十）快照和克隆/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+            <a href="/tags/%E5%BF%AB%E7%85%A7/" rel="tag"># 快照</a>
+          
+            <a href="/tags/%E5%85%8B%E9%9A%86/" rel="tag"># 克隆</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/15/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D/" rel="next" title="ZFS系列（九）压缩与数据去重">
+                <i class="fa fa-chevron-left"></i> ZFS系列（九）压缩与数据去重
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/17/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="prev" title="ZFS系列（十一）发送与接收文件系统">
+                ZFS系列（十一）发送与接收文件系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BF%AB%E7%85%A7"><span class="nav-number">1.</span> <span class="nav-text">创建快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%97%E5%87%BA%E5%BF%AB%E7%85%A7"><span class="nav-number">2.</span> <span class="nav-text">列出快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%80%97%E5%BF%AB%E7%85%A7"><span class="nav-number">3.</span> <span class="nav-text">消耗快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%91%BD%E5%90%8D%E5%BF%AB%E7%85%A7"><span class="nav-number">4.</span> <span class="nav-text">重命名快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E6%BB%9A%E5%BF%AB%E7%85%A7"><span class="nav-number">5.</span> <span class="nav-text">回滚快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZFS%E5%85%8B%E9%9A%86"><span class="nav-number">6.</span> <span class="nav-text">ZFS克隆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAZFS%E5%85%8B%E9%9A%86"><span class="nav-number">7.</span> <span class="nav-text">创建ZFS克隆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%80%E6%AF%81%E5%85%8B%E9%9A%86"><span class="nav-number">8.</span> <span class="nav-text">销毁克隆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD"><span class="nav-number">9.</span> <span class="nav-text">结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">10.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

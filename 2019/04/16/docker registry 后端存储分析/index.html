@@ -1,37 +1,1340 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="存储,docker,docker registry," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker registry 后端存储分析">
+<meta property="og:url" content="https://www.a-programmer.top/2019/04/16/docker%20registry%20%E5%90%8E%E7%AB%AF%E5%AD%98%E5%82%A8%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmv7wD.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmvOfA.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmvzOf.jpg">
+<meta property="article:published_time" content="2019-04-16T09:19:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.026Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="docker registry">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/05/04/gmv7wD.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2019/04/16/docker registry 后端存储分析/"/>
+
+
+
+
+
+  <title>docker registry 后端存储分析 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2019/04/16/docker%20registry%20%E5%90%8E%E7%AB%AF%E5%AD%98%E5%82%A8%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">docker registry 后端存储分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-16T17:19:30+08:00">
+                2019-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%91%E8%AE%A1%E7%AE%97/" itemprop="url" rel="index">
+                    <span itemprop="name">云计算</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/04/16/docker%20registry%20%E5%90%8E%E7%AB%AF%E5%AD%98%E5%82%A8%E5%88%86%E6%9E%90/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/04/16/docker%20registry%20%E5%90%8E%E7%AB%AF%E5%AD%98%E5%82%A8%E5%88%86%E6%9E%90/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,625 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/05/04/gmv7wD.png" alt=""><br><span id="more"></span><br>Docker 的核心组件包括：</p>
+<ul>
+<li>Docker 客户端 - Client</li>
+<li>Docker 服务器 - Docker daemon</li>
+<li>Docker 镜像 - Image</li>
+<li>Registry</li>
+<li>Docker 容器 - Container:Docker 容器就是 Docker 镜像的运行实例。<br>本文主要介绍docker Registry及其后端存储</li>
+</ul>
+<h2 id="docker架构"><a href="#docker架构" class="headerlink" title="docker架构"></a>docker架构</h2><p><img src="https://z3.ax1x.com/2021/05/04/gmvOfA.jpg" alt=""></p>
+<h2 id="docker-registry简介"><a href="#docker-registry简介" class="headerlink" title="docker registry简介"></a>docker registry简介</h2><p>docker registry 用于存储和分发docker镜像（images）。<br>当前主要使用Docker Registry 2.0，又叫Distribution，其github库为：<a target="_blank" rel="noopener" href="https://github.com/docker/distribution">https://github.com/docker/distribution</a><br>原先的1.0版本使用python实现，已经停止更新和维护<br>目前的2.0版本使用GO语言实现，新版实现有如下特性：</p>
+<ul>
+<li>push 和 pull更快</li>
+<li>实现效率更高</li>
+<li>简化部署</li>
+<li>可插拔的存储后端</li>
+<li>webhook 通知</li>
+</ul>
+<h3 id="为什么需要私有的registry"><a href="#为什么需要私有的registry" class="headerlink" title="为什么需要私有的registry"></a>为什么需要私有的registry</h3><p>Registry 是存放 Docker 镜像的仓库，Registry 分私有和公有两种。<br>Docker Hub（<a target="_blank" rel="noopener" href="https://hub.docker.com/）">https://hub.docker.com/）</a> 是默认的 Registry，由 Docker 公司维护，上面有数以万计的镜像，用户可以自由下载和使用。<br>出于对速度或安全的考虑，用户也可以创建自己的私有 Registry。  </p>
+<p>通常，使用docker拉取镜像是从docker的公共仓库（Docker Hub）中，安装docker之后就可以实现这点。用户如果有Docker Hub的账号，也可以push 镜像到Docker Hub.</p>
+<p>对于有的用户或者企业，使用Docker Hub就够用了，但对另一部分则不够用，比如用户想为自己的软件产品维护一个私有的registry。此外，用户可能想部署自己的镜像仓库用于持续集成和测试。对于这类用户，部署自己的私有的registry实例是更好的选择。</p>
+<h2 id="docker-registry-存储"><a href="#docker-registry-存储" class="headerlink" title="docker registry 存储"></a>docker registry 存储</h2><p>前面提到docker registry新版特性有可插拔的存储后端，也就是Docker 镜像仓库后端支持多种储存类型，如文件系统，s3-aws，azure，oss，swift等，主要分为两大类</p>
+<ul>
+<li>本地储存</li>
+<li>远程储存</li>
+</ul>
+<blockquote>
+<p>Registry 做的事情大致可分为：  </p>
+<ol>
+<li>加载读配置  </li>
+<li>注册handler  </li>
+<li>监听  </li>
+</ol>
+</blockquote>
+<p>本质上 Registry 是个 HTTP 服务，启动后，监听在配置文件设定的某端口上。当 http 请求过来后，便会触发之前注册过的 handler。<br>Handler 包含 manifest、tag、blob、blob-upload、blob-upload-chunk、catalog 等六类，具体请可参考 registry 源码：/registry/handlers/app.go。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app.register(v2.RouteNameManifest, manifestDispatcher)</span><br><span class="line">app.register(v2.RouteNameCatalog, catalogDispatcher)</span><br><span class="line">app.register(v2.RouteNameTags, tagsDispatcher)</span><br><span class="line">app.register(v2.RouteNameBlob, blobDispatcher)</span><br><span class="line">app.register(v2.RouteNameBlobUpload, blobUploadDispatcher)</span><br><span class="line">app.register(v2.RouteNameBlobUploadChunk, blobUploadDispatcher)</span><br></pre></td></tr></table></figure><br>配置文件包含监听端口、auth 地址、存储驱动信息、回调通知等。</p>
+<p>Docker engine 与 registry （即：远程镜像仓库）的通信也有一套完整的 API，大致包含 pull、push 镜像所涉及的认证、授权、镜像存储等相关流程，具体请参考：<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/api.md">Registry API</a>。目前常用 registry 版本为 v2，registry v2 拥有断点续传、并发拉取镜像多层等特点。能并发拉取多层是因为镜像的元信息与镜像层数据分开存储，当 pull 一个镜像时，先进行认证获取到 token 并授权通过，然后获取镜像的 manifest 文件，进行 signature 校验。校验完成后，依据 manifest 里的层信息并发拉取各层。其中 manifest 包含的信息有：仓库名称、tag、镜像层 digest 等， 更多，请参考：<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-1.md">manifest 格式文档</a>。</p>
+<p>各层拉下来后，也会先在本地进行校验，校验算法采用 sha256。Push 过程则先将镜像各层并发推至 Registry，推送完成后，再将镜像的 manifest 推至 Registry。<br><strong>Registry 其实并不负责具体的存储工作，具体存储介质根据使用方来定，Registry 只是提供一套标准的存储驱动接口，具体存储驱动实现由使用方实现。</strong></p>
+<p>目前官方 Registry 默认提供的存储驱动包括：微软 Azure、Google GCS、Amazon S3、Openstack Swift、本地存储等。若需要使用自己的对象存储服务，则需要自行实现 Registry 存储驱动。</p>
+<p>当然还可以支持自定义的存储，只需要实现distribution/registry/storage/driver/storagedriver.go中如下接口即可：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StorageDriver <span class="keyword">interface</span> &#123;</span><br><span class="line">   <span class="comment">// Name returns the human-readable &quot;name&quot; of the driver, useful in error</span></span><br><span class="line">   <span class="comment">// messages and logging. By convention, this will just be the registration</span></span><br><span class="line">   <span class="comment">// name, but drivers may provide other information here.</span></span><br><span class="line">   Name() <span class="type">string</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// GetContent retrieves the content stored at &quot;path&quot; as a []byte.</span></span><br><span class="line">   <span class="comment">// This should primarily be used for small objects.</span></span><br><span class="line">   GetContent(ctx context.Context, path <span class="type">string</span>) ([]<span class="type">byte</span>, <span class="type">error</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// PutContent stores the []byte content at a location designated by &quot;path&quot;.</span></span><br><span class="line">   <span class="comment">// This should primarily be used for small objects.</span></span><br><span class="line">   PutContent(ctx context.Context, path <span class="type">string</span>, content []<span class="type">byte</span>) <span class="type">error</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// Reader retrieves an io.ReadCloser for the content stored at &quot;path&quot;</span></span><br><span class="line">   <span class="comment">// with a given byte offset.</span></span><br><span class="line">   <span class="comment">// May be used to resume reading a stream by providing a nonzero offset.</span></span><br><span class="line">   Reader(ctx context.Context, path <span class="type">string</span>, offset <span class="type">int64</span>) (io.ReadCloser, <span class="type">error</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Writer returns a FileWriter which will store the content written to it</span></span><br><span class="line">   <span class="comment">// at the location designated by &quot;path&quot; after the call to Commit.</span></span><br><span class="line">   Writer(ctx context.Context, path <span class="type">string</span>, <span class="built_in">append</span> <span class="type">bool</span>) (FileWriter, <span class="type">error</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Stat retrieves the FileInfo for the given path, including the current</span></span><br><span class="line">   <span class="comment">// size in bytes and the creation time.</span></span><br><span class="line">   Stat(ctx context.Context, path <span class="type">string</span>) (FileInfo, <span class="type">error</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// List returns a list of the objects that are direct descendants of the</span></span><br><span class="line">   <span class="comment">//given path.</span></span><br><span class="line">   List(ctx context.Context, path <span class="type">string</span>) ([]<span class="type">string</span>, <span class="type">error</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Move moves an object stored at sourcePath to destPath, removing the</span></span><br><span class="line">   <span class="comment">// original object.</span></span><br><span class="line">   <span class="comment">// Note: This may be no more efficient than a copy followed by a delete for</span></span><br><span class="line">   <span class="comment">// many implementations.</span></span><br><span class="line">   Move(ctx context.Context, sourcePath <span class="type">string</span>, destPath <span class="type">string</span>) <span class="type">error</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// Delete recursively deletes all objects stored at &quot;path&quot; and its subpaths.</span></span><br><span class="line">   Delete(ctx context.Context, path <span class="type">string</span>) <span class="type">error</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// URLFor returns a URL which may be used to retrieve the content stored at</span></span><br><span class="line">   <span class="comment">// the given path, possibly using the given options.</span></span><br><span class="line">   <span class="comment">// May return an ErrUnsupportedMethod in certain StorageDriver</span></span><br><span class="line">   <span class="comment">// implementations.</span></span><br><span class="line">   URLFor(ctx context.Context, path <span class="type">string</span>, options <span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">interface</span>&#123;&#125;) (<span class="type">string</span>, <span class="type">error</span>)</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Walk traverses a filesystem defined within driver, starting</span></span><br><span class="line">   <span class="comment">// from the given path, calling f on each file.</span></span><br><span class="line">   <span class="comment">// If the returned error from the WalkFn is ErrSkipDir and fileInfo refers</span></span><br><span class="line">   <span class="comment">// to a directory, the directory will not be entered and Walk</span></span><br><span class="line">   <span class="comment">// will continue the traversal.  If fileInfo refers to a normal file, processing stops</span></span><br><span class="line">   Walk(ctx context.Context, path <span class="type">string</span>, f WalkFn) <span class="type">error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// FileWriter provides an abstraction for an opened writable file-like object in</span></span><br><span class="line"><span class="comment">// the storage backend. The FileWriter must flush all content written to it on</span></span><br><span class="line"><span class="comment">// the call to Close, but is only required to make its content readable on a</span></span><br><span class="line"><span class="comment">// call to Commit.</span></span><br><span class="line"><span class="keyword">type</span> FileWriter <span class="keyword">interface</span> &#123;</span><br><span class="line">   io.WriteCloser</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Size returns the number of bytes written to this FileWriter.</span></span><br><span class="line">   Size() <span class="type">int64</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// Cancel removes any written content from this FileWriter.</span></span><br><span class="line">   Cancel() <span class="type">error</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// Commit flushes all content written to this FileWriter and makes it</span></span><br><span class="line">   <span class="comment">// available for future calls to StorageDriver.GetContent and</span></span><br><span class="line">   <span class="comment">// StorageDriver.Reader.</span></span><br><span class="line">   Commit() <span class="type">error</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>可以参考如下文章进行实现<br><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/opensource/os-cn-docker-registry/index.html">https://www.ibm.com/developerworks/cn/opensource/os-cn-docker-registry/index.html</a></p>
+<h3 id="存储的文件结构"><a href="#存储的文件结构" class="headerlink" title="存储的文件结构"></a>存储的文件结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">└── docker</span><br><span class="line">    └── registry</span><br><span class="line">        └── v2</span><br><span class="line">            ├── blobs</span><br><span class="line">            │   └── sha256</span><br><span class="line">            │       ├── 07</span><br><span class="line">            │       │   └── 0766572b4bacfaee9a8eb6bae79e6f6dbcdfac0805c7c6ec8b6c2c0ef097317a</span><br><span class="line">            │       ├── 9a</span><br><span class="line">            │       │   └── 9a597e826a59709a4af34279f496c323d496a79e4c998ee5249a738e391192bb</span><br><span class="line">            │       └── 9c</span><br><span class="line">            │           └── 9ca846b27f6e92f0739af5bba5509357b52be0ce0dd02d216f4dccdacd695a8a</span><br><span class="line">            └── repositories</span><br><span class="line">                ├── alpine</span><br><span class="line">                │   ├── _layers</span><br><span class="line">                │   │   └── sha256</span><br><span class="line">                │   │       ├── 0766572b4bacfaee9a8eb6bae79e6f6dbcdfac0805c7c6ec8b6c2c0ef097317a</span><br><span class="line">                │   │       └── 9ca846b27f6e92f0739af5bba5509357b52be0ce0dd02d216f4dccdacd695a8a</span><br><span class="line">                │   ├── _manifests</span><br><span class="line">                │   │   ├── revisions</span><br><span class="line">                │   │   │   └── sha256</span><br><span class="line">                │   │   │       └── 9a597e826a59709a4af34279f496c323d496a79e4c998ee5249a738e391192bb</span><br><span class="line">                │   │   └── tags</span><br><span class="line">                │   │       └── 3.4</span><br><span class="line">                │   │           ├── current</span><br><span class="line">                │   │           └── index</span><br><span class="line">                │   │               └── sha256</span><br><span class="line">                │   │                   └── 9a597e826a59709a4af34279f496c323d496a79e4c998ee5249a738e391192bb</span><br><span class="line">                │   └── _uploads</span><br><span class="line">                └── library</span><br><span class="line">                    └── alpine</span><br><span class="line">                        ├── _layers</span><br><span class="line">                        │   └── sha256</span><br><span class="line">                        │       ├── 0766572b4bacfaee9a8eb6bae79e6f6dbcdfac0805c7c6ec8b6c2c0ef097317a</span><br><span class="line">                        │       └── 9ca846b27f6e92f0739af5bba5509357b52be0ce0dd02d216f4dccdacd695a8a</span><br><span class="line">                        ├── _manifests</span><br><span class="line">                        │   ├── revisions</span><br><span class="line">                        │   │   └── sha256</span><br><span class="line">                        │   │       └── 9a597e826a59709a4af34279f496c323d496a79e4c998ee5249a738e391192bb</span><br><span class="line">                        │   └── tags</span><br><span class="line">                        │       └── 3.4</span><br><span class="line">                        │           ├── current</span><br><span class="line">                        │           └── index</span><br><span class="line">                        │               └── sha256</span><br><span class="line">                        │                   └── 9a597e826a59709a4af34279f496c323d496a79e4c998ee5249a738e391192bb</span><br><span class="line">                        └── _uploads</span><br></pre></td></tr></table></figure>
+<h3 id="代码流程："><a href="#代码流程：" class="headerlink" title="代码流程："></a>代码流程：</h3><p>代码前面流程都一样，注册handler之后，HTTP服务起来之后，来一个请求就走对应请求的handler。<br>流程示意图：<br><img src="https://z3.ax1x.com/2021/05/04/gmvzOf.jpg" alt=""></p>
+<p>代码流程：/cmd/registry/main.go:registry.RootCmd.Execute()<br>–&gt;/registry/root.go:RootCmd.AddCommand(ServeCmd)注册命令–&gt;ServeCmd–&gt;/registry/registry.go:NewRegistry()<br>–&gt;/registry/registry.go:加载配置文件（默认在/etc/docker/registry/config.yml）–&gt;/registry/handler/app.go:NewApp()中注册handler–&gt;/registry/registry.go:registry.ListenAndServe()监听</p>
+<p>注册命令：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	RootCmd.AddCommand(ServeCmd)</span><br><span class="line">	RootCmd.AddCommand(GCCmd)</span><br><span class="line">	GCCmd.Flags().BoolVarP(&amp;dryRun, <span class="string">&quot;dry-run&quot;</span>, <span class="string">&quot;d&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;do everything except remove the blobs&quot;</span>)</span><br><span class="line">	GCCmd.Flags().BoolVarP(&amp;removeUntagged, <span class="string">&quot;delete-untagged&quot;</span>, <span class="string">&quot;m&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;delete manifests that are not currently referenced via tag&quot;</span>)</span><br><span class="line">	RootCmd.Flags().BoolVarP(&amp;showVersion, <span class="string">&quot;version&quot;</span>, <span class="string">&quot;v&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;show the version and exit&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RootCmd is the main command for the &#x27;registry&#x27; binary.</span></span><br><span class="line"><span class="keyword">var</span> RootCmd = &amp;cobra.Command&#123;</span><br><span class="line">   Use:   <span class="string">&quot;registry&quot;</span>,</span><br><span class="line">   Short: <span class="string">&quot;`registry`&quot;</span>,</span><br><span class="line">   Long:  <span class="string">&quot;`registry`&quot;</span>,</span><br><span class="line">   Run: <span class="function"><span class="keyword">func</span><span class="params">(cmd *cobra.Command, args []<span class="type">string</span>)</span></span> &#123;</span><br><span class="line">      <span class="keyword">if</span> showVersion &#123;</span><br><span class="line">         version.PrintVersion()</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      cmd.Usage()</span><br><span class="line">   &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>ServeCmd中代码片段<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">      registry, err := NewRegistry(ctx, config)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	log.Fatalln(err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> config.HTTP.Debug.Prometheus.Enabled &#123;</span><br><span class="line">	path := config.HTTP.Debug.Prometheus.Path</span><br><span class="line">	<span class="keyword">if</span> path == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		path = <span class="string">&quot;/metrics&quot;</span></span><br><span class="line">	&#125;</span><br><span class="line">	log.Info(<span class="string">&quot;providing prometheus metrics on &quot;</span>, path)</span><br><span class="line">	http.Handle(path, metrics.Handler())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> err = registry.ListenAndServe(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	log.Fatalln(err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里用获取blob为例：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /v2/&lt;name&gt;/blobs/&lt;digest&gt;</span><br></pre></td></tr></table></figure><br>这个对应的就是调用其handler：blobDispatcher。<br>注册的地方为<br>/registry/handlers/app.go。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app.register(v2.RouteNameManifest, manifestDispatcher)</span><br><span class="line">app.register(v2.RouteNameCatalog, catalogDispatcher)</span><br><span class="line">app.register(v2.RouteNameTags, tagsDispatcher)</span><br><span class="line">app.register(v2.RouteNameBlob, blobDispatcher)</span><br><span class="line">app.register(v2.RouteNameBlobUpload, blobUploadDispatcher)</span><br><span class="line">app.register(v2.RouteNameBlobUploadChunk, blobUploadDispatcher)</span><br></pre></td></tr></table></figure></p>
+<p>获取blob流程(由于实验使用的s3作为存储后端，所以就看这条流程，其他存储后端看其他具体实现即可)：<br>/registry/handler/blob.go:blobDispatcher()–&gt;/registry/handler/blob.go:GetBlob()–&gt;/registry/storage/blobserver.go:ServeBlob()–&gt;/registry/storage/driver/s3-aws/s3.go:URLFor()–&gt;S3.GetObjectRequest(&amp;s3.GetObjectInput{<br>            Bucket: aws.String(d.Bucket),<br>            Key:    aws.String(d.s3Path(path)),<br>        })</p>
+<p>代码片段：<br>/registry/handler/blob.go:blobDispatcher()<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// blobDispatcher uses the request context to build a blobHandler.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">blobDispatcher</span><span class="params">(ctx *Context, r *http.Request)</span></span> http.Handler &#123;</span><br><span class="line">	dgst, err := getDigest(ctx)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> err == errDigestNotAvailable &#123;</span><br><span class="line">			<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">				ctx.Errors = <span class="built_in">append</span>(ctx.Errors, v2.ErrorCodeDigestInvalid.WithDetail(err))</span><br><span class="line">			&#125;)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">			ctx.Errors = <span class="built_in">append</span>(ctx.Errors, v2.ErrorCodeDigestInvalid.WithDetail(err))</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	blobHandler := &amp;blobHandler&#123;</span><br><span class="line">		Context: ctx,</span><br><span class="line">		Digest:  dgst,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	mhandler := handlers.MethodHandler&#123;</span><br><span class="line">		<span class="string">&quot;GET&quot;</span>:  http.HandlerFunc(blobHandler.GetBlob),</span><br><span class="line">		<span class="string">&quot;HEAD&quot;</span>: http.HandlerFunc(blobHandler.GetBlob),</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> !ctx.readOnly &#123;</span><br><span class="line">		mhandler[<span class="string">&quot;DELETE&quot;</span>] = http.HandlerFunc(blobHandler.DeleteBlob)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> mhandler</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>/registry/storage/driver/s3-aws/s3.go:URLFor()<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// URLFor returns a URL which may be used to retrieve the content stored at the given path.</span></span><br><span class="line"><span class="comment">// May return an UnsupportedMethodErr in certain StorageDriver implementations.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(d *driver)</span></span> URLFor(ctx context.Context, path <span class="type">string</span>, options <span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">interface</span>&#123;&#125;) (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	methodString := <span class="string">&quot;GET&quot;</span></span><br><span class="line">	method, ok := options[<span class="string">&quot;method&quot;</span>]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		methodString, ok = method.(<span class="type">string</span>)</span><br><span class="line">		<span class="keyword">if</span> !ok || (methodString != <span class="string">&quot;GET&quot;</span> &amp;&amp; methodString != <span class="string">&quot;HEAD&quot;</span>) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, storagedriver.ErrUnsupportedMethod&#123;&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	expiresIn := <span class="number">20</span> * time.Minute</span><br><span class="line">	expires, ok := options[<span class="string">&quot;expiry&quot;</span>]</span><br><span class="line">	<span class="keyword">if</span> ok &#123;</span><br><span class="line">		et, ok := expires.(time.Time)</span><br><span class="line">		<span class="keyword">if</span> ok &#123;</span><br><span class="line">			expiresIn = time.Until(et)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> req *request.Request</span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span> methodString &#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="string">&quot;GET&quot;</span>:</span><br><span class="line">		req, _ = d.S3.GetObjectRequest(&amp;s3.GetObjectInput&#123;</span><br><span class="line">			Bucket: aws.String(d.Bucket),</span><br><span class="line">			Key:    aws.String(d.s3Path(path)),</span><br><span class="line">		&#125;)</span><br><span class="line">	<span class="keyword">case</span> <span class="string">&quot;HEAD&quot;</span>:</span><br><span class="line">		req, _ = d.S3.HeadObjectRequest(&amp;s3.HeadObjectInput&#123;</span><br><span class="line">			Bucket: aws.String(d.Bucket),</span><br><span class="line">			Key:    aws.String(d.s3Path(path)),</span><br><span class="line">		&#125;)</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;unreachable&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> req.Presign(expiresIn)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>通过文章<a target="_blank" rel="noopener" href="https://supereagle.github.io/2018/04/24/docker-registry/">镜像仓库中镜像存储的原理解析</a>  发现结论：<br>同一镜像，在不同镜像仓库中，存储的方式和内容完全一样。<br>文章中通过实验得出如下结论：<br>通过 Registry API 获得的两个镜像仓库中相同镜像的 manifest 信息完全相同。<br>两个镜像仓库中相同镜像的 manifest 信息的存储路径和内容完全相同。<br>两个镜像仓库中相同镜像的 blob 信息的存储路径和内容完全相同。</p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p><a target="_blank" rel="noopener" href="https://github.com/docker/distribution">docker registry官方github</a></p>
+<p><a target="_blank" rel="noopener" href="https://hui.lu/docker-registry-storage/">Docker Registry Storage</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://supereagle.github.io/2018/04/24/docker-registry/">镜像仓库中镜像存储的原理解析</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yuanfang_way/article/category/5904523">Distribution源码分析</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000014284289">Docker镜像的存储机制</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/opensource/os-cn-docker-registry/index.html">Docker registry 定制实例 – 集成您自己的镜像存储库</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2019/04/16/docker%20registry%20%E5%90%8E%E7%AB%AF%E5%AD%98%E5%82%A8%E5%88%86%E6%9E%90/" title="docker registry 后端存储分析">2019/04/16/docker registry 后端存储分析/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/docker-registry/" rel="tag"># docker registry</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/03/%E8%A7%A3%E5%86%B3git%20push%20%E6%8A%A5%E9%94%99ERROR%20%E2%80%9CPermission%20to%20xxx.git%20denied%20to%20deploy%20key%E2%80%9D/" rel="next" title="解决git push 报错ERROR “Permission to xxx.git denied to deploy key”">
+                <i class="fa fa-chevron-left"></i> 解决git push 报错ERROR “Permission to xxx.git denied to deploy key”
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/harbor%E6%89%93%E7%A6%BB%E7%BA%BF%E5%8C%85%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/" rel="prev" title="harbor打离线包流程解析">
+                harbor打离线包流程解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#docker%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">docker架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker-registry%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">docker registry简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%A7%81%E6%9C%89%E7%9A%84registry"><span class="nav-number">2.1.</span> <span class="nav-text">为什么需要私有的registry</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker-registry-%E5%AD%98%E5%82%A8"><span class="nav-number">3.</span> <span class="nav-text">docker registry 存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%9A%84%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">存储的文件结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="nav-number">3.2.</span> <span class="nav-text">代码流程：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">5.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

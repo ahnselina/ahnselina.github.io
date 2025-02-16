@@ -1,37 +1,1322 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,文件系统,ZFS," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZFS系列（五）数据清理和数据重建">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eEI8s.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/11/5eEj54.png">
+<meta property="article:published_time" content="2021-10-11T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.038Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="ZFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/10/11/5eEI8s.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/11/ZFS系列（五）数据清理和数据重建/"/>
+
+
+
+
+
+  <title>ZFS系列（五）数据清理和数据重建 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ZFS系列（五）数据清理和数据重建</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-11T23:30:30+08:00">
+                2021-10-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,511 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/10/11/5eEI8s.png" alt=""></p>
+<span id="more"></span>
+<h2 id="标准校验"><a href="#标准校验" class="headerlink" title="标准校验"></a>标准校验</h2><p>在GNU/Linux中，有许多的文件系统检测工具来检测磁盘上数据的完整性。通常是通过“fsck”工具完成的。然而，该工具有几个主要缺点。<br>首先，如果您打算修复数据错误，则必须脱机fsck磁盘，这意味着停机时间。因为在执行fsck之前，必须使用“umount”命令卸载磁盘。对于根分区，这进一步意味着要从其他介质(如CDROM或u盘)启动。停机时间的长短跟磁盘容量大小有关，大容量的磁盘在修复时，其停机时间可能长达几小时。<br>其次，诸如ext3或ext4的文件系统，对底层数据结构(如LVM或RAID)一无所知。您可能在一个磁盘上只有一个坏块，但在另一个磁盘上有一个好的块。不幸的是,Linux软件RAID从ext3的角度或ext4,不知道哪一块数据是好的，哪一块数据是坏的，它可能得到好的数据如果从磁盘读取到包含好的数据的块；也可能得到损坏的数据如果从磁盘读到那个坏块。这个过程没有从哪块磁盘读取数据的控制，也没有修复损坏的数据。这些错误被称为“静默数据错误”，使用标准的GNU/Linux文件系统对此类错误实际上无能为力。</p>
+<h2 id="ZFS-Scrubbing（ZFS数据清理）"><a href="#ZFS-Scrubbing（ZFS数据清理）" class="headerlink" title="ZFS Scrubbing（ZFS数据清理）"></a>ZFS Scrubbing（ZFS数据清理）</h2><p>在Linux上使用ZFS，可以通过磁盘数据清理来检测和纠正静默数据错误。这在技术上类似于ECC RAM，如果错误驻留在ECC DIMM中，您可以找到另一个包含好的数据的寄存器，并使用它来修复坏寄存器。这是一种已经使用了一段时间的老技术，所以令人惊讶的是，在日志文件系统的标准套件中没有这种技术。此外，就像您可以在不停机的情况下在实时运行的系统上清除ECC RAM一样，有了ZFS，您也可以能够在不停机的情况下进行磁盘数据清理。</p>
+<p><strong>译者注：也就是说ZFS Scrubbing是ZFS的一种数据清理手段，主要用途是用来修复由于磁盘静默故障导致的数据损坏</strong></p>
+<p>当ZFS对您的存储池进行数据清理（scrub）时，它将根据其已知的校验值和逐一检查存储池中的每个块。默认情况下，从上到下的每个块都使用适当的算法进行校验。当前是使用的“fletcher4”算法，它是256位的算法，速度很快。当然你也可以更改为使用SHA-256算法，但不推荐这样做，因为计算SHA-256校验和的开销比fletcher4更大。然而，由于SHA-256，您有1 / 2^256或1 / 10^77的概率损坏块哈希到相同的SHA-256校验值。这个概率是0.00000000000000000000000000000000000000000000000000000000000000000000000000001%。作为参考，使用市场上最可靠的硬件，未经校正的ECC内存错误将更频繁地发生的概率是这个概率的约50个数量级。所以当你清理数据时，这个概率是要么校验和匹配，你大概率有一个好的数据块，要么不匹配，你有一个损坏的数据块。</p>
+<p>ZFS存储池中数据清理不是自动发生的事情。你需要手动去做，并且强烈建议你定期去做。推荐的数据清理的频率取决于底层磁盘的质量。如果您使用的是SAS或FC硬盘，那么每月一次就足够了。如果你使用的是消费级的SATA或SCSI，你应该每周做一次。你可以使用以下命令轻松地安排一次数据清理:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># zpool scrub tank</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: tank</span><br><span class="line"> state: ONLINE</span><br><span class="line"> scan: scrub in progress since Sat Dec  8 08:06:36 2012</span><br><span class="line">    32.0M scanned out of 48.5M at 16.0M/s, 0h0m to go</span><br><span class="line">    0 repaired, 65.99% done</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME        STATE     READ WRITE CKSUM</span><br><span class="line">        tank        ONLINE       0     0     0</span><br><span class="line">          mirror-0  ONLINE       0     0     0</span><br><span class="line">            sde     ONLINE       0     0     0</span><br><span class="line">            sdf     ONLINE       0     0     0</span><br><span class="line">          mirror-1  ONLINE       0     0     0</span><br><span class="line">            sdg     ONLINE       0     0     0</span><br><span class="line">            sdh     ONLINE       0     0     0</span><br><span class="line">          mirror-2  ONLINE       0     0     0</span><br><span class="line">            sdi     ONLINE       0     0     0</span><br><span class="line">            sdj     ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure><br> 如您所见，您可以在执行数据清理的过程中获取它的状态。执行擦除操作会严重影响磁盘性能。因此，如果出于任何原因需要停止scrub，可以将”-s”参数传递给scrub子命令。但是，一般情况应该让数据清理继续完成。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool scrub -s tank</span><br></pre></td></tr></table></figure><br> 你也可以在你的root用户的crontab中放入类似以下内容，这样将在每周日凌晨02:00执行一次数据清理:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 2 * * 0 /sbin/zpool scrub tank</span><br></pre></td></tr></table></figure></p>
+<h2 id="数据的自愈"><a href="#数据的自愈" class="headerlink" title="数据的自愈"></a>数据的自愈</h2><p>如果您的存储池正在使用某种冗余，那么ZFS不仅会在一次数据清理中检测到静默数据错误，如果另一个磁盘上存在好的数据时，还会去纠正这些错误。这就是所谓的“自愈”，如下图所示。在前面的介绍RAIDZ的文章中，讨论了如何使用RAIDZ修复数据。我要简化一下，用一个两路镜像。假设一个应用程序需要一些数据块，而在这些数据块中，有一些数据块损坏了。ZFS如何知道数据已损坏? 正如前面所述，通过检查块的SHA-256校验值。如果一个块的校验值不匹配，它将查看镜像中的其他磁盘，看看是否能找到一个好的块。如果能找到，则将好的块传递给应用程序，然后ZFS将修复镜像中的坏块，以便它可以通过SHA-256校验。这样应用程序将始终获得好的数据，而您的存储池将始终处于良好、干净、一致的状态。<br><img src="https://z3.ax1x.com/2021/10/11/5eEj54.png" alt=""></p>
+<h2 id="Resilvering-Data（重建数据）"><a href="#Resilvering-Data（重建数据）" class="headerlink" title="Resilvering Data（重建数据）"></a>Resilvering Data（重建数据）</h2><p>Resilvering data跟重建数据或者重新同步数据到磁盘阵列中的新盘的概念是一样的。然而在Linux 软件RAID，硬件RAID控制器以及其他RAID实现，活动的块（有数据的块）和没有数据的块是无法区分的。所以，这种重建将会从磁盘开头开始，直到磁盘的末尾才结束（也就是这种情况下重建，是整个磁盘重建，这样可能会做大量的无用功）。因为ZFS知道RAID结构和文件系统的元数据，所以ZFS在重建数据这块会比较灵活，而不会浪费时间在没有数据的磁盘上，只需要关心有数据的地方。如果您的存储池只被部分填满，那么这可以大大节省时间（因为不需要整个存储池重建）。如果池只被填满了10%，那么这意味着只在10%的磁盘上工作。因此，为了区别与传统的数据重建，对于ZFS，我们需要一个新的术语，而不是“重建”、“重新同步”或“重建”。在本例中，我们将重建数据的过程称为“resilvering”。</p>
+<p> 不幸的是，磁盘会坏，并需要更换。如果您的存储池中有冗余，并且能够承受某种程度的故障，那么您仍然可以向应用程序发送数据和从应用程序接收数据，即使存储池处于“降级”模式。如果您的运行的系统中有昂贵的支持热插拔的磁盘，那么您可以在不停机的情况下更换磁盘(您很幸运)。如果不是，您仍然需要识别坏盘，并替换它。如果您的磁盘池中有许多磁盘(比如24个)，那么这可能是一件苦差事。然而，大多数GNU/Linux操作系统供应商，如Debian或Ubuntu，提供了一个名为“hdparm”的工具，它允许您发现存储池中所有磁盘的序列号。当然，磁盘控制器通常也会将这些信息呈现给Linux内核。所以，你可以执行如下命令:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># for i in a b c d e f g; do echo -n &quot;/dev/sd$i: &quot;; hdparm -I /dev/sd$i | awk &#x27;/Serial Number/ &#123;print $3&#125;&#x27;; done</span><br><span class="line">/dev/sda: OCZ-9724MG8BII8G3255</span><br><span class="line">/dev/sdb: OCZ-69ZO5475MT43KNTU</span><br><span class="line">/dev/sdc: WD-WCAPD3307153</span><br><span class="line">/dev/sdd: JP2940HD0K9RJC</span><br><span class="line">/dev/sde: /dev/sde: No such file or directory</span><br><span class="line">/dev/sdf: JP2940HD0SB8RC</span><br><span class="line">/dev/sdg: S1D1C3WR</span><br></pre></td></tr></table></figure><br>看起来/dev/sde是坏盘。系统里有所有其他磁盘的序列号，但唯独/dev/sde没有。所以，通过排除，我可以到存储阵列，找到哪个序列号没有被打印出来。那就是坏盘。在这个例子中，我找到序列号“JP2940HD01VLMC”。我拔出磁盘，将其替换为一个新的磁盘，并查看是否重新填充了/dev/sde，并且其他的磁盘仍然在线。如果是，那么我已经找到了我的磁盘，可以将它添加到池中。实际上，在我的个人管理程序上，这种情况已经发生过两次了。更换起来很容易，不到10分钟就重新online了。</p>
+<p>要用新磁盘替换存储池中的坏盘，可以使用”replace”子命令。假设新磁盘也将自己标识为/dev/sde，那么我将用以下命令:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># zpool replace tank sde sde</span><br><span class="line"># zpool status tank</span><br><span class="line">  pool: tank</span><br><span class="line"> state: ONLINE</span><br><span class="line">status: One or more devices is currently being resilvered.  The pool will</span><br><span class="line">        continue to function, possibly in a degraded state.</span><br><span class="line">action: Wait for the resilver to complete.</span><br><span class="line"> scrub: resilver in progress for 0h2m, 16.43% done, 0h13m to go</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">        NAME          STATE       READ WRITE CKSUM</span><br><span class="line">        tank          DEGRADED       0     0     0</span><br><span class="line">          mirror-0    DEGRADED       0     0     0</span><br><span class="line">            replacing DEGRADED       0     0     0</span><br><span class="line">            sde       ONLINE         0     0     0</span><br><span class="line">            sdf       ONLINE         0     0     0</span><br><span class="line">          mirror-1    ONLINE         0     0     0</span><br><span class="line">            sdg       ONLINE         0     0     0</span><br><span class="line">            sdh       ONLINE         0     0     0</span><br><span class="line">          mirror-2    ONLINE         0     0     0</span><br><span class="line">            sdi       ONLINE         0     0     0</span><br><span class="line">            sdj       ONLINE         0     0     0</span><br></pre></td></tr></table></figure><br>resilver类似于Linux软件RAID的重建。它正在新磁盘上重建数据块，直到镜像(在本例中)处于完全健康状态。查看resilver的状态将帮助您了解resilver何时将完成。</p>
+<h2 id="识别存储池的问题"><a href="#识别存储池的问题" class="headerlink" title="识别存储池的问题"></a>识别存储池的问题</h2><p>通过传递“-x”参数，可以快速确定存储池一切是否正常运行，而不需要“zpool status”命令的完整输出。这对于脚本在没有复杂逻辑的情况下进行解析很有用，并且在出现故障时可以发出警告:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># zpool status -x</span><br><span class="line">all pools are healthy</span><br></pre></td></tr></table></figure><br>“zpool status”命令结果中的每一字段，都为您提供关于池的重要信息，其中大部分字段的含义是不言自明的。它们的定义如下:</p>
+<ul>
+<li>pool – 存储池名字</li>
+<li>state – 存储池当前的健康状态。 此信息仅指存储池提供必要复制级别的能力。</li>
+<li>status –  对存储池问题的描述。如果没有发现问题，则省略此字段。</li>
+<li>action – 修复错误的建议操作。该字段是一个缩写表单，引导用户进入以下部分之一。如果没有发现问题，则省略此字段。</li>
+<li>see – 包含详细修理信息的知识文章的参考。在线文章的更新比本指南的更新更频繁，并且应该经常参考最新的修理程序。如果没有发现问题，则省略此字段。</li>
+<li>scrub – 标识一个数据清理操作的当前状态，这可能包括最近一次数据清理操作完成的日期和时间、正在进行的数据清理的当前状态，或者没有如果没有请求数据清理的话。</li>
+<li>errors – 标识已知数据错误或不存在已知数据错误。</li>
+<li>config – 描述组成池的设备的配置布局，以及它们的状态和从设备生成的任何错误。状态包括:ONLINE、FAULTED、DEGRADED、UNAVAILABLE和OFFLINE。如果状态不是ONLINE，则池的容错能力已被破坏。</li>
+</ul>
+<p>zpool status命令输出结果的列，比如“READ”、“WRITE”和“CHKSUM”的定义如下:</p>
+<ul>
+<li>NAME – 存储池中每个VDEV的名称，按嵌套顺序显示。</li>
+<li>STATE –  池中每个VDEV的状态。状态可以是上面介绍的“config”中的任何一种状态。</li>
+<li>READ – 发出读请求时发生的I/O错误。</li>
+<li>WRITE – 在发出写请求时发生的I/O错误。</li>
+<li>CHKSUM – 校验错误。设备返回损坏的数据作为读请求的结果。</li>
+</ul>
+<h2 id="scrub和resilver-data的区别"><a href="#scrub和resilver-data的区别" class="headerlink" title="scrub和resilver data的区别"></a>scrub和resilver data的区别</h2><p>简单的来说，scrub可以理解为数据扫描并修复损坏数据，在扫描的过程中，会去校验数据是否有损坏，发现数据有损坏，会去修复数据，这个修复是在数据损坏的盘上修复，不用替换硬盘。<br>resilver data可以理解为重建数据，重建的过程需要一个新的盘，把数据重建（恢复）到新盘的过程，这个叫resilver data。但是跟传统的重建数据不同，这个resilver data不是全盘重建。</p>
+<p>所以scrub和resilver data是两个不同的概念，而且适用场景和用途也不同。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>定期扫描数据进行数据清理将确保存储池中的数据保持一致。尽管数据扫描（数据清理）可能会给正在读写数据的应用程序带来压力，但它可以在未来避免更大的麻烦。 此外，由于您随时可能有一个“损坏的设备”(有关使用ZFS的损坏设备，请参阅<a target="_blank" rel="noopener" href="http://docs.oracle.com/cd/E19082-01/817-2271/gbbvf/index.html">http://docs.oracle.com/cd/E19082-01/817-2271/gbbvf/index.html</a>)，因此正确地了解如何修复该设备，以及在更换一个设备时将会发生什么，这对存储管理至关重要。当然，关于这个主题，我还有很多可以讨论的内容，但这篇文章至少让您了解了数据清理（scrub data）和重建数据（resilver data）的概念。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://pthree.org/2012/12/11/zfs-administration-part-vi-scrub-and-resilver/">https://pthree.org/2012/12/11/zfs-administration-part-vi-scrub-and-resilver/</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://serverfault.com/questions/1007438/zfs-scrub-vs-resilver-are-they-equivalent">zfs: scrub vs resilver (are they equivalent?)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Androidlushangderen/article/details/87897475">分布式存储系统中的Data Scrubbing机理</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/11/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%E5%92%8C%E6%95%B0%E6%8D%AE%E9%87%8D%E5%BB%BA/" title="ZFS系列（五）数据清理和数据重建">2021/10/11/ZFS系列（五）数据清理和数据重建/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/10/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89ARC/" rel="next" title="ZFS系列（四）The Adjustable Replacement Cache">
+                <i class="fa fa-chevron-left"></i> ZFS系列（四）The Adjustable Replacement Cache
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/12/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AD%EF%BC%89%E5%AD%98%E5%82%A8%E6%B1%A0%E5%B1%9E%E6%80%A7%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%92%8C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" rel="prev" title="ZFS系列（六）存储池属性、最佳实践和注意事项">
+                ZFS系列（六）存储池属性、最佳实践和注意事项 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E6%A0%A1%E9%AA%8C"><span class="nav-number">1.</span> <span class="nav-text">标准校验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZFS-Scrubbing%EF%BC%88ZFS%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">ZFS Scrubbing（ZFS数据清理）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9A%84%E8%87%AA%E6%84%88"><span class="nav-number">3.</span> <span class="nav-text">数据的自愈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Resilvering-Data%EF%BC%88%E9%87%8D%E5%BB%BA%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">Resilvering Data（重建数据）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%86%E5%88%AB%E5%AD%98%E5%82%A8%E6%B1%A0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">识别存储池的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scrub%E5%92%8Cresilver-data%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">6.</span> <span class="nav-text">scrub和resilver data的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

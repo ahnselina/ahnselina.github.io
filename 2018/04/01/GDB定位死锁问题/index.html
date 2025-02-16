@@ -1,37 +1,1380 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,gdb,问题定位," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要介绍强大的gdb工具，主要有如下内容：  gdb使用前置条件 gdb一般用法 gdb常用命令 如何用gdb找到死锁  GDB（GNU Debugger）是在Unix以及类Unix系统下的调试工具。功能极其强大，几乎涵盖了你所需要的全部功能。GDB主要帮忙你完成下面四个方面的功能:1.启动你的程序，可以按照你的定制要求随心所欲的运行程序。2.可让被调试的程序在你所指定的调置的断点处停住。3.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gdb用法总结">
+<meta property="og:url" content="https://www.a-programmer.top/2018/04/01/GDB%E5%AE%9A%E4%BD%8D%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:description" content="本文主要介绍强大的gdb工具，主要有如下内容：  gdb使用前置条件 gdb一般用法 gdb常用命令 如何用gdb找到死锁  GDB（GNU Debugger）是在Unix以及类Unix系统下的调试工具。功能极其强大，几乎涵盖了你所需要的全部功能。GDB主要帮忙你完成下面四个方面的功能:1.启动你的程序，可以按照你的定制要求随心所欲的运行程序。2.可让被调试的程序在你所指定的调置的断点处停住。3.">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-03-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.014Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="gdb">
+<meta property="article:tag" content="问题定位">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2018/04/01/GDB定位死锁问题/"/>
+
+
+
+
+
+  <title>gdb用法总结 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2018/04/01/GDB%E5%AE%9A%E4%BD%8D%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">gdb用法总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-01T00:00:00+08:00">
+                2018-04-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/04/01/GDB%E5%AE%9A%E4%BD%8D%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018/04/01/GDB%E5%AE%9A%E4%BD%8D%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,120 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  15 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文主要介绍强大的gdb工具，主要有如下内容：</p>
+<ul>
+<li>gdb使用前置条件</li>
+<li>gdb一般用法</li>
+<li>gdb常用命令</li>
+<li>如何用gdb找到死锁</li>
+</ul>
+<p>GDB（GNU Debugger）是在Unix以及类Unix系统下的调试工具。功能极其强大，几乎涵盖了你所需要的全部功能。<br>GDB主要帮忙你完成下面四个方面的功能:<br>1.启动你的程序，可以按照你的定制要求随心所欲的运行程序。<br>2.可让被调试的程序在你所指定的调置的断点处停住。<br>3.当程序被停住时，可以检查此时你的程序中所发生的事，以及内存状态等。<br>4.动态的改变你程序的执行环境。</p>
+<p><strong><em>gdb使用总旨：多用help！help里面总会有你需要的信息。如果你不知道如何使用help，请在gdb里面输入：help all</em></strong></p>
+<hr>
+<h3 id="gdb使用前置条件"><a href="#gdb使用前置条件" class="headerlink" title="gdb使用前置条件"></a>gdb使用前置条件</h3><ul>
+<li><p>编译时加入debug信息</p>
+</li>
+<li><p>gcc/g++是在编译时加入-g，其他语言请自行百度。</p>
+<blockquote>
+<p>值得注意的是，-g分4个等级：<br>-g0等于不加-g,即不包含任何信息;<br>-g1只包含最小信息，一般来说只有你不需要debug，只需要backtrace信息，并且真的很在意程序大小，或者有其他保密/特殊需求时才会使用-g1;<br>–g2为gdb默认等级，包含绝大多数你需要的信息;<br>–g3包含一些额外信息，例如包含宏定义信息。当你需要调试宏定义时，请使用-g3</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="gdb一般用法"><a href="#gdb一般用法" class="headerlink" title="gdb一般用法"></a>gdb一般用法</h3><pre><code>1. 调试程序。有几种方法可以在gdb下运行你的程序：
+
+    1)    gdb $&#123;你的程序&#125; 进入gdb后，输入run(简写r) $&#123;arg1&#125; $&#123;arg2&#125; … $&#123;argN&#125;
+
+    2)    gdb --args $&#123;你的程序&#125; $&#123;arg1&#125; $&#123;arg2&#125; … $&#123;argN&#125; 进入gdb后，运行run。
+
+    3)    gdb进入gdb后，输入file $&#123;你的程序&#125;。然后使用set args  $&#123;arg1&#125; $&#123;arg2&#125; … $&#123;argN&#125; 设定好你的程序参数，再运行run。
+
+ 2. 调试正在运行的程序：
+
+    gdb $&#123;你的程序&#125; $&#123;程序pid&#125;
+
+ 3. 查core：
+
+    gdb $&#123;你的程序&#125; $&#123;core文件&#125;
+</code></pre><h3 id="gdb常用命令"><a href="#gdb常用命令" class="headerlink" title="gdb常用命令"></a>gdb常用命令</h3><ol>
+<li><p>backtrace：显示栈信息，<strong><em>简写为bt</em></strong>。</p>
+</li>
+<li><p>frame x 切换到第x帧，其中x会在bt命令中显示，从0开始（0表示栈顶）<strong><em>简写为f</em></strong>。</p>
+</li>
+<li><p>up/down x 往栈顶/栈底移动x帧；当不输入x时，默认为1。</p>
+</li>
+<li><p>print x打印x的信息，x可以是变量，也可以是对象或者数组，<strong><em>简写为p</em></strong>。</p>
+</li>
+<li><p>print */&amp;x 打印x的内容/地址。</p>
+</li>
+<li><p>call 调用函数。注意此命令需要一个正在运行的程序。</p>
+</li>
+<li><p>set substitute-path from_path  to_path，替换源码文件路径。当编译机与运行程序的机器代码路径不同时，需要使用该指令替换代码路径，否则你无法在gdb中看到源码。</p>
+</li>
+<li><p>break x.cpp:n 在x.cpp的第n行设置断点，然后gdb会给出断点编号m，。<strong><em>命令简写为b</em></strong>。</p>
+</li>
+<li><p>command m 设置程序执行到断点m时要看的内容，例如：</p>
+<p>  command n</p>
+<pre><code>&gt;printf &quot;x is %d\n&quot;,x
+
+&gt;c
+
+&gt;end
+</code></pre><p>  如果command后面没有参数n，则命令被赋给最后一个breakpoint，这其实是说break和command连在一起用，在脚本里用就非常方便了。</p>
+</li>
+<li><p>x /nfu ${addr} 打印addr的内容。addr可以是任何合法的地址表达式，例如0x562fb3d，一个当前有效的指针变量p，或者一个当前有效的变量var的地址&amp;var。nfu是格式，n表示查看的长度，F表示格式（例如16进制或10进制），U表示单位（例如单字节b，双字h，四字w等）。举个栗子：</p>
+<blockquote>
+<p>(gdb) x /3xw 0x562fb3d //这个指令的意思为：以16进制格式显示地址0x562fb3d处3个单位，每个单位四字节的内容。你将得到下列数值:<br>0x562fb3d:    0x00282ff4    0x080484e0    0x00000000</p>
+</blockquote>
+</li>
+<li><p>continue 继续运行程序。进入调试模式后，若你已经获取了你需要的信息或者需要程序继续运行时使用,<strong><em>简写为c</em></strong></p>
+</li>
+<li><p>until 执行到当前循环完成,<strong><em>可简写为u</em></strong></p>
+</li>
+<li><p>step 单步调试，步入当前函数,<strong><em>可简写为s</em></strong></p>
+</li>
+<li><p>next 单步调试，步过当前函数,<strong><em>可简写为n</em></strong></p>
+</li>
+<li><p>finish 执行到当前函数返回</p>
+</li>
+<li><p>set var x=10 改变当前变量x的值。也可以这样用：set {int}0x83040 = 10把内存地址0x83040的值强制转换为int并赋值为10</p>
+</li>
+<li><p>info locals 打印当前栈帧的本地变量</p>
+</li>
+<li><p>jump使当前执行的程序跳转到某一行，或者跳转到某个地址。由于只会使程序跳转而不会改变栈值，因此若跳出函数到另外的地方 会导致return出错。另外，熟悉汇编的人都知道，程序运行时，有一个寄存器用于保存当前代码所在的内存地址。所以，jump命令也就是改变了这个寄存器中的值。于是，你可以使用“set $pc”来更改跳转执行的地址。如： set $pc = 0x485</p>
+</li>
+<li><p>return: 强制函数返回。可以指定返回值</p>
+</li>
+</ol>
+<h3 id="如何用gdb找到死锁"><a href="#如何用gdb找到死锁" class="headerlink" title="如何用gdb找到死锁"></a>如何用gdb找到死锁</h3><h4 id="定位死锁问题常用的几个命令"><a href="#定位死锁问题常用的几个命令" class="headerlink" title="定位死锁问题常用的几个命令"></a>定位死锁问题常用的几个命令</h4><blockquote>
+<p>gdb attach pid<br>info threads //显示所有线程信息<br>thread applay all bt//<strong><em>可简写为t a a bt</em></strong><br>thread 2  //跳到第2个线程<br>bt  //查看线程2的堆栈</p>
+</blockquote>
+<h4 id="死锁问题实例"><a href="#死锁问题实例" class="headerlink" title="死锁问题实例"></a>死锁问题实例</h4><p>清单 1. 测试程序<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span> </span></span><br><span class="line"></span><br><span class="line"><span class="type">pthread_mutex_t</span> mutex1 = PTHREAD_MUTEX_INITIALIZER; </span><br><span class="line"><span class="type">pthread_mutex_t</span> mutex2 = PTHREAD_MUTEX_INITIALIZER; </span><br><span class="line"><span class="type">pthread_mutex_t</span> mutex3 = PTHREAD_MUTEX_INITIALIZER; </span><br><span class="line"><span class="type">pthread_mutex_t</span> mutex4 = PTHREAD_MUTEX_INITIALIZER; </span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> sequence1 = <span class="number">0</span>; </span><br><span class="line"><span class="type">static</span> <span class="type">int</span> sequence2 = <span class="number">0</span>; </span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">func1</span><span class="params">()</span> </span><br><span class="line">&#123; </span><br><span class="line">   pthread_mutex_lock(&amp;mutex1); </span><br><span class="line">   ++sequence1; </span><br><span class="line">   sleep(<span class="number">1</span>); </span><br><span class="line">   pthread_mutex_lock(&amp;mutex2); </span><br><span class="line">   ++sequence2; </span><br><span class="line">   pthread_mutex_unlock(&amp;mutex2); </span><br><span class="line">   pthread_mutex_unlock(&amp;mutex1); </span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> sequence1; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">func2</span><span class="params">()</span> </span><br><span class="line">&#123; </span><br><span class="line">   pthread_mutex_lock(&amp;mutex2); </span><br><span class="line">   ++sequence2; </span><br><span class="line">   sleep(<span class="number">1</span>); </span><br><span class="line">   pthread_mutex_lock(&amp;mutex1); </span><br><span class="line">   ++sequence1; </span><br><span class="line">   pthread_mutex_unlock(&amp;mutex1); </span><br><span class="line">   pthread_mutex_unlock(&amp;mutex2); </span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> sequence2; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">thread1</span><span class="params">(<span class="type">void</span>* arg)</span> </span><br><span class="line">&#123; </span><br><span class="line">   <span class="keyword">while</span> (<span class="number">1</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       <span class="type">int</span> iRetValue = func1(); </span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (iRetValue == <span class="number">100000</span>) </span><br><span class="line">       &#123; </span><br><span class="line">           pthread_exit(<span class="literal">NULL</span>); </span><br><span class="line">       &#125; </span><br><span class="line">   &#125; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">thread2</span><span class="params">(<span class="type">void</span>* arg)</span> </span><br><span class="line">&#123; </span><br><span class="line">   <span class="keyword">while</span> (<span class="number">1</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       <span class="type">int</span> iRetValue = func2(); </span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (iRetValue == <span class="number">100000</span>) </span><br><span class="line">       &#123; </span><br><span class="line">           pthread_exit(<span class="literal">NULL</span>); </span><br><span class="line">       &#125; </span><br><span class="line">   &#125; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">thread3</span><span class="params">(<span class="type">void</span>* arg)</span> </span><br><span class="line">&#123; </span><br><span class="line">   <span class="keyword">while</span> (<span class="number">1</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       sleep(<span class="number">1</span>); </span><br><span class="line">       <span class="type">char</span> szBuf[<span class="number">128</span>]; </span><br><span class="line">       <span class="built_in">memset</span>(szBuf, <span class="number">0</span>, <span class="keyword">sizeof</span>(szBuf)); </span><br><span class="line">       <span class="built_in">strcpy</span>(szBuf, <span class="string">&quot;thread3&quot;</span>); </span><br><span class="line">   &#125; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">thread4</span><span class="params">(<span class="type">void</span>* arg)</span> </span><br><span class="line">&#123; </span><br><span class="line">   <span class="keyword">while</span> (<span class="number">1</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       sleep(<span class="number">1</span>); </span><br><span class="line">       <span class="type">char</span> szBuf[<span class="number">128</span>]; </span><br><span class="line">       <span class="built_in">memset</span>(szBuf, <span class="number">0</span>, <span class="keyword">sizeof</span>(szBuf)); </span><br><span class="line">       <span class="built_in">strcpy</span>(szBuf, <span class="string">&quot;thread3&quot;</span>); </span><br><span class="line">   &#125; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123; </span><br><span class="line">   <span class="type">pthread_t</span> tid[<span class="number">4</span>]; </span><br><span class="line">   <span class="keyword">if</span> (pthread_create(&amp;tid[<span class="number">0</span>], <span class="literal">NULL</span>, &amp;thread1, <span class="literal">NULL</span>) != <span class="number">0</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       _exit(<span class="number">1</span>); </span><br><span class="line">   &#125; </span><br><span class="line">   <span class="keyword">if</span> (pthread_create(&amp;tid[<span class="number">1</span>], <span class="literal">NULL</span>, &amp;thread2, <span class="literal">NULL</span>) != <span class="number">0</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       _exit(<span class="number">1</span>); </span><br><span class="line">   &#125; </span><br><span class="line">   <span class="keyword">if</span> (pthread_create(&amp;tid[<span class="number">2</span>], <span class="literal">NULL</span>, &amp;thread3, <span class="literal">NULL</span>) != <span class="number">0</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       _exit(<span class="number">1</span>); </span><br><span class="line">   &#125; </span><br><span class="line">   <span class="keyword">if</span> (pthread_create(&amp;tid[<span class="number">3</span>], <span class="literal">NULL</span>, &amp;thread4, <span class="literal">NULL</span>) != <span class="number">0</span>) </span><br><span class="line">   &#123; </span><br><span class="line">       _exit(<span class="number">1</span>); </span><br><span class="line">   &#125; </span><br><span class="line"></span><br><span class="line">   sleep(<span class="number">5</span>); </span><br><span class="line">   <span class="comment">//pthread_cancel(tid[0]); </span></span><br><span class="line"></span><br><span class="line">   pthread_join(tid[<span class="number">0</span>], <span class="literal">NULL</span>); </span><br><span class="line">   pthread_join(tid[<span class="number">1</span>], <span class="literal">NULL</span>); </span><br><span class="line">   pthread_join(tid[<span class="number">2</span>], <span class="literal">NULL</span>); </span><br><span class="line">   pthread_join(tid[<span class="number">3</span>], <span class="literal">NULL</span>); </span><br><span class="line"></span><br><span class="line">   pthread_mutex_destroy(&amp;mutex1); </span><br><span class="line">   pthread_mutex_destroy(&amp;mutex2); </span><br><span class="line">   pthread_mutex_destroy(&amp;mutex3); </span><br><span class="line">   pthread_mutex_destroy(&amp;mutex4); </span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>清单 2. 编译测试程序<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[dyu@xilinuxbldsrv purify]$ g++ -g lock.cpp -o lock -lpthread</span><br></pre></td></tr></table></figure><br>清单 3. 查找测试程序的进程号<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[dyu@xilinuxbldsrv purify]$ ps -ef|grep lock </span><br><span class="line">dyu       6721  5751  0 15:21 pts/3    00:00:00 ./lock</span><br></pre></td></tr></table></figure><br>清单 4. 对死锁进程第一次执行 pstack（pstack –进程号）的输出结果（pstack用法可以查阅文末参考资料）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[dyu@xilinuxbldsrv purify]$ pstack 6721 </span><br><span class="line">Thread 5 (Thread 0x41e37940 (LWP 6722)): </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x0000003d1a80d4c4 <span class="keyword">in</span> __lll_lock_wait () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x0000003d1a808e1a <span class="keyword">in</span> _L_lock_1034 () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  0x0000003d1a808cdc <span class="keyword">in</span> pthread_mutex_lock () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000000000400a9b <span class="keyword">in</span> func1() ()</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  0x0000000000400ad7 <span class="keyword">in</span> thread1(void*) ()</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">5  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">6  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line">Thread 4 (Thread 0x42838940 (LWP 6723)): </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x0000003d1a80d4c4 <span class="keyword">in</span> __lll_lock_wait () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x0000003d1a808e1a <span class="keyword">in</span> _L_lock_1034 () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  0x0000003d1a808cdc <span class="keyword">in</span> pthread_mutex_lock () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000000000400a17 <span class="keyword">in</span> func2() ()</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  0x0000000000400a53 <span class="keyword">in</span> thread2(void*) ()</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">5  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">6  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line">Thread 3 (Thread 0x43239940 (LWP 6724)): </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x0000003d19c9a541 <span class="keyword">in</span> nanosleep () from /lib64/libc.so.6</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x0000003d19c9a364 <span class="keyword">in</span> <span class="built_in">sleep</span> () from /lib64/libc.so.6</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  0x00000000004009bc <span class="keyword">in</span> thread3(void*) ()</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line">Thread 2 (Thread 0x43c3a940 (LWP 6725)): </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x0000003d19c9a541 <span class="keyword">in</span> nanosleep () from /lib64/libc.so.6</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x0000003d19c9a364 <span class="keyword">in</span> <span class="built_in">sleep</span> () from /lib64/libc.so.6</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  0x0000000000400976 <span class="keyword">in</span> thread4(void*) ()</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line">Thread 1 (Thread 0x2b984ecabd90 (LWP 6721)): </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x0000003d1a807b35 <span class="keyword">in</span> pthread_join () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x0000000000400900 <span class="keyword">in</span> main ()</span></span><br></pre></td></tr></table></figure>
+<p>清单 5. 对死锁进程第二次执行 pstack（pstack –进程号）的输出结果<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"> [dyu@xilinuxbldsrv purify]$ pstack 6721 </span><br><span class="line"> Thread 5 (Thread 0x40bd6940 (LWP 6722)): </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">0  0x0000003d1a80d4c4 <span class="keyword">in</span> __lll_lock_wait () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">1  0x0000003d1a808e1a <span class="keyword">in</span> _L_lock_1034 () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">2  0x0000003d1a808cdc <span class="keyword">in</span> pthread_mutex_lock () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">3  0x0000000000400a87 <span class="keyword">in</span> func1() ()</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">4  0x0000000000400ac3 <span class="keyword">in</span> thread1(void*) ()</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">5  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">6  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line"> Thread 4 (Thread 0x415d7940 (LWP 6723)): </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">0  0x0000003d1a80d4c4 <span class="keyword">in</span> __lll_lock_wait () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">1  0x0000003d1a808e1a <span class="keyword">in</span> _L_lock_1034 () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">2  0x0000003d1a808cdc <span class="keyword">in</span> pthread_mutex_lock () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">3  0x0000000000400a03 <span class="keyword">in</span> func2() ()</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">4  0x0000000000400a3f <span class="keyword">in</span> thread2(void*) ()</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">5  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">6  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line"> Thread 3 (Thread 0x41fd8940 (LWP 6724)): </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">0  0x0000003d19c7aec2 <span class="keyword">in</span> memset () from /lib64/libc.so.6</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">1  0x00000000004009be <span class="keyword">in</span> thread3(void*) ()</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">2  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">3  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line"> Thread 2 (Thread 0x429d9940 (LWP 6725)): </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">0  0x0000003d19c7ae0d <span class="keyword">in</span> memset () from /lib64/libc.so.6</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">1  0x0000000000400982 <span class="keyword">in</span> thread4(void*) ()</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">2  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">3  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span> </span><br><span class="line"> Thread 1 (Thread 0x2af906fd9d90 (LWP 6721)): </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">0  0x0000003d1a807b35 <span class="keyword">in</span> pthread_join () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_"> #</span><span class="language-bash">1  0x0000000000400900 <span class="keyword">in</span> main ()</span></span><br><span class="line">连续多次查看这个进程的函数调用关系堆栈进行分析：当进程吊死时，多次使用 pstack 查看进程的函数调用堆栈，死锁线程将一直处于等锁的状态，对比多次的函数调用堆栈输出结果，确定哪两个线程（或者几个线程）一直没有变化且一直处于等锁的状态（可能存在两个线程 一直没有变化）。</span><br><span class="line">输出分析：</span><br><span class="line">根据上面的输出对比可以发现，线程 1 和线程 2 由第一次 pstack 输出的处在 sleep 函数变化为第二次 pstack 输出的处在 memset 函数。但是线程 4 和线程 5 一直处在等锁状态（pthread_mutex_lock），在连续两次的 pstack 信息输出中没有变化，所以我们可以推测线程 4 和线程 5 发生了死锁。</span><br><span class="line">Gdb into thread输出：</span><br></pre></td></tr></table></figure></p>
+<p>清单 6. 然后通过 gdb attach 到死锁进程<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">  (gdb) info thread </span><br><span class="line"> 5 Thread 0x41e37940 (LWP 6722)  0x0000003d1a80d4c4 in __lll_lock_wait () </span><br><span class="line"> from /lib64/libpthread.so.0 </span><br><span class="line"> 4 Thread 0x42838940 (LWP 6723)  0x0000003d1a80d4c4 in __lll_lock_wait () </span><br><span class="line"> from /lib64/libpthread.so.0 </span><br><span class="line"> 3 Thread 0x43239940 (LWP 6724)  0x0000003d19c9a541 in nanosleep () </span><br><span class="line">from /lib64/libc.so.6 </span><br><span class="line"> 2 Thread 0x43c3a940 (LWP 6725)  0x0000003d19c9a541 in nanosleep () </span><br><span class="line">from /lib64/libc.so.6 </span><br><span class="line">* 1 Thread 0x2b984ecabd90 (LWP 6721)  0x0000003d1a807b35 in pthread_join () </span><br><span class="line">from /lib64/libpthread.so.0</span><br></pre></td></tr></table></figure><br>清单 7. 切换到线程 5 的输出<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(gdb) thread 5 </span><br><span class="line">[Switching to thread 5 (Thread 0x41e37940 (LWP 6722))]#0  0x0000003d1a80d4c4 in </span><br><span class="line">__lll_lock_wait () from /lib64/libpthread.so.0 </span><br><span class="line">(gdb) where </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">0  0x0000003d1a80d4c4 <span class="keyword">in</span> __lll_lock_wait () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">1  0x0000003d1a808e1a <span class="keyword">in</span> _L_lock_1034 () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">2  0x0000003d1a808cdc <span class="keyword">in</span> pthread_mutex_lock () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000000000400a9b <span class="keyword">in</span> func1 () at lock.cpp:18</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">4  0x0000000000400ad7 <span class="keyword">in</span> thread1 (arg=0x0) at lock.cpp:43</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">5  0x0000003d1a80673d <span class="keyword">in</span> start_thread () from /lib64/libpthread.so.0</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">6  0x0000003d19cd40cd <span class="keyword">in</span> <span class="built_in">clone</span> () from /lib64/libc.so.6</span></span><br></pre></td></tr></table></figure><br>清单 8. 线程 4 和线程 5 的输出<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">(gdb) f 3 </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000000000400a9b <span class="keyword">in</span> func1 () at lock.cpp:18</span> </span><br><span class="line">18          pthread_mutex_lock(&amp;mutex2); </span><br><span class="line">(gdb) thread 4 </span><br><span class="line">[Switching to thread 4 (Thread 0x42838940 (LWP 6723))]#0  0x0000003d1a80d4c4 in </span><br><span class="line">__lll_lock_wait () from /lib64/libpthread.so.0 </span><br><span class="line">(gdb) f 3 </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">3  0x0000000000400a17 <span class="keyword">in</span> func2 () at lock.cpp:31</span> </span><br><span class="line">31          pthread_mutex_lock(&amp;mutex1); </span><br><span class="line">(gdb) p mutex1 </span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">1 = &#123;__data = &#123;__lock = 2, __count = 0, __owner = 6722, __nusers = 1, __kind = 0,</span> </span><br><span class="line">__spins = 0, __list = &#123;__prev = 0x0, __next = 0x0&#125;&#125;, </span><br><span class="line"> __size = &quot;\002\000\000\000\000\000\000\000B\032\000\000\001&quot;, &#x27;\000&#x27;</span><br><span class="line">&lt;repeats 26 times&gt;, __align = 2&#125; </span><br><span class="line">(gdb) p mutex3 </span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">2 = &#123;__data = &#123;__lock = 0, __count = 0, __owner = 0, __nusers = 0,</span> </span><br><span class="line">__kind = 0, __spins = 0, __list = &#123;__prev = 0x0, __next = 0x0&#125;&#125;, </span><br><span class="line">__size = &#x27;\000&#x27; &lt;repeats 39 times&gt;, __align = 0&#125; </span><br><span class="line">(gdb) p mutex2 </span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">3 = &#123;__data = &#123;__lock = 2, __count = 0, __owner = 6723, __nusers = 1,</span> </span><br><span class="line">__kind = 0, __spins = 0, __list = &#123;__prev = 0x0, __next = 0x0&#125;&#125;, </span><br><span class="line"> __size = &quot;\002\000\000\000\000\000\000\000C\032\000\000\001&quot;, &#x27;\000&#x27;</span><br><span class="line">&lt;repeats 26 times&gt;, __align = 2&#125; </span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
+<p>从上面可以发现，线程 4 正试图获得锁 mutex1，但是锁 mutex1 已经被 LWP 为 6722 的线程得到（<strong>owner = 6722），线程 5 正试图获得锁 mutex2，但是锁 mutex2 已经被 LWP 为 6723 的 得到（</strong>owner = 6723），从 pstack 的输出可以发现，LWP 6722 与线程 5 是对应的，LWP 6723 与线程 4 是对应的。所以我们可以得出， 线程 4 和线程 5 发生了交叉持锁的死锁现象。查看线程的源代码发现，线程 4 和线程 5 同时使用 mutex1 和 mutex2，且申请顺序不合理。</p>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xsln/p/gdb_instructions1.html">GDB常用命令使用说明（一）</a><br><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/linux/l-cn-deadlock/">一个 Linux 上分析死锁的简单方法</a><br><a target="_blank" rel="noopener" href="http://man.linuxde.net/pstack">pstack命令</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/wyaibyn/article/details/28442347">pstack</a>  </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2018/04/01/GDB%E5%AE%9A%E4%BD%8D%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98/" title="gdb用法总结">2018/04/01/GDB定位死锁问题/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/gdb/" rel="tag"># gdb</a>
+          
+            <a href="/tags/%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/" rel="tag"># 问题定位</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/22/Linux%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE%E7%9A%84%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4/" rel="next" title="Linux网络设置的常用命令">
+                <i class="fa fa-chevron-left"></i> Linux网络设置的常用命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/04/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/" rel="prev" title="选择排序">
+                选择排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#gdb%E4%BD%BF%E7%94%A8%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">gdb使用前置条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gdb%E4%B8%80%E8%88%AC%E7%94%A8%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">gdb一般用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gdb%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">gdb常用命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%94%A8gdb%E6%89%BE%E5%88%B0%E6%AD%BB%E9%94%81"><span class="nav-number">4.</span> <span class="nav-text">如何用gdb找到死锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4"><span class="nav-number">4.1.</span> <span class="nav-text">定位死锁问题常用的几个命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">死锁问题实例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

@@ -1,37 +1,1366 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="分布式存储,经典论文,Cassandra,一致性哈希," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="《Cassandra - A Decentralized Structured Storage System》论文阅读">
+<meta property="og:url" content="https://www.a-programmer.top/2022/07/16/%20Cassandra%20-%20A%20Decentralized%20Structured%20Storage%20System--%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://s1.ax1x.com/2022/07/17/jIaF0O.jpg">
+<meta property="article:published_time" content="2022-07-16T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.050Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="分布式存储">
+<meta property="article:tag" content="经典论文">
+<meta property="article:tag" content="Cassandra">
+<meta property="article:tag" content="一致性哈希">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/07/17/jIaF0O.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2022/07/16/ Cassandra - A Decentralized Structured Storage System--论文阅读/"/>
+
+
+
+
+
+  <title>《Cassandra - A Decentralized Structured Storage System》论文阅读 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2022/07/16/%20Cassandra%20-%20A%20Decentralized%20Structured%20Storage%20System--%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《Cassandra - A Decentralized Structured Storage System》论文阅读</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-07-16T23:30:30+08:00">
+                2022-07-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="url" rel="index">
+                    <span itemprop="name">论文阅读</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/16/%20Cassandra%20-%20A%20Decentralized%20Structured%20Storage%20System--%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2022/07/16/%20Cassandra%20-%20A%20Decentralized%20Structured%20Storage%20System--%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  7,741 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  27 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://s1.ax1x.com/2022/07/17/jIaF0O.jpg" alt=""></p>
+<span id="more"></span>
+<p>《Cassandra - A Decentralized Structured Storage System》（Cassandra — 一个去中心的结构化的存储系统）是facebook 2009年左右的论文，facebook参考了AWS dynamo、Google的GFS以及其他更早的分布式系统，借鉴了相关的技术，整合实现了Cassandra（在论文的第二节有描述）。本文主要记录论文《Cassandra - A Decentralized Structured Storage System》的要点。想阅读论文全文的读者可以下载论文，论文下载地址：<a target="_blank" rel="noopener" href="https://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf">Cassandra - A Decentralized Structured Storage System</a>。如果只是想了解一些Cassandra的基本原理，阅读本文足以，本文基本上就是论文的全文翻译并添加了一些自己的注解。</p>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>Cassandra是一个管理分布在很多商业服务器节点上的非常大量的结构化数据的分布式存储系统，同时提供无单点故障的高可用服务。Cassandra目标是在几百个节点上的基础设施上运行（可能分布在不同的数据中心）。达到这样的集群规模后，经常Cassandra是一个管理分布在很多商业服务器节点上的非常大量的结构化数据的分布式存储系统，同时提供无单点故障的高可用服务。Cassandra目标是在几百个节点上的基础设施上运行（可能分布在不同的数据中心）。达到这样的集群规模后，经常会有大大小小的组件出现故障。Cassandra管理持久化的状态会经常面临这些故障，正是这样驱使Facebook的软件系统的可靠性和可伸缩性依赖于该服务。虽然在许多方面Cassandra有点像一个数据库，并且与之共享了许多设计和实现的策略，但是Cassandra并不支持完整的关系数据模型；相反，它为client提供了一个支持动态控制数据布局并且格式简单数据模型。Cassandra系统设计目标是：运行在廉价商业硬件上，高写入吞吐量处理，同时又不用以牺牲读取效率为代价。</p>
+<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h2><p>Facebook运营着最大的社交网络平台，在峰值时候用分布在全球的多个数据中心的成千上万服务器服务了几亿用户。Facebook的平台在性能、可靠性、效率以及平台所需要的支持持续增长（高扩展性）等方面有着严格的运营要求。在包含成千上万个组件的基础设施中处理异常是Facebook运营的标准操作，任何时候都总有一些少量但非常重要的服务器或网络组件会发生故障。因此，软件系统需要一种构建方式，即把故障当做常态来处理而非异常。为了满足上述的可用性和可扩展性，Facebook开发了Cassandra。</p>
+<h2 id="2-相关工作"><a href="#2-相关工作" class="headerlink" title="2.相关工作"></a>2.相关工作</h2><p>见论文原文，提到了AWS dynamo以及Google的GFS等。</p>
+<h2 id="3-数据模型"><a href="#3-数据模型" class="headerlink" title="3.数据模型"></a>3.数据模型</h2><p>Cassandra中的表是一个分布式的多维的map，由一个key索引。value是一个高度结构化的对象。表中的行键（row key）是一个没有大小限制的字符串，尽管通常情况下是16~36的字节长度。每个副本的单行键（single row key）下的操作都是一个原子操作，不管读或写入了多少列。列被统一放在一个叫做列簇的集合中，这和Bigtable[4]系统的的工作机制很相似。Cassandra 有两种列簇——简单和超级列簇。超级列簇可以用一个列簇内又有一个列簇来形象化表示。</p>
+<h2 id="4-API"><a href="#4-API" class="headerlink" title="4.API"></a>4.API</h2><p>Cassandra的API包括以下三个简单的方法.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">insert(table, key, rowMutation)</span><br><span class="line"></span><br><span class="line">get(table, key, columnName)</span><br><span class="line"></span><br><span class="line">delete(table, key, columnName)</span><br></pre></td></tr></table></figure>
+<p>columnName可以是含有列族的一个特殊列, 一个列族，超列族，或者带有超列的一个特定列.</p>
+<h2 id="5-系统架构"><a href="#5-系统架构" class="headerlink" title="5.系统架构"></a>5.系统架构</h2><p>需要运行在产品环境中的存储系统的体系架构是复杂的。除了实际的数据持久化组件之外，系统还需要有以下特性：可扩展的且健壮的解决方案，包括负载平衡、成员管理和故障检测、故障恢复、副本同步、过载处理、状态转移、并发和作业调度、请求编组、请求路由、系统监视和报警、以及配置管理。描述上述的每一个解决方案的细节超出了本论文的范围，所以我们只聚焦在Cassandra使用的核心的分布式系统技术上：分区、复制、成员管理、故障处理以及扩展。所有的这些模块都需要共同处理读/写请求。通常一个键的读/写请求需要被发送到Cassandra集群中的任何一个节点上，然后节点判断是否为这个特定键的副本。对于写操作，系统将请求路由到副本并等待法定的副本数目的响应，以确认写操作的完成。对于读取，需要依据用户的一致性需求而定，系统要么将请求路由到最近的副本上或者路由到所有副本并等待法定的副本数目的响应。</p>
+<h3 id="5-1-Partition-分区"><a href="#5-1-Partition-分区" class="headerlink" title="5.1 Partition(分区)"></a>5.1 Partition(分区)</h3><p>Cassandra 一个关键的设计特性就是持续扩展的能力。这要求动态将数据分区到集群中各个节点（即存储主机）的能力。Cassandra 整个集群上的数据分区用的是一致性哈希[11]，但是使用了保序哈希函数来达到这一点。在一致性哈希算法中，一个散列函数输出范围被当作一个固定的圆形空间或‘环’来对待（即最大散列值之后为最小散列值）（有点类似Dynamo系统）。系统中的每一个节点被赋予一个在这一空间内表示其圆环的位置的随机值。每一个数据项通过键（key）来标识，通过hash数据项的键来确定环上的位置，在环上顺时针找到大于这个位置的第一个节点，这样通过key标识的数据项就分配给这个节点管理。这个节点被认为是这个key的协调者。应用指定key，Cassandra用这个key来路由请求。因此，每个节点就负责环上的它的前驱节点到它自身之间的这段区域。</p>
+<ul>
+<li>一致性哈希的最大好处是有节点加入或者离开都只影响相邻的节点，其他节点不受影响。<br>当然最基础的一致性哈希也有问题，比如：</li>
+</ul>
+<ol>
+<li>每个节点被hash的随机位置，这会导致数据和负载的分布不均匀</li>
+<li>基本的一致性哈希忽略了每个节点性能的异构性（意思是不同的节点可能性能是不一样的，比如配置都不一样）<br>通常有两种办法解决上述的问题：</li>
+<li>像Dynamo一样，增加虚拟节点，即一个物理节点对应多个虚拟节点，然后把虚拟节点映射到环上</li>
+<li>分析环上节点的负载信息，移动环上轻负载的节点去减轻重负载节点的负载（如论文中参考文献[17]中讲述的）<br>Cassandra选了第二个方法，因为第二个方法使得设计和实现都比较简单并且有助于对负载平衡做出非常确定性的选择。</li>
+</ol>
+<h3 id="5-2-Replication-复制"><a href="#5-2-Replication-复制" class="headerlink" title="5.2 Replication(复制)"></a>5.2 Replication(复制)</h3><p>Cassandra使用复本来达到高可用和持久性。每一个数据项都会被复制到N个机器上，N是“每个实例”配置的复本因子（译者注：就是说每个实例都可以配置参数指定每项数据存多少个复本，比如我们常见的三复本）。每个key(k)被分配到协调节点（前面的章节有描述）。协调节点管理它负责范围内的数据项的复制。协调节点除了把它负责的数据存在本地外，还负责把数据到复制到环上的其他N-1个节点。Cassandra提供了许多复制策略，比如“Rack Unaware”, “Rack Aware” (在一个数据中心内) 以及 “Datacenter Aware”。选择哪些复本是由应用的选择的复本策略决定的。如果某个应用选择了 “Rack Unaware”复本策略，那么非协调节点的复本选择的是环上协调节点的N-1个后继节点（译者注：简单地说，比如三复本，通过本论文的一致性哈希确定了协调节点，协调节点上存一个复本，另外两个复本就选协调节点顺时针方向后面两个节点来存）。选 “Rack<br>Aware” 和 “Datacenter Aware”策略，算法会稍微复杂一些。Cassandra使用Zookeeper来选出一个leader节点。加入集群的所有节点都需要连接leader节点，leader节点告诉这些节点他们负责哪些范围的复本，并且致力于保持环上没有节点会负责超出N-1的范围。节点负责的范围的元数据被缓存在每个节点本地，并且为了容错，在Zookeeper内也保存了这个元数据（译者注：其实可以理解为元数据在本地有缓存，为了防止元数据丢失，也持久化到了Zookeeper）— 这样当一个节点挂掉重启后就知道它负责哪个范围。借用Dynamo的说法，我们认为负责给定范围的节点是这个范围的“优先列表”（译者注：这个优先列表就是指比如三复本，是哪三个server来负责这个范围的数据的server列表）。</p>
+<p>正如在5.1章节中所阐述的那样， 每一个节点都能感知到系统内其它任意一个节点的存在，因此也知道它们这个系统所负责的范围。Cassandra通过放松第5.2节中所述的仲裁需求，在存在节点故障和网络分区时提供了耐久性保证。数据中心故障通常是由于电力中断、冷却系统失效、网络中断以及自然灾害等。Cassandra可以被配置成每一条数据都进行跨数据中心的复制。其本质是构建一个数据的“优先列表”，这“优先列表”的存储节点是跨数据中心的。这些数据中心通过高速网络连接起来。这种跨多个数据中心复制的方案允许我们在面临某个数据中心故障的时候做到业务不中断。</p>
+<h3 id="5-3-Membership-成员管理"><a href="#5-3-Membership-成员管理" class="headerlink" title="5.3 Membership(成员管理)"></a>5.3 Membership(成员管理)</h3><p>Cassandra中的集群成员基于Scuttlebutt[19]，一种非常有效的反熵Gossip（anti-entropy Gossip，一种Gossip算法）机制。Scuttlebutt最显著的特性是它对CPU利用非常高效以及非常高效地使用Gossip channel。在Cassandra系统中，Gossip不仅用于成员管理，还用与传播其他的系统相关状态。</p>
+<h4 id="5-3-1-故障检测"><a href="#5-3-1-故障检测" class="headerlink" title="5.3.1 故障检测"></a>5.3.1 故障检测</h4><p>故障检测是一种节点可以在本地确定系统中其他节点是死是活的机制。在Cassandra中，故障检测也被用于避免在各种操作中尝试与无法到达的节点进行通信。Cassandra使用了Φ Accrual故障检测器[8]的一个改良版本。Accrual故障检测器的目标是故障检测模块不用布尔值来代表节点的存活状态。相反，故障检测模块为每一个被监控的节点生成一个代表其被怀疑故障水平的值。这个值被定义为Φ。其基本思想是这个反应节点被怀疑故障水平的值的范围是动态变化的，以反应被监控节点的网络与负载情况。<br>Φ有以下含义：给定某个阈值Φ，假设我们决定在Φ=1时怀疑节点a（故障），那么我们犯错误的可能性（即，该决定将在未来与接收到延迟的心跳相矛盾）的可能性约为10%。Φ=2时，犯错的可能性约为1%，Φ=3时的可能性约为0.1%，以此类推。系统中每个节点都维护了一个其他节点发出的gossip消息的内部到达时间的滑动窗口。根据内部到达时间间隔的分布，计算Φ值。尽管初稿中说分布近似为高斯分布(Gaussian distribution)，但是我们发现其实它更接近于指数分布(Exponential Distribution)，因为gossip channel本身的特性和它对延迟的影响，所以它更符合指数分布。据我们所知，我们的基于Gossip的环境的Accrual故障检测的实现是首创。Accrual故障检测器的准确性和速度都非常好并且它们可以很好的适应不同的网络状况和服务器负载状况。</p>
+<h3 id="5-4-Bootstrapping-启动"><a href="#5-4-Bootstrapping-启动" class="headerlink" title="5.4 Bootstrapping(启动)"></a>5.4 Bootstrapping(启动)</h3><p>当一个节点第一次启动时，它为它所在环上的位置随机生成一个token（译者注：猜测是一个伪随机值，通过某种hash算法得到的）。出于容错，节点与环上位置(token)的映射关系被持久化到本地硬盘和Zookeeper中。然后这个token信息在集群中通过gossip协议传播开来。这样我们就能知道集群中所有的节点以及他们在环上相对的位置。这样使得任意一个节点都可以把某一个key的请求路由到集群中正确的节点。在节点启动的场景，当一个节点需要加入集群时，它需要读取自己的配置文件，文件中包含集群中几个联系的节点信息。我们把这些初始联系的节点称为集群的种子。种子也可以来自于像Zookeeper之类的配置服务。<br><strong>译者注：这段内容的简单地说，就是一个节点启动的时候会通过某种hash算法，把节点hash到环的某个位置，然后这个位置信息会通过gossip协议发送给集群中其他节点。然后节点刚开始启动的时候，需要去读配置文件连接集群的初始节点，这些初始节点估计就是Zookeeper节点，其实就是需要加入集群的节点都要去连Zookeeper，把相关信息写入到Zookeeper。</strong><br>在Facebook的环境中（由于故障或者维护引起的）节点中断经常都是暂时的，但也有可能会持续长一些时间（译者注：这意思就是其实遇到的节点故障大多是暂时的，过一会就恢复了，少量长时间都无法恢复的，当然这样对待这些节点也就可以分别对待，根据不同的情况进行不同的处理）。引发故障的形式也多种多样，比如磁盘故障、CPU损坏等。一个节点的断开很少意味着它会永久断开，因此不应该导致重新平衡分区指派或修复不可到达的副本。类似地，人为失误可能导致新的Cassandra节点意外启动。为此，每条信息都包含了每个Cassandra实例的集群名称。如果配置中的人为失误导致一个节点尝试去加入一个错误的Cassandra实例，那么它可以由集群名称不正确而被阻止。<br>由于这些原因，我们认为使用显示机制来从Cassandra实例上初始化添加和删除节点是合适的。管理员使用命令行工具或浏览器连接到一个Cassandra 节点，并发起一次成员变更来加入或离开集群。</p>
+<h3 id="5-5-Scaling-the-Cluster-集群扩展"><a href="#5-5-Scaling-the-Cluster-集群扩展" class="headerlink" title="5.5 Scaling the Cluster(集群扩展)"></a>5.5 Scaling the Cluster(集群扩展)</h3><p>当一个新的节点被添加到系统中时，它将被分配一个token（挨着高负荷节点的token），以便它可以缓解高负荷节点(的压力)。这会导致新节点分拆了一部分某一个节点先前负责的范围。Cassandra启动是操作员用命令行工具或Cassandra网页界面操作启动的。节点放弃使用stream传播数据到新节点的方式，而使用的是内核拷贝技术。运行经验表明数据可以在单个节点中以40MB/秒的速率进行传输。我们正在努力通过让多个复制副本参与启动传输来改进这一点，从而并行化工作，类似于Bit torrent。</p>
+<h3 id="5-6-Local-Persistence-本地持久化"><a href="#5-6-Local-Persistence-本地持久化" class="headerlink" title="5.6 Local Persistence(本地持久化)"></a>5.6 Local Persistence(本地持久化)</h3><p>Cassandra依赖于本地文件系统来做数据持久化。数据用一种高效读取格式存放在硬盘上。出于持久性和可恢复性考虑，通常写操作将会涉及到两个操作：</p>
+<ol>
+<li>往磁盘上写入一条提交日志（Commit Log）</li>
+<li>在内存的数据结构上去更新数据<br>这个往内存的数据结构里面的数据更新，只有在提交日志写成功之后才会进行。我们每台机器上都有个专门的盘用来写提交日志（Commit Log），因为所有写入提交日志是顺序的（译者注：即Cassandra的写Commit Log的操作是顺序写而不是随机写，顺序写比随机写性能高很多），所以可以最大限度的利用磁盘吞吐量。当内存数据结构大小（根据数据大小和数量计算得出）超过一定阈值，就会把数据dump到磁盘上。这个写操作是在每台机器配备的许多商业硬盘中的一个上进行的。所有写入到磁盘都是顺序写，并且生成了一个基于行键（row key）可进行高效检索的索引。这些索引也会同数据文件一起持久化。随着时间的推移，在磁盘上可能会存在很多这样的文件，后台会有一个合并进程将这些文件合并成一个文件。这个进程和Bigtable系统中的压缩(Compaction)进程非常相似。<br>一个典型的读取操作首先查询内存中的数据结构，然后查看磁盘上的文件。文件是以从新到旧的顺序进行查找的。当发生磁盘查找时，我们可能需要在磁盘上的多个文件中去查找某个key。为了避免查找不包含该key的文件，汇总了文件中所有key的布隆过滤器（译者：关于布隆过滤器可以自行搜索了解）被存到每一个文件中并将该布隆过滤器保存在内存中。查找一个key的时候，首先去通过布隆过滤器来检查key是否在给定的文件中。一个列簇中的key可能会包含很多列。当列离key比较远时，还需要特殊的索引来获取这些列。为了防止扫描磁盘上的每一列，我们维护的特殊的列索引，可以允许我们直接跳到磁盘上正确的块来获取列。当给定key的列被系列化并被写入到磁盘后，我们会以每256K大小为范围生成一个索引。这个大小是可以配置的，但是我们发现在实际产品负载环境下中，256K大小工作良好。</li>
+</ol>
+<h3 id="5-7-Implementtation-Details-实现细节"><a href="#5-7-Implementtation-Details-实现细节" class="headerlink" title="5.7 Implementtation Details(实现细节)"></a>5.7 Implementtation Details(实现细节)</h3><p>一台机器上的Cassandra进程主要包含如下抽象：分区模块，集群成员管理，故障检测模块以及存储引擎模块。所有这些模块都依赖于一个事件驱动的底层模块,它按照SEDA[20]架构设计,将消息处理管道与任务管道切分成了多个阶段。所有这些模块完全用Java实现。集群成员管理和故障检测模块建立在使用非堵塞IO的网络层之上。所有系统控制消息依赖于基于UDP协议的消息传输，而复制与请求路由等应用相关的消息则依赖于TCP协议。请求路由模块使用一个固定状态机来实现。当一个读/写请求到达任何集群中的节点时状态机将会在以下几个状态切换：<br>（i）识别节点是否拥有给定key的数据<br>（ii）将请求路由到节点并等待响应返回<br>（iii）如果复本在配置超时时间内没有到达，将请求设置为失败并返回客户端<br>（iv）根据时间戳分辨出最后到达的响应<br>（v）如果数据并不是最新的，则调度安排数据修复。<br>为了便于说明，这里不讨论故障场景。系统可以把写操作配置为配置为同步写或者异步写。对于某些需要高吞吐量的系统，我们依赖异步复制策略（异步写）。这种情况下,系统的写操作远远超过系统读操作。在同步的情况下，我们需要等待指定仲裁数目的响应返回后才能将结果返回到客户端。</p>
+<p>在任何日志系统中都需要有一个清除提交日志条目的机制。在Cassandra中，我们使用滚动提交日志，在旧的提交日志超过特定的、可配置的大小后，就会推出新的提交日志（译者注：个人理解是新的日志覆盖旧的的日志）。我们发现每128MB滚动提交日志在生产环境中负载良好。每个提交日志都有一个头，它基本上是一个位向量，它的大小是固定的，通常超过一个特定系统将处理的列族的数量。在我们的实现中，我们有一个内存中的数据结构和一个由每个列族生成的数据文件。每次将特定列族的内存中数据结构dump到磁盘时，我们都会在提交日志中设置它的位，以表明该列族已成功持久化到磁盘。这就表明这条信息已经被提交。每份提交日志都有一份这些位向量同时也在内存中维护一份。每当发生提交日志滚动的时候,它的位向量,以及它之前滚动的提交日志的位向量都会进行检查。如果认为所有数据已经被成功持久化到磁盘之后这些日志才会被删除。对提交日志的写入操作可以是正常模式也可以是快速同步模式。在快速同步模式下，写到提交日志会被写到buffer中，这就意味着当机器crash时存在数据丢失的潜在风险（译者注：这跟RocksDB很像，读写机制都是，采用LSM tree）。在这种模式下，将内存中的数据结构dump到磁盘也采用了buffer的方式。传统数据库的设计并不是用来处理特别高的写吞吐量的。Cassandra将所有的写入操作都转换成顺序写以最大限度地利用磁盘的写入吞吐量。由于dump到磁盘的文件不再会被修改,所以在读取它们的时候也不需要加锁。Cassandra 服务器读/写操作实际上并没有加锁，因此我们不需要处理在以B-Tree实现的数据库中存在的并发问题。</p>
+<p>Cassandra系统根据主键(primary key)来索引所有数据。磁盘上的数据文件被分成一系列的块。每个块最多包含128个key，并由一个块索引来划分。块索引捕获块内的一个键的相对偏移量及其数据的大小。当内存数据结构dump到磁盘上时，（系统）将会产生一个块索引,并把它们的偏移量作为索引写入磁盘。为了快速访问，内存中同样维护一份索引。一个典型的读取操作会先在内存的数据结构进行查找。如果找到数据，将会把数据返回应用，因为内存数据结构包括了key的最新数据。如果没有找到（对应的数据），我们则会使用磁盘I/O按照时间逆序对所有磁盘上的数据文件进行查找。由于我们总是查找最新的数据，所以我们首先在最新文件进行查找一旦找到数据就返回。随着时间的推移，磁盘上的数据文件的数量越来越多。我们将进行压缩处理，非常类似于Bigtable系统中所做的一样——将多个文件合并成一个，本质上对一堆排序的数据文件进行合并排序（merge sort或者叫归并排序）。系统始终总是压缩和大小彼此相近的文件，例如,永远不会出现一个100GB的文件与另一个小于50GB的文件进行合并的情形。周期性地就会运行一个主压缩线程来将所有相关数据文件压缩成一个大文件。这个压缩进程是一个磁盘I/O密集型操作，因此需要对此做大量的优化以做到不影响后续的读请求。</p>
+<h2 id="6-实践经验"><a href="#6-实践经验" class="headerlink" title="6. 实践经验"></a>6. 实践经验</h2><p>在Cassandra的设计、实现以及维护过程中我们积累了很多有用的经验也学到了许多教训。其中一个非常基本的教训就是在没有搞清楚应用想要的使用效果之前不要急着添加新功能。大多数有问题的场景并不仅仅源于节点崩溃和网络分区。我们在这里只分享一些有趣的场景。</p>
+<ul>
+<li><p>在启动 Inbox Search应用之前，我们必须对超过1亿用户大约7TB的收件箱数据进行索引，将他们保存在我们的MySQL[1]基础设施上，然后将其加载到Cassandra系统中。整个过程涉及到对MySQL数据文件进行Map/Reduce[7]调度；建立索引，然后将反向索引保存到Cassandra中。实际上,M/R进程是作为Cassandra的客户端运行的。我们为M/R进程公开了一些后台通道，以聚合每个用户的反向索引，并将序列化的数据发送到Cassandra实例，以避免序列化/反序列化开销。这样Cassandra实例的瓶颈就只剩下网络带宽了</p>
+</li>
+<li><p>大多数应用只需要每个key的每个副本的原子操作。然而，也有一些应用程序要求事务性的特性，主要是为了维护辅助索引(secondary indices)。大多数拥有多年RDBMS开发经验的开发人员都发现这是一个非常有用的特性。我们正在研究一种机制来实现此类原子操作。</p>
+</li>
+<li><p>我们实验了故障检测器的各种实现，如在[15]和[5]中描述的那些。我们的经验是，随着集群大小的增加，检测故障的时间增加，最终会超过可接受的范围。在一个特定的包含100个节点的实验中,检测一个故障节点竟然耗费大约2分钟的时间。这在我们实际的运行环境中是行不通的。采用accrual故障检测器并设置一个稍显保守的PHI(Φ)值(设置为5),在上面的实验中检测到故障的平均时间大约为15秒。</p>
+</li>
+<li><p>监控不能被认为是理所当然的。Cassandra系统很好的集成了Ganglia[12]——一个分布式性能监测工具。我们向Ganglia开放了各种系统级别的指标，这在我们将Cassandra部署到生产环境时，帮助我们对这个系统的行为有了更深的理解。磁盘可能会无缘无故的发生故障。当磁盘出现故障，启动算法中有hooks可以修复节点，然而这实际上是一个管理操作。</p>
+</li>
+<li><p>虽然Cassandra是一个完全的去中心化的系统，但是我们已经了解到，有一定程度的协调对于使一些分布式特性的实现易于处理是必不可少的。比如Cassandra集成了可以用于大规模分布式系统中的各种协调任务的Zookeeper。我们打算用Zookeeper来抽象一些关键特性，而这些关键特性并不出现在使用Cassandra作为存储引擎的应用中。</p>
+</li>
+</ul>
+<h3 id="6-1-Facebook-Inbox-Search"><a href="#6-1-Facebook-Inbox-Search" class="headerlink" title="6.1 Facebook Inbox Search"></a>6.1 Facebook Inbox Search</h3><p>对于收件箱搜索(Inbox Search)，我们维护邮件发件人和收件人之间交换的所有邮件的每个用户索引。目前已经启用了两种搜索功能：<br>(a)短语搜索<br>(b)交互——给定一个人的名字，它将返回用户可能从该人那里发送或收到的所有消息。该模式由两个列族组成。<br>对于查询(a)，用户id是key，组成消息的单词成为超级列。包含该词的消息的单个消息标识符将成为超级列中的列。对于查询(b)，用户id是key，收件人id是超级列。对于每个超级列，单独的消息标识符都是列。为了使搜索快速，Cassandra为数据的智能缓存提供了某些hooks。比如,当用户点击搜索工具栏的时候就会异步地发生消息到Cassandra集群，以便事先准备用户索引的cache。这样，当执行实际的搜索查询时，搜索结果很可能已经在内存中了。该系统目前在一个150个节点的集群上存储了约50+TB的数据，该集群分布在东海岸和西海岸的数据中心之间。我们展示了一些关于读取性能的生产测量数字。</p>
+<table>
+<thead>
+<tr>
+<th>时延统计</th>
+<th>交互搜索</th>
+<th>短语搜索</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最小</td>
+<td>7.69ms</td>
+<td>7.78ms</td>
+</tr>
+<tr>
+<td>平均</td>
+<td>15.69ms</td>
+<td>18.27ms</td>
+</tr>
+<tr>
+<td>最大</td>
+<td>26.13ms</td>
+<td>44.41ms</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-总结展望"><a href="#7-总结展望" class="headerlink" title="7.总结展望"></a>7.总结展望</h2><p>我们已经构建、实现和运营了一个提供可扩展性、高性能和广泛适用性的存储系统。我们已经通过经验证明，Cassandra可以支持非常高的更新吞吐量（写吞吐），同时提供低延迟。未来的工作包括添加压缩、跨键支持原子性的能力和辅助索引支持。</p>
+<h2 id="8-致谢"><a href="#8-致谢" class="headerlink" title="8.致谢"></a>8.致谢</h2><p>略</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf">Cassandra - A Decentralized Structured Storage System</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2022/07/16/%20Cassandra%20-%20A%20Decentralized%20Structured%20Storage%20System--%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" title="《Cassandra - A Decentralized Structured Storage System》论文阅读">2022/07/16/ Cassandra - A Decentralized Structured Storage System--论文阅读/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/" rel="tag"># 分布式存储</a>
+          
+            <a href="/tags/%E7%BB%8F%E5%85%B8%E8%AE%BA%E6%96%87/" rel="tag"># 经典论文</a>
+          
+            <a href="/tags/Cassandra/" rel="tag"># Cassandra</a>
+          
+            <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C/" rel="tag"># 一致性哈希</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/12/%E3%80%8A%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%E3%80%8B--%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="next" title="《高效能人士的七个习惯》读书笔记">
+                <i class="fa fa-chevron-left"></i> 《高效能人士的七个习惯》读书笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/07/23/%E4%B8%80%E6%96%87%E5%B8%A6%E4%BD%A0%E4%BA%86%E8%A7%A3%E8%99%9A%E6%8B%9F%E5%8C%96%E3%80%81%E8%99%9A%E6%8B%9F%E6%9C%BA%E3%80%81Docker%E5%8F%8A%E8%A3%B8%E9%87%91%E5%B1%9E%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="prev" title="一文带你了解虚拟化、虚拟机、Docker及裸金属服务器">
+                一文带你了解虚拟化、虚拟机、Docker及裸金属服务器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">1.简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">2.相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">3.数据模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-API"><span class="nav-number">5.</span> <span class="nav-text">4.API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84"><span class="nav-number">6.</span> <span class="nav-text">5.系统架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-Partition-%E5%88%86%E5%8C%BA"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 Partition(分区)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-Replication-%E5%A4%8D%E5%88%B6"><span class="nav-number">6.2.</span> <span class="nav-text">5.2 Replication(复制)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-Membership-%E6%88%90%E5%91%98%E7%AE%A1%E7%90%86"><span class="nav-number">6.3.</span> <span class="nav-text">5.3 Membership(成员管理)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-3-1-%E6%95%85%E9%9A%9C%E6%A3%80%E6%B5%8B"><span class="nav-number">6.3.1.</span> <span class="nav-text">5.3.1 故障检测</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-Bootstrapping-%E5%90%AF%E5%8A%A8"><span class="nav-number">6.4.</span> <span class="nav-text">5.4 Bootstrapping(启动)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-Scaling-the-Cluster-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%B1%95"><span class="nav-number">6.5.</span> <span class="nav-text">5.5 Scaling the Cluster(集群扩展)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-6-Local-Persistence-%E6%9C%AC%E5%9C%B0%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">6.6.</span> <span class="nav-text">5.6 Local Persistence(本地持久化)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-7-Implementtation-Details-%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">6.7.</span> <span class="nav-text">5.7 Implementtation Details(实现细节)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%AE%9E%E8%B7%B5%E7%BB%8F%E9%AA%8C"><span class="nav-number">7.</span> <span class="nav-text">6. 实践经验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-Facebook-Inbox-Search"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 Facebook Inbox Search</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%80%BB%E7%BB%93%E5%B1%95%E6%9C%9B"><span class="nav-number">8.</span> <span class="nav-text">7.总结展望</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E8%87%B4%E8%B0%A2"><span class="nav-number">9.</span> <span class="nav-text">8.致谢</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">10.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

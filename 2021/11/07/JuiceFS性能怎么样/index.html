@@ -1,37 +1,1444 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="文件存储,JuiceFS,性能," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="JuiceFS性能怎么样">
+<meta property="og:url" content="https://www.a-programmer.top/2021/11/07/JuiceFS%E6%80%A7%E8%83%BD%E6%80%8E%E4%B9%88%E6%A0%B7/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/12/02/oNOv0e.png">
+<meta property="article:published_time" content="2021-11-07T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.050Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="文件存储">
+<meta property="article:tag" content="JuiceFS">
+<meta property="article:tag" content="性能">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/12/02/oNOv0e.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/11/07/JuiceFS性能怎么样/"/>
+
+
+
+
+
+  <title>JuiceFS性能怎么样 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/11/07/JuiceFS%E6%80%A7%E8%83%BD%E6%80%8E%E4%B9%88%E6%A0%B7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JuiceFS性能怎么样</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-11-07T23:30:30+08:00">
+                2021-11-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/11/07/JuiceFS%E6%80%A7%E8%83%BD%E6%80%8E%E4%B9%88%E6%A0%B7/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/11/07/JuiceFS%E6%80%A7%E8%83%BD%E6%80%8E%E4%B9%88%E6%A0%B7/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,339 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  19 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/12/02/oNOv0e.png" alt=""></p>
+<span id="more"></span>
+<p>本文主要记录用vdbench测试JuiceFS的性能表现情况及遇到的问题。vdbench的安装使用，请参考<a href="https://www.a-programmer.top/2021/10/31/vdbench安装与使用/">vdbench安装使用</a>。本文的测试环境请见下文，另外也可以看看JuiceFS官方给出的性能数据：<a target="_blank" rel="noopener" href="https://juicefs.com/docs/zh/cloud/single_node_benchmark/">单机性能测试</a>。</p>
+<h2 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h2><h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><h4 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h4><ul>
+<li><p>CPU： Intel(R) Xeon(R) Silver 4214R CPU @ 2.40GHz</p>
+</li>
+<li><p>内存: 128GB</p>
+</li>
+</ul>
+<h4 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h4><ul>
+<li><p>fio 3.12</p>
+</li>
+<li><p>juices version 1.0-dev (2021-11-03 d98cd00f)</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">juicefs -V</span><br><span class="line">juicefs version 1.0-dev (2021-11-03 d98cd00f)</span><br><span class="line">root@xxx:/home/xxx/juicefs# ls /mnt/jfs/</span><br></pre></td></tr></table></figure>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><h4 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h4><p>使用向DB申请的8GB的Redis环境</p>
+<h4 id="S3实例信息"><a href="#S3实例信息" class="headerlink" title="S3实例信息"></a>S3实例信息</h4><p>机房S3实例信息略</p>
+<h2 id="4k小文件场景"><a href="#4k小文件场景" class="headerlink" title="4k小文件场景"></a>4k小文件场景</h2><p>本文中默认vdbench放在/home/xxx/software/vdbench目录下。</p>
+<h3 id="单机执行vdbench测试"><a href="#单机执行vdbench测试" class="headerlink" title="单机执行vdbench测试"></a>单机执行vdbench测试</h3><p>单机4k小文件场景的配置文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#hd=default,vdbench=/home/xxx/software/vdbench/,user=root,shell=vdbench</span><br><span class="line">#hd=hd1,system=xxx</span><br><span class="line"></span><br><span class="line">fsd=fsd1,anchor=/mnt/jfs,depth=3,width=10,files=30,size=20M,openflags=o_direct</span><br><span class="line"></span><br><span class="line">fwd=fwd1,fsd=fsd1,operation=write,xfersize=4k,fileio=random,fileselect=random,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd2,fsd=fsd1,operation=read,xfersize=4k,fileio=random,fileselect=random,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd3,fsd=fsd1,operation=write,xfersize=4k,fileio=sequential,fileselect=sequential,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd4,fsd=fsd1,operation=read,xfersize=4k,fileio=sequential,fileselect=sequential,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd5,fsd=fsd1,operation=read,rdpct=70,xfersize=4k,fileio=random,fileselect=random,threads=10</span><br><span class="line"></span><br><span class="line">rd=rd1,fwd=fwd1,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd2,fwd=fwd2,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd3,fwd=fwd3,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd4,fwd=fwd4,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd5,fwd=fwd5,fwdrate=max,format=restart,elapsed=600,interval=2</span><br></pre></td></tr></table></figure>
+<p>准备好配置文件之后，就可以执行如下命令了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@xxx:/home/xxxx/software/vdbench# nohup /home/xxx/software/vdbench/vdbench -f /home/xxx/software/vdbench/conf/4k_test.cfg -o /home/xxx/software/vdbench/output_4K &amp;</span><br><span class="line">[1] 2026642</span><br><span class="line">nohup: ignoring input and appending output to &#x27;nohup.out&#x27;</span><br><span class="line">root@xxx:/home/xxx/software/vdbench# ps -ef | grep vdbench</span><br><span class="line">root     2026642 2008208  0 16:48 pts/1    00:00:00 /bin/bash /home/xxx/software/vdbench/vdbench -f /home/xxx/software/vdbench/conf/4k_test.cfg -o /home/xxx/software/vdbench/output_4K</span><br><span class="line">root     2026651 2026642 19 16:48 pts/1    00:00:01 java -client -Xmx512m -Xms64m -cp /home/xxx/software/vdbench/:/home/xxx/software/vdbench/classes:/home/xxx/software/vdbench/vdbench.jar Vdb.Vdbmain -f /home/xxx/software/vdbench/conf/4k_test.cfg -o /home/xxx/software/vdbench/output_4K</span><br><span class="line">root     2026688 2026651  0 16:48 pts/1    00:00:00 /bin/bash /home/xxx/software/vdbench/vdbench SlaveJvm -m localhost -n localhost-10-211109-16.48.06.714 -l localhost-0 -p 5570</span><br><span class="line">root     2026692 2026688 99 16:48 pts/1    00:00:10 java -client -Xmx1024m -Xms128m -cp /home/xxx/software/vdbench/:/home/xxx/software/vdbench/classes:/home/xxx/software/vdbench/vdbench.jar Vdb.SlaveJvm SlaveJvm -m localhost -n localhost-10-211109-16.48.06.714 -l localhost-0 -p 5570</span><br><span class="line">root     2026809 2008208  0 16:48 pts/1    00:00:00 grep vdbench</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，在单机执行的时候，配置文件中不需要写host相关信息了。<br>如果配置了，很可能因为防火墙等原因会报如下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">root@xxx:/home/xxx/software/vdbench# /home/xxx/software/vdbench/vdbench -f /home/xxx/software/vdbench/conf/4k_test.cfg -o /home/xxx/software/vdbench/output_4K</span><br><span class="line"></span><br><span class="line">Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.</span><br><span class="line">Vdbench distribution: vdbench50407 Tue June 05  9:49:29 MDT 2018</span><br><span class="line">For documentation, see &#x27;vdbench.pdf&#x27;.</span><br><span class="line"></span><br><span class="line">16:37:06.842 input argument scanned: &#x27;-f/home/xxx/software/vdbench/conf/4k_test.cfg&#x27;</span><br><span class="line">16:37:06.843 input argument scanned: &#x27;-o/home/xxx/software/vdbench/output_4K&#x27;</span><br><span class="line">16:37:06.898 Anchor size: anchor=/mnt/jfs: dirs:        1,110; files:       30,000; bytes:   585.938g (629,145,600,000)</span><br><span class="line">16:37:06.936 Starting slave: /home/xxx/software/vdbench/vdbench SlaveJvm -m 7.32.198.214 -n xxx-10-211109-16.37.06.805 -l hd1-0 -p 5570</span><br><span class="line">16:37:10.076 hd1-0       : 16:37:10.076 common.failure(): System.exit(-99)</span><br><span class="line">16:37:11.088</span><br><span class="line">16:37:11.088 Slave hd1-0 prematurely terminated.</span><br><span class="line">16:37:11.088 Look at file hd1-0.stdout.html for more information.</span><br><span class="line">16:37:11.589</span><br><span class="line">16:37:11.589 Slave hd1-0 prematurely terminated.</span><br><span class="line">16:37:11.589</span><br><span class="line">java.lang.RuntimeException: Slave hd1-0 prematurely terminated.</span><br><span class="line">    at Vdb.common.failure(common.java:350)</span><br><span class="line">    at Vdb.SlaveStarter.startSlave(SlaveStarter.java:188)</span><br><span class="line">    at Vdb.SlaveStarter.run(SlaveStarter.java:47)</span><br><span class="line">root@xxx:/home/xxx/software/vdbench#</span><br><span class="line">root@xxx:/home/xxx/software/vdbench#</span><br><span class="line">root@xxx:/home/xxx/software/vdbench# cat output_4K/hd1-0.stdout.html</span><br><span class="line"></span><br><span class="line">&lt;title&gt;Vdbench output_4K/hd1-0.stdout.html&lt;/title&gt;&lt;pre&gt;</span><br><span class="line">stdout/stderr for slave=hd1-0</span><br><span class="line"></span><br><span class="line">16:37:07.010 16:37:07.009 SlaveJvm execution parameter:  &#x27;-m 7.32.198.214&#x27;</span><br><span class="line">16:37:07.010 16:37:07.009 SlaveJvm execution parameter:  &#x27;-n xxx-10-211109-16.37.06.805&#x27;</span><br><span class="line">16:37:07.010 16:37:07.009 SlaveJvm execution parameter:  &#x27;-l hd1-0&#x27;</span><br><span class="line">16:37:07.010 16:37:07.010 SlaveJvm execution parameter:  &#x27;-p 5570&#x27;</span><br><span class="line">16:37:07.010 16:37:07.010 SlaveJvm positional parameter: &#x27;SlaveJvm&#x27;</span><br><span class="line">16:37:10.067 16:37:10.067 java.net.ConnectException</span><br><span class="line">16:37:10.067 java.net.ConnectException: Connection timed out (Connection timed out)</span><br><span class="line">16:37:10.068     at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)</span><br><span class="line">16:37:10.068     at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:399)</span><br><span class="line">16:37:10.068     at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:242)</span><br><span class="line">#hd=default,vdbench=/home/xxx/software/vdbench/,user=root,shell=vdbench</span><br><span class="line">16:37:10.068     at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:224)</span><br><span class="line">16:37:10.068     at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:403)</span><br><span class="line">16:37:10.068     at java.base/java.net.Socket.connect(Socket.java:609)</span><br><span class="line">16:37:10.068     at java.base/java.net.Socket.connect(Socket.java:558)</span><br><span class="line">16:37:10.068     at java.base/java.net.Socket.&lt;init&gt;(Socket.java:454)</span><br><span class="line">16:37:10.068     at java.base/java.net.Socket.&lt;init&gt;(Socket.java:231)</span><br><span class="line">16:37:10.069     at Vdb.SlaveSocket.&lt;init&gt;(SlaveSocket.java:61)</span><br><span class="line">16:37:10.069     at Vdb.SlaveJvm.connectToMaster(SlaveJvm.java:98)</span><br><span class="line">16:37:10.069     at Vdb.SlaveJvm.main(SlaveJvm.java:425)</span><br><span class="line">16:37:10.069 java.net.ConnectException: Connection timed out (Connection timed out)</span><br><span class="line">16:37:10.069     at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)</span><br><span class="line">16:37:10.069     at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:399)</span><br><span class="line">16:37:10.069     at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:242)</span><br><span class="line">16:37:10.069     at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:224)</span><br><span class="line">16:37:10.069     at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:403)</span><br><span class="line">16:37:10.069     at java.base/java.net.Socket.connect(Socket.java:609)</span><br><span class="line">16:37:10.070     at java.base/java.net.Socket.connect(Socket.java:558)</span><br><span class="line">16:37:10.070     at java.base/java.net.Socket.&lt;init&gt;(Socket.java:454)</span><br><span class="line">16:37:10.070     at java.base/java.net.Socket.&lt;init&gt;(Socket.java:231)</span><br><span class="line">16:37:10.070     at Vdb.SlaveSocket.&lt;init&gt;(SlaveSocket.java:61)</span><br><span class="line">16:37:10.070     at Vdb.SlaveJvm.connectToMaster(SlaveJvm.java:98)</span><br><span class="line">16:37:10.070     at Vdb.SlaveJvm.main(SlaveJvm.java:425)</span><br><span class="line">#hd=default,vdbench=/home/xxx/software/vdbench/,user=root,shell=vdbench</span><br><span class="line">16:37:10.070 16:37:10.068 Slave ConnectException.</span><br><span class="line">16:37:10.070 16:37:10.069</span><br><span class="line">16:37:10.070 16:37:10.069 It took at least 60 seconds to connect. SlaveJvm terminated</span><br><span class="line">16:37:10.070 16:37:10.070</span><br><span class="line">16:37:10.070 java.lang.RuntimeException: It took at least 60 seconds to connect. SlaveJvm terminated</span><br><span class="line">16:37:10.070     at Vdb.common.failure(common.java:350)</span><br><span class="line">16:37:10.070     at Vdb.SlaveJvm.connectToMaster(SlaveJvm.java:113)</span><br><span class="line">16:37:10.071     at Vdb.SlaveJvm.main(SlaveJvm.java:425)</span><br><span class="line">16:37:10.076 16:37:10.076 Trying to send message &#x27;It took at least 60 seconds to connect. SlaveJvm terminated&#x27; to master, but we have no socket yet:</span><br><span class="line">16:37:10.076 16:37:10.076 common.failure(): System.exit(-99)</span><br></pre></td></tr></table></figure>
+<h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">负载名称</th>
+<th style="text-align:center">写IOPS</th>
+<th style="text-align:center">写时延/ms</th>
+<th style="text-align:right">写带宽MB/s</th>
+<th style="text-align:right">读IOPS</th>
+<th style="text-align:right">读时延/ms</th>
+<th style="text-align:right">读带宽MB/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">rd1 随机写</td>
+<td style="text-align:center">2316.6</td>
+<td style="text-align:center">3.939</td>
+<td style="text-align:right">9.05</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+</tr>
+<tr>
+<td style="text-align:left">rd2 随机读</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">26279</td>
+<td style="text-align:right">0.376</td>
+<td style="text-align:right">102.6</td>
+</tr>
+<tr>
+<td style="text-align:left">rd3 顺序写</td>
+<td style="text-align:center">211550</td>
+<td style="text-align:center">0.025</td>
+<td style="text-align:right">826.3</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+</tr>
+<tr>
+<td style="text-align:left">rd4 顺序读</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">57102</td>
+<td style="text-align:right">0.173</td>
+<td style="text-align:right">223.0</td>
+</tr>
+<tr>
+<td style="text-align:left">rd5 随机混合</td>
+<td style="text-align:center">1103.1</td>
+<td style="text-align:center">0.045</td>
+<td style="text-align:right">14.37</td>
+<td style="text-align:right">2576.0</td>
+<td style="text-align:right">3.855</td>
+<td style="text-align:right">4.31</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4M大文件场景"><a href="#4M大文件场景" class="headerlink" title="4M大文件场景"></a>4M大文件场景</h2><h3 id="单机执行vdbench测试-1"><a href="#单机执行vdbench测试-1" class="headerlink" title="单机执行vdbench测试"></a>单机执行vdbench测试</h3><p>配置文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">fsd=fsd1,anchor=/mnt/jfs,depth=3,width=10,files=30,size=20M,openflags=o_direct</span><br><span class="line"></span><br><span class="line">fwd=fwd1,fsd=fsd1,operation=write,xfersize=4M,fileio=random,fileselect=random,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd2,fsd=fsd1,operation=read,xfersize=4M,fileio=random,fileselect=random,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd3,fsd=fsd1,operation=write,xfersize=4M,fileio=sequential,fileselect=sequential,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd4,fsd=fsd1,operation=read,xfersize=4M,fileio=sequential,fileselect=sequential,threads=10</span><br><span class="line"></span><br><span class="line">fwd=fwd5,fsd=fsd1,operation=read,rdpct=70,xfersize=4M,fileio=random,fileselect=random,threads=10</span><br><span class="line"></span><br><span class="line">rd=rd1,fwd=fwd1,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd2,fwd=fwd2,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd3,fwd=fwd3,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd4,fwd=fwd4,fwdrate=max,format=restart,elapsed=600,interval=2</span><br><span class="line">rd=rd5,fwd=fwd5,fwdrate=max,format=restart,elapsed=600,interval=2</span><br></pre></td></tr></table></figure>
+<h3 id="测试结果："><a href="#测试结果：" class="headerlink" title="测试结果："></a>测试结果：</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">负载名称</th>
+<th style="text-align:center">写IOPS</th>
+<th style="text-align:center">写时延/ms</th>
+<th style="text-align:right">写带宽MB/s</th>
+<th style="text-align:right">读IOPS</th>
+<th style="text-align:right">读时延/ms</th>
+<th style="text-align:right">读带宽MB/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">rd1 随机写</td>
+<td style="text-align:center">224.1</td>
+<td style="text-align:center">2.615</td>
+<td style="text-align:right">896.3</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+</tr>
+<tr>
+<td style="text-align:left">rd2 随机读</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">303.7</td>
+<td style="text-align:right">32.758</td>
+<td style="text-align:right">1214</td>
+</tr>
+<tr>
+<td style="text-align:left">rd3 顺序写</td>
+<td style="text-align:center">224.7</td>
+<td style="text-align:center">2.527</td>
+<td style="text-align:right">898.7</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+</tr>
+<tr>
+<td style="text-align:left">rd4 顺序读</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">361.6</td>
+<td style="text-align:right">27.534</td>
+<td style="text-align:right">1446</td>
+</tr>
+<tr>
+<td style="text-align:left">rd5 随机混合</td>
+<td style="text-align:center">59.6</td>
+<td style="text-align:center">3.022</td>
+<td style="text-align:right">238.2</td>
+<td style="text-align:right">137.4</td>
+<td style="text-align:right">61.330</td>
+<td style="text-align:right">549.4</td>
+</tr>
+</tbody>
+</table>
+<h2 id="遇到的错误"><a href="#遇到的错误" class="headerlink" title="遇到的错误"></a>遇到的错误</h2><h3 id="java-lang-RuntimeException-Slave-hd1-0-prematurely-terminated"><a href="#java-lang-RuntimeException-Slave-hd1-0-prematurely-terminated" class="headerlink" title="java.lang.RuntimeException: Slave hd1-0 prematurely terminated."></a>java.lang.RuntimeException: Slave hd1-0 prematurely terminated.</h3><p>该错误上面已经提到过了，主要是防火墙的问题，所以会报错。<br>解决办法是：直接不填hd相关信息，默认就是单机执行，会自行拉起相关进程，通过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -ef | grep vdbench</span><br></pre></td></tr></table></figure>
+<p>可以看到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@xxx:/home/xxx/software/vdbench# ps -ef | grep vdbench</span><br><span class="line">root     2026642 2008208  0 16:48 pts/1    00:00:00 /bin/bash /home/xxx/software/vdbench/vdbench -f /home/xxx/software/vdbench/conf/4k_test.cfg -o /home/xxx/software/vdbench/output_4K</span><br><span class="line">root     2026651 2026642  1 16:48 pts/1    00:00:07 java -client -Xmx512m -Xms64m -cp /home/xxx/software/vdbench/:/home/xxx/software/vdbench/classes:/home/xxx/software/vdbench/vdbench.jar Vdb.Vdbmain -f /home/xxx/software/vdbench/conf/4k_test.cfg -o /home/xxx/software/vdbench/output_4K</span><br><span class="line">root     2026688 2026651  0 16:48 pts/1    00:00:00 /bin/bash /home/xxx/software/vdbench/vdbench SlaveJvm -m localhost -n localhost-10-211109-16.48.06.714 -l localhost-0 -p 5570</span><br><span class="line">root     2026692 2026688 20 16:48 pts/1    00:02:15 java -client -Xmx1024m -Xms128m -cp /home/xxx/software/vdbench/:/home/xxx/software/vdbench/classes:/home/xxx/software/vdbench/vdbench.jar Vdb.SlaveJvm SlaveJvm -m localhost -n localhost-10-211109-16.48.06.714 -l localhost-0 -p 5570</span><br><span class="line">root     2031420 2008208  0 16:58 pts/1    00:00:00 grep vdbench</span><br></pre></td></tr></table></figure>
+<h3 id="Make-sure-you-also-specify-‘format-yes’-in-the-Run-Definition-RD"><a href="#Make-sure-you-also-specify-‘format-yes’-in-the-Run-Definition-RD" class="headerlink" title="Make sure you also specify ‘format=yes’ in the Run Definition (RD)"></a>Make sure you also specify ‘format=yes’ in the Run Definition (RD)</h3><p>在多次测试时候，可能那个目录深度和文件数量都有变量，于是遇到如下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">root@xxx:/home/xxx/software/vdbench# /home/xxx/software/vdbench/vdbench -f /home/xxx/software/vdbench/conf/4k_test_multi_machine_4M.cfg -o /home/xxx/software/vdbench/output_4K_multi_machine_4M</span><br><span class="line"></span><br><span class="line">Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.</span><br><span class="line">Vdbench distribution: vdbench50407 Tue June 05  9:49:29 MDT 2018</span><br><span class="line">For documentation, see &#x27;vdbench.pdf&#x27;.</span><br><span class="line"></span><br><span class="line">16:44:32.484 input argument scanned: &#x27;-f/home/xxx/software/vdbench/conf/4k_test_multi_machine_4M.cfg&#x27;</span><br><span class="line">16:44:32.485 input argument scanned: &#x27;-o/home/xxx/software/vdbench/output_4K_multi_machine_4M&#x27;</span><br><span class="line">16:44:32.742 Anchor size: anchor=/mnt/jfs/test1: dirs:       11,110; files:      400,000; bytes:     1.526t (1,677,721,600,000)</span><br><span class="line">16:44:32.748 Anchor size: anchor=/mnt/jfs/test2: dirs:       11,110; files:      400,000; bytes:     1.526t (1,677,721,600,000)</span><br><span class="line">16:44:32.752 Anchor size: anchor=/mnt/jfs/test3: dirs:       11,110; files:      400,000; bytes:     1.526t (1,677,721,600,000)</span><br><span class="line">16:44:32.805 Estimated totals for all 3 anchors: dirs: 33,330; files: 1,200,000; bytes: 4.578t</span><br><span class="line">16:44:32.842 Starting slave: /home/xxx/software/vdbench/vdbench SlaveJvm -m 7.32.198.214 -n xxx-10-211110-16.44.32.445 -l hd1-0 -p 5570</span><br><span class="line">16:44:32.863 Starting slave: /home/xxx/software/vdbench/vdbench SlaveJvm -m 7.32.198.214 -n xxx-11-211110-16.44.32.445 -l hd2-0 -p 5570</span><br><span class="line">16:44:32.869 Successfully connected to the Vdbench rsh daemon on host xxx</span><br><span class="line">16:44:32.869 RSH Connection to xxx using port 5560 successful</span><br><span class="line">16:44:32.883 Starting slave: /home/xxx/software/vdbench/vdbench SlaveJvm -m 7.32.198.214 -n xxx-12-211110-16.44.32.445 -l hd3-0 -p 5570</span><br><span class="line">16:44:32.883 Successfully connected to the Vdbench rsh daemon on host xxx</span><br><span class="line">16:44:32.883 RSH Connection to xxx using port 5560 successful</span><br><span class="line">16:44:33.098 All slaves are now connected</span><br><span class="line">16:44:33.327 hd2-0:</span><br><span class="line"></span><br><span class="line">fwd=format</span><br><span class="line">when=end</span><br><span class="line">old depth=3; new depth=4</span><br><span class="line">old width=10; new width=10</span><br><span class="line">old files=30; new files=40</span><br><span class="line">old dist=bottom; new dist=bottom</span><br><span class="line">also check the sizes=() parameters from previous and current execution.</span><br><span class="line">The FWD parameters defined for &#x27;fwd=format&#x27; do not</span><br><span class="line">match the parameters used in the previous run.</span><br><span class="line"></span><br><span class="line">- Correct the parameters, or</span><br><span class="line">- use the &#x27;format=&#x27; RD parameter, or</span><br><span class="line">- Add &#x27;-c&#x27; execution parameter</span><br><span class="line">  Make sure you also specify &#x27;format=yes&#x27; in the Run Definition (RD)</span><br><span class="line">  16:44:33.329 hd3-0:</span><br><span class="line"></span><br><span class="line">fwd=format</span><br><span class="line">when=end</span><br><span class="line">old depth=3; new depth=4</span><br><span class="line">old width=10; new width=10</span><br><span class="line">old files=30; new files=40</span><br><span class="line">old dist=bottom; new dist=bottom</span><br><span class="line">also check the sizes=() parameters from previous and current execution.</span><br><span class="line">The FWD parameters defined for &#x27;fwd=format&#x27; do not</span><br><span class="line">match the parameters used in the previous run.</span><br><span class="line"></span><br><span class="line">- Correct the parameters, or</span><br><span class="line">- use the &#x27;format=&#x27; RD parameter, or</span><br><span class="line">- Add &#x27;-c&#x27; execution parameter</span><br><span class="line">  Make sure you also specify &#x27;format=yes&#x27; in the Run Definition (RD)</span><br><span class="line">  16:44:33.337 hd1-0:</span><br><span class="line"></span><br><span class="line">fwd=format</span><br><span class="line">when=end</span><br><span class="line">old depth=3; new depth=4</span><br><span class="line">old width=10; new width=10</span><br><span class="line">old files=30; new files=40</span><br><span class="line">old dist=bottom; new dist=bottom</span><br><span class="line">also check the sizes=() parameters from previous and current execution.</span><br><span class="line">The FWD parameters defined for &#x27;fwd=format&#x27; do not</span><br><span class="line">match the parameters used in the previous run.</span><br><span class="line"></span><br><span class="line">- Correct the parameters, or</span><br><span class="line"></span><br><span class="line">- use the &#x27;format=&#x27; RD parameter, or</span><br><span class="line"></span><br><span class="line">- Add &#x27;-c&#x27; execution parameter</span><br><span class="line">  Make sure you also specify &#x27;format=yes&#x27; in the Run Definition (RD)</span><br><span class="line">  16:44:33.338 *</span><br><span class="line">  16:44:33.338 ****************************************************</span><br><span class="line">  16:44:33.338 * Slave hd2-0 aborting: Parameter definition error *</span><br><span class="line">  16:44:33.338 ****************************************************</span><br><span class="line">  16:44:33.338 *</span><br><span class="line">  16:44:33.338 Slave hd1-0 killed by master</span><br><span class="line">  16:44:33.338 Slave hd3-0 killed by master</span><br><span class="line">  16:44:35.657</span><br><span class="line">  16:44:35.657 Slave hd2-0 prematurely terminated.</span><br><span class="line">  16:44:35.657</span><br><span class="line">  16:44:35.657 Slave aborted. Abort message received:</span><br><span class="line">  16:44:35.657 Parameter definition error</span><br><span class="line">  16:44:35.657</span><br><span class="line">  16:44:35.657 Look at file hd2-0.stdout.html for more information.</span><br><span class="line">  16:44:36.161</span><br><span class="line">  16:44:36.161 Slave hd2-0 prematurely terminated.</span><br><span class="line">  16:44:36.161</span><br><span class="line">  java.lang.RuntimeException: Slave hd2-0 prematurely terminated.</span><br><span class="line">    at Vdb.common.failure(common.java:350)</span><br><span class="line">    at Vdb.SlaveStarter.startSlave(SlaveStarter.java:188)</span><br><span class="line">    at Vdb.SlaveStarter.run(SlaveStarter.java:47)</span><br></pre></td></tr></table></figure>
+<p>  错误提示说得很明显了，解决办法就是在rd中加上“ format=yes”</p>
+<ul>
+<li>format= 可选值为yes、no或restart，标识预处理目录和文件结构的方式<br>–yes表示删除目录和文件结构再重新创建<br>–no表示不删除目录和文件结构<br>–restart表示只创建未生成的目录或文件，并且增大未达到实际大小的文件</li>
+</ul>
+<h3 id="本来预期一个小时的测试，实际时间花了几个小时"><a href="#本来预期一个小时的测试，实际时间花了几个小时" class="headerlink" title="本来预期一个小时的测试，实际时间花了几个小时"></a>本来预期一个小时的测试，实际时间花了几个小时</h3><p>在测试多机多线程（大文件4M）场景时，实际测试完成时间花了几个小时，本来预期是一个小时完成的。<br>经研究发现跑测试的时候确实是一个小时，而每次测试完成后，因为选的运行参数format设置为<strong>yes</strong>，这样每次都会重新去准备测试环境，包括清理掉上次的环境，但是此时由于环境中有大量小文件，删除耗时很长，我自己尝试删除了一下，很久才完全删除。这就是实际整个测试花了几个小时的原因。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.a-programmer.top/2021/10/31/vdbench安装与使用/">vdbench安装使用</a>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/11/07/JuiceFS%E6%80%A7%E8%83%BD%E6%80%8E%E4%B9%88%E6%A0%B7/" title="JuiceFS性能怎么样">2021/11/07/JuiceFS性能怎么样/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8/" rel="tag"># 文件存储</a>
+          
+            <a href="/tags/JuiceFS/" rel="tag"># JuiceFS</a>
+          
+            <a href="/tags/%E6%80%A7%E8%83%BD/" rel="tag"># 性能</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/11/06/JuiceFS%E7%9A%84%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E5%8F%8AMac%E4%B8%8A%E5%AE%89%E8%A3%85JuiceFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" rel="next" title="JuiceFS的编译安装及Mac上使用JuiceFS">
+                <i class="fa fa-chevron-left"></i> JuiceFS的编译安装及Mac上使用JuiceFS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/11/09/JuiceFS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88%E4%B8%80%EF%BC%89format%E6%B5%81%E7%A8%8B/" rel="prev" title="JuiceFS源码阅读（一）format流程">
+                JuiceFS源码阅读（一）format流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83"><span class="nav-number">1.</span> <span class="nav-text">测试环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">1.1.</span> <span class="nav-text">客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6"><span class="nav-number">1.1.1.</span> <span class="nav-text">硬件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6"><span class="nav-number">1.1.2.</span> <span class="nav-text">软件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">1.2.</span> <span class="nav-text">服务端</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis"><span class="nav-number">1.2.1.</span> <span class="nav-text">Redis</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#S3%E5%AE%9E%E4%BE%8B%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.2.</span> <span class="nav-text">S3实例信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4k%E5%B0%8F%E6%96%87%E4%BB%B6%E5%9C%BA%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text">4k小文件场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E6%9C%BA%E6%89%A7%E8%A1%8Cvdbench%E6%B5%8B%E8%AF%95"><span class="nav-number">2.1.</span> <span class="nav-text">单机执行vdbench测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C"><span class="nav-number">2.2.</span> <span class="nav-text">测试结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4M%E5%A4%A7%E6%96%87%E4%BB%B6%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">4M大文件场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E6%9C%BA%E6%89%A7%E8%A1%8Cvdbench%E6%B5%8B%E8%AF%95-1"><span class="nav-number">3.1.</span> <span class="nav-text">单机执行vdbench测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C%EF%BC%9A"><span class="nav-number">3.2.</span> <span class="nav-text">测试结果：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">4.</span> <span class="nav-text">遇到的错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#java-lang-RuntimeException-Slave-hd1-0-prematurely-terminated"><span class="nav-number">4.1.</span> <span class="nav-text">java.lang.RuntimeException: Slave hd1-0 prematurely terminated.</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Make-sure-you-also-specify-%E2%80%98format-yes%E2%80%99-in-the-Run-Definition-RD"><span class="nav-number">4.2.</span> <span class="nav-text">Make sure you also specify ‘format&#x3D;yes’ in the Run Definition (RD)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E6%9D%A5%E9%A2%84%E6%9C%9F%E4%B8%80%E4%B8%AA%E5%B0%8F%E6%97%B6%E7%9A%84%E6%B5%8B%E8%AF%95%EF%BC%8C%E5%AE%9E%E9%99%85%E6%97%B6%E9%97%B4%E8%8A%B1%E4%BA%86%E5%87%A0%E4%B8%AA%E5%B0%8F%E6%97%B6"><span class="nav-number">4.3.</span> <span class="nav-text">本来预期一个小时的测试，实际时间花了几个小时</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

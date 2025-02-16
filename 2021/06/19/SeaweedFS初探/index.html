@@ -1,37 +1,1560 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="sweedfs,对象存储," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="SeaweedFS初探">
+<meta property="og:url" content="https://www.a-programmer.top/2021/06/19/SeaweedFS%E5%88%9D%E6%8E%A2/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/06/19/RiSqa9.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/06/19/RPzJkn.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/06/19/RPzOc8.png">
+<meta property="article:published_time" content="2021-06-19T15:00:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.034Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="sweedfs">
+<meta property="article:tag" content="对象存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/06/19/RiSqa9.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/06/19/SeaweedFS初探/"/>
+
+
+
+
+
+  <title>SeaweedFS初探 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/06/19/SeaweedFS%E5%88%9D%E6%8E%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SeaweedFS初探</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-06-19T23:00:30+08:00">
+                2021-06-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/19/SeaweedFS%E5%88%9D%E6%8E%A2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/06/19/SeaweedFS%E5%88%9D%E6%8E%A2/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,695 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  17 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/06/19/RiSqa9.png" alt=""></p>
+<span id="more"></span>
+<p>本文主要内容如下：</p>
+<ul>
+<li>SeaweedFS架构</li>
+<li>Master Server API</li>
+<li>Volume Server API</li>
+<li>TTL特性</li>
+<li>EC特性</li>
+<li>Filer</li>
+<li>Mount</li>
+</ul>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="https://z3.ax1x.com/2021/06/19/RPzJkn.png" alt="图片"></p>
+<p>SeaweedFS的架构中包含两个组件：</p>
+<ol>
+<li>数据存储集群（Volume Server Cluster）</li>
+</ol>
+<p>Volume Server Cluster中每个volume server对应一个磁盘，每个磁盘有一系列的volume文件，每个volume文件默认大小为30GB，用于存储小对象。</p>
+<p>每个volume文件对应一个index文件，用于记录volume中存储的小对象的偏移和长度，在volume server 启动时缓存在内存中。</p>
+<p>这也是Haystack的一个重要设计思想，它做了一个两级的元数据映射，第一级把它映射到一个大文件，这样文件系统本身的元数据开销是很小的。第二次映射的时候，只需要在大文件内部去找它的偏移和长度。</p>
+<p>而且做完两级映射之后，可以使大文件里对应的小文件的元数据全部缓存在内存里面，这样就可以大大提高它的查找的效率。</p>
+<ol start="2">
+<li>Master Server Cluster</li>
+</ol>
+<p>Master Server Cluster运行的是raft协议，维护集群的一致性状态，一般与volume server混合部署。volume server会向它上报自己的状态，然后它能够维护整个volume server cluster的拓扑。</p>
+<p>同时它还负责对象写入时volume server的分配，以及负责数据读取时volume id到volume server地址映射。</p>
+<h3 id="Master-Server和Volume-Server"><a href="#Master-Server和Volume-Server" class="headerlink" title="Master Server和Volume Server"></a>Master Server和Volume Server</h3><p>架构非常简单，数据存储在存储节点上的volumes里。一个volume server有多个volumes，并支持带基本验证的读写访问。</p>
+<p>所有的volumes由master server管理。Master server有volume id到volume server的映射表。这是相当静态的信息，并且容易缓存。</p>
+<p>当发生写请求的时候，master server会生成一个file key（一个递增的64位的无符号整数）。</p>
+<h3 id="写文件和读文件"><a href="#写文件和读文件" class="headerlink" title="写文件和读文件"></a>写文件和读文件</h3><p>Client发送一个写文件的请求，master server 为该文件返回其对应的（volume id, file key, file cookie, volume node url）。Client连接volume node并且POST 该文件。</p>
+<p>当client需要读一个文件（使用volume id, file key, file cookie），通过volume id向master server获取(volume node url, volume node public url), 或者直接到缓存中获取，然后client就可以GET到文件内容。</p>
+<p>FileId</p>
+<p>Fid： 3,01637037d6</p>
+<p>3表示volume id   32位无符号整数</p>
+<p>01表示file key     64位无符号整数</p>
+<p>637037d6表示file cookie  32位无符号整数</p>
+<p>File key和file cookie均是以16进制表示，fid可以以<volume id, file key, file cookie>元组的方式存储，或者就表示为一个字符串。</p>
+<h3 id="存储大小"><a href="#存储大小" class="headerlink" title="存储大小"></a>存储大小</h3><p>当前的实现，每个volume 32GB(8 x 2^32 bytes). 8 bytes对齐的</p>
+<p>可以有4 gibibytes（4GB）volumes</p>
+<p>8 x 4GB x 4GB = 128 EB</p>
+<p>每个文件大小限制最多就是单个volume大小。</p>
+<h3 id="复本策略"><a href="#复本策略" class="headerlink" title="复本策略"></a>复本策略</h3><p>SeaweedFS支持复本配置。不过其<strong>复本配置并不是基于文件层级的，而是基于volume的</strong></p>
+<p>复本类型的释义：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><strong>Value</strong></th>
+<th style="text-align:left"><strong>Meaning</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">000</td>
+<td style="text-align:left">没有冗余复本，就一份</td>
+</tr>
+<tr>
+<td style="text-align:left">001</td>
+<td style="text-align:left">在同一个rack上有一个复本</td>
+</tr>
+<tr>
+<td style="text-align:left">010</td>
+<td style="text-align:left">在同一个数据中心的不同rack上有一个复本</td>
+</tr>
+<tr>
+<td style="text-align:left">100</td>
+<td style="text-align:left">在不同的数据中心上有一个复本</td>
+</tr>
+<tr>
+<td style="text-align:left">200</td>
+<td style="text-align:left">两个复本在另外两个不同数据中心上</td>
+</tr>
+<tr>
+<td style="text-align:left">110</td>
+<td style="text-align:left">一个复本在不同rack上，一个复本在另一个数据中心</td>
+</tr>
+<tr>
+<td style="text-align:left">…</td>
+<td style="text-align:left">…</td>
+</tr>
+</tbody>
+</table>
+<p>所有复本类型xyz表示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Column</th>
+<th style="text-align:left"><strong>Meaning</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">x</td>
+<td style="text-align:left">在其他数据中心的复本数量</td>
+</tr>
+<tr>
+<td style="text-align:left">y</td>
+<td style="text-align:left">在同一个数据中心不同rack上的复本数量</td>
+</tr>
+<tr>
+<td style="text-align:left">z</td>
+<td style="text-align:left">在同一个rack上的不同server上的复本数量</td>
+</tr>
+</tbody>
+</table>
+<p>说明：x,y,z的取值可以是0,1,2。所以有9种可能复本类型。</p>
+<h2 id="Master-Server-API"><a href="#Master-Server-API" class="headerlink" title="Master Server API"></a>Master Server API</h2><p>可以在HTTP API后面添加“&amp;pretty=y”来得到一个json格式的输出。</p>
+<h3 id="分配一个file-key"><a href="#分配一个file-key" class="headerlink" title="分配一个file key"></a>分配一个file key</h3><p>Basic Usage:</p>
+<p>curl<a target="_blank" rel="noopener" href="http://localhost:9333/dir/assign">http://localhost:9333/dir/assign</a></p>
+<h3 id="查询volume"><a href="#查询volume" class="headerlink" title="查询volume"></a>查询volume</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;[http://localhost:9333/dir/lookup?volumeId=3&amp;pretty=y](http://localhost:9333/dir/lookup?volumeId=3&amp;pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;locations&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;publicUrl&quot;: &quot;localhost:8080&quot;,</span><br><span class="line"></span><br><span class="line">&quot;url&quot;: &quot;localhost:8080&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="预分配volumes"><a href="#预分配volumes" class="headerlink" title="预分配volumes"></a>预分配volumes</h3><p>一个volume 一次服务一个写请求，如果你需要增加并发，可以预分配许多volumes:</p>
+<h1 id="specify-a-specific-replication"><a href="#specify-a-specific-replication" class="headerlink" title="specify a specific replication"></a>specify a specific replication</h1><p>curl “<a target="_blank" rel="noopener" href="http://localhost:9333/vol/grow?replication=000&amp;count=4">http://localhost:9333/vol/grow?replication=000&amp;count=4</a>“</p>
+<p>{“count”:4}# specify a collection</p>
+<p>curl “<a target="_blank" rel="noopener" href="http://localhost:9333/vol/grow?collection=turbo&amp;count=4&quot;#specify">http://localhost:9333/vol/grow?collection=turbo&amp;count=4&quot;#specify</a> data center</p>
+<p>curl “<a target="_blank" rel="noopener" href="http://localhost:9333/vol/grow?dataCenter=dc1&amp;count=4&quot;#specify">http://localhost:9333/vol/grow?dataCenter=dc1&amp;count=4&quot;#specify</a> ttl</p>
+<p>curl “<a target="_blank" rel="noopener" href="http://localhost:9333/vol/grow?ttl=5d&amp;count=4">http://localhost:9333/vol/grow?ttl=5d&amp;count=4</a>“</p>
+<p>产生4个空的volumes</p>
+<h3 id="检查系统状态"><a href="#检查系统状态" class="headerlink" title="检查系统状态"></a>检查系统状态</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;[http://10.0.2.15:9333/cluster/status?pretty=y](http://10.0.2.15:9333/cluster/status?pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;IsLeader&quot;: true,</span><br><span class="line"></span><br><span class="line">&quot;Leader&quot;: &quot;10.0.2.15:9333&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Peers&quot;: [</span><br><span class="line"></span><br><span class="line">&quot;10.0.2.15:9334&quot;,</span><br><span class="line"></span><br><span class="line">&quot;10.0.2.15:9335&quot;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">curl &quot;[http://localhost:9333/dir/status?pretty=y](http://localhost:9333/dir/status?pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Topology&quot;: &#123;</span><br><span class="line"></span><br><span class="line">&quot;DataCenters&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;dc1&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Racks&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;DataNodes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8080&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8080&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 4</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;DefaultRack&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 21,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;dc3&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 21,</span><br><span class="line"></span><br><span class="line">&quot;Racks&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;DataNodes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8081&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8081&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 0</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;rack1&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;DataNodes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8082&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8082&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 0</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;PublicUrl&quot;: &quot;localhost:8083&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Url&quot;: &quot;localhost:8083&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: 0</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 14,</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: &quot;DefaultRack&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 14</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">],</span><br><span class="line"></span><br><span class="line">&quot;Free&quot;: 24,</span><br><span class="line"></span><br><span class="line">&quot;Max&quot;: 28,</span><br><span class="line"></span><br><span class="line">&quot;layouts&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;collection&quot;: &quot;&quot;,</span><br><span class="line"></span><br><span class="line">&quot;replication&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;writables&quot;: [</span><br><span class="line"></span><br><span class="line">1,</span><br><span class="line"></span><br><span class="line">2,</span><br><span class="line"></span><br><span class="line">3,</span><br><span class="line"></span><br><span class="line">4</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: &quot;0.47&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Volume-Server-API"><a href="#Volume-Server-API" class="headerlink" title="Volume Server API"></a>Volume Server API</h2><h3 id="上传文件"><a href="#上传文件" class="headerlink" title="上传文件"></a>上传文件</h3><p>curl -F file=@/home/chris/myphoto.jpg<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/3,01637037d6">http://127.0.0.1:8080/3,01637037d6</a></p>
+<p>{“size”: 43234}</p>
+<p>返回的size值是存储在seaweedfs上的大小，有时候文件会基于MIME类型被自动压缩。</p>
+<h3 id="删除文件"><a href="#删除文件" class="headerlink" title="删除文件"></a>删除文件</h3><p>curl -X DELETE<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/3,01637037d6">http://127.0.0.1:8080/3,01637037d6</a></p>
+<h3 id="检查volume-server状态"><a href="#检查volume-server状态" class="headerlink" title="检查volume server状态"></a>检查volume server状态</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;[http://localhost:8080/status?pretty=y](http://localhost:8080/status?pretty=y)&quot;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: &quot;0.34&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Volumes&quot;: [</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 1,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1319688,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 276,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1040962,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 291,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 3,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1486334,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 301,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 4,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 8953592,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 320,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 5,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 70815851,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 309,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 1,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 6,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 1483131,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 301,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 1,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&quot;Id&quot;: 7,</span><br><span class="line"></span><br><span class="line">&quot;Size&quot;: 46797832,</span><br><span class="line"></span><br><span class="line">&quot;RepType&quot;: &quot;000&quot;,</span><br><span class="line"></span><br><span class="line">&quot;Version&quot;: 2,</span><br><span class="line"></span><br><span class="line">&quot;FileCount&quot;: 292,</span><br><span class="line"></span><br><span class="line">&quot;DeleteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;DeletedByteCount&quot;: 0,</span><br><span class="line"></span><br><span class="line">&quot;ReadOnly&quot;: false</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="存储文件以Time-To-Live（TTL）的方式"><a href="#存储文件以Time-To-Live（TTL）的方式" class="headerlink" title="存储文件以Time To Live（TTL）的方式"></a>存储文件以Time To Live（TTL）的方式</h2><h3 id="怎样使用"><a href="#怎样使用" class="headerlink" title="怎样使用"></a>怎样使用</h3><p>比如我们存一个文件其TTL位3分钟。</p>
+<p>首先，向master请求分配一个file id 到一个有3分钟TTL的volume：</p>
+<p>curl<a target="_blank" rel="noopener" href="http://localhost:9333/dir/assign?ttl=3m">http://localhost:9333/dir/assign?ttl=3m</a></p>
+<p>{“count”:1,”fid”:”5,01637037d6”,”url”:”127.0.0.1:8080”,”publicUrl”:”localhost:8080”}</p>
+<p>然后，使用该file id把文件存储到volume server上</p>
+<p>curl -F “<a href="mailto:file=@x.go">file=@x.go</a>“<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/5,01637037d6?ttl=3m">http://127.0.0.1:8080/5,01637037d6?ttl=3m</a></p>
+<p>写成功之后，该文件在TTL时间耗尽前，可以正常被读到，但是如果TTL时间耗尽了，会报告文件没有并且返回http status为not found</p>
+<h3 id="高级用法"><a href="#高级用法" class="headerlink" title="高级用法"></a>高级用法</h3><p>不要求文件的TTL与volume的TTL必须一样，只需要保证volume 的TTL比文件的TTL大就可以了。</p>
+<h3 id="支持的TTL格式"><a href="#支持的TTL格式" class="headerlink" title="支持的TTL格式"></a>支持的TTL格式</h3><p>格式是一个整数跟着一个单位，单位可以是分钟，小时，天，周，月，年。</p>
+<p>支持的TTL格式例子：</p>
+<ul>
+<li>3m: 3 minutes</li>
+<li>4h: 4 hours</li>
+<li>5d: 5 days</li>
+<li>6w: 6 weeks</li>
+<li>7M: 7 months</li>
+<li>8y: 8 years<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3></li>
+</ul>
+<ol>
+<li>当分配file key的时候，master会选一个匹配TTL的TTL volume，如果没有匹配的TTL volume就创建一个新的</li>
+<li>Volume servers写入的文件将会带有失效时间，当达到失效时间后，获取文件将会报告文件not found.</li>
+<li>Volume servers将会跟踪记录每一个volume的最大失效时间，如果一个volume失效后便停止向master server报告</li>
+<li>（没有向master server报告volume）master server会认为先前存在的volumes是死的，并且不再向这些volumes分配请求</li>
+<li>在大约10% TTL时间或者最多10分钟后,volume servers将会删除过期的volume</li>
+</ol>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>对于生产部署环境，TTL volume 的最大size是需要考虑的。如果写非常频繁，TTL volume 将很快增长到max volume size，所以当磁盘空间不充足的时候，最好减小最大volume size。</p>
+<p>不推荐将TTL volumes 和非TTL volumes部署在同一个集群中，这是因为volume max size默认是30GB，是在volume master上以集群level配置的。（这就是说30GB这个默认max size的配置是针对整个cluster的，而不是单个volume）</p>
+<p>我们可以实现为每一个TTL配置一个max volume size的功能，然而这可能相当繁琐，可能在以后有强烈的需求后会去着手实现。</p>
+<p>个人解读：由于volume max size这一配置是针对整个集群而设置的，不能对单个volume额外设置其max size。而TTL volume的max size通常由于空间原因不用设置到30GB，所以不推荐将TTL volumes 和非TTL volumes部署在同一个集群中。</p>
+<h2 id="Master-server故障转移"><a href="#Master-server故障转移" class="headerlink" title="Master server故障转移"></a>Master server故障转移</h2><p>Master servers之间使用raft协议来选主，主负责所有的任务，比如管理volumes，分配file id。</p>
+<p>如果主挂了，将会选举出新的主。所有的volume servers将会发生他们的心跳以及他们的volumes信息给新的主。</p>
+<p>在转移的过程中，可能有片刻时间，新的主只有所有volume servers的部分信息。这就意味着那些还没有上报心跳的volume servers将暂时不可写。</p>
+<p><strong>常规的启动多个多个master servers和多个volume servers的方法</strong>：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">weed master -port=9333 -mdir=./1 -peers=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed master -port=9334 -mdir=./2 -peers=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed master -port=9335 -mdir=./3 -peers=localhost:9333,localhost:9334,localhost:9335# now start the volume servers, specifying any one of the master server</span><br><span class="line"></span><br><span class="line">weed volume -dir=./1 -port=8080 -mserver=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed volume -dir=./2 -port=8081 -mserver=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">weed volume -dir=./3 -port=8082 -mserver=localhost:9333,localhost:9334,localhost:9335</span><br><span class="line"></span><br><span class="line">//The full list of masters is recommended, but not required.</span><br><span class="line">//You can only specify any master servers.</span><br><span class="line"></span><br><span class="line">weed volume -dir=./3 -port=8082 -mserver=localhost:9333</span><br><span class="line"></span><br><span class="line">weed volume -dir=./3 -port=8082 -mserver=localhost:9333,localhost:9334</span><br></pre></td></tr></table></figure></p>
+<p>FAQ：可以向正在运行的seaweedfs集群中添加一个新的master server吗？</p>
+<p>A：可以把master 看做zookeeper节点，并且不要去经常变动。要添加一个master，需要停所有现有的master，然后以新的master列表启动新的masters。</p>
+<h2 id="支持EC特性"><a href="#支持EC特性" class="headerlink" title="支持EC特性"></a>支持EC特性</h2><p>支持EC 10+4:即把数据切分成10个原始分片，然后计算出4个校验分片，最多容忍4个分片丢失。</p>
+<p><strong>优点</strong>：</p>
+<p>● 存储效率</p>
+<p>● 高可用</p>
+<p>● 灵活的服务器布局</p>
+<p><strong>缺点：</strong></p>
+<p>● 如果有EC分片丢失，获取这些数据将会慢一些</p>
+<p>● 重构丢失的EC分片可能会需要转移整个volume的数据</p>
+<p>● 只支持删除操作，不支持更新</p>
+<p>目前支持EC 10+4可以通过修改代码来支持其他EC模式：<a target="_blank" rel="noopener" href="http://km.vivo.xyz/pages/viewpage.action?pageId=79803993#L17">https://github.com/chrislusf/seaweedfs/blob/master/weed/storage/erasure_coding/ec_encoder.go#L17</a></p>
+<h3 id="怎么配置生效"><a href="#怎么配置生效" class="headerlink" title="怎么配置生效"></a>怎么配置生效</h3><p>运行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">./weed scaffold -config=master</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># Put this file to one of the location, with descending priority</span><br><span class="line"></span><br><span class="line">#    ./master.toml</span><br><span class="line"></span><br><span class="line">#    $HOME/.seaweedfs/master.toml</span><br><span class="line"></span><br><span class="line">#    /etc/seaweedfs/master.toml</span><br><span class="line"></span><br><span class="line"># this file is read by master</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[master.maintenance]</span><br><span class="line"></span><br><span class="line"># periodically run these scripts are the same as running them from &#x27;weed shell&#x27;</span><br><span class="line"></span><br><span class="line">scripts = &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">ec.encode -fullPercent=95 -quietFor=1h</span><br><span class="line"></span><br><span class="line">ec.rebuild -force</span><br><span class="line"></span><br><span class="line">ec.balance -force</span><br><span class="line"></span><br><span class="line">volume.balance -force</span><br><span class="line"></span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">sleep_minutes = 17          # sleep minutes between each script execution</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>把输出放到文件master.toml中，并将文件放到~/.seaweedfs/或者/etc/seaweedfs/目录下。</p>
+<p>输出是一些周期执行的命令，这些命令可以通过weed shell执行，效果也一样。把命令放到文件master.toml中是为了部署方便。</p>
+<p>在文件master.toml中的命令是在master上执行的。如果你有大量的EC volumes,在master上处理他们可能消耗一些CPU资源，最好在另一个机器上通过cron 任务用weed shell来执行这些命令。</p>
+<h3 id="3个与EC相关的步骤："><a href="#3个与EC相关的步骤：" class="headerlink" title="3个与EC相关的步骤："></a>3个与EC相关的步骤：</h3><p><strong>Erasure Encode Sealed Data EC编码封存数据</strong></p>
+<p>ec.encode命令将会找那些几乎满了的volume并且有一段时间都没有活动的volume。</p>
+<p>默认的命令是 ec.encode -fullPercent=95 -quietFor=1h。它会找至少95% x  max volume size，通常是30GB，并且有一个小时都没有更新的volume。</p>
+<p><strong>数据修复</strong></p>
+<p>数据修复的默认命令是 ec.rebuild -force</p>
+<p><strong>数据修复是针对整个volume的，而非单个文件</strong>，这样重建丢失的数据分片是比处理单个文件更高效并且更快。</p>
+<p><strong>EC数据均衡</strong></p>
+<p>随着服务器的添加或者移除，一些数据分片可能就不是最佳布局了。比如，一个volume的5个分片可能是在同一个服务器上，如果该服务器挂掉，那么该volume将会是不可修复的或者说部分数据是永久丢失。</p>
+<p>默认的命令是ec.balance -force，该命令会尝试将数据分片尽量均匀分布以减小数据丢失的风险。</p>
+<h3 id="Filer"><a href="#Filer" class="headerlink" title="Filer"></a>Filer</h3><p>文件管理器，Filer将数据上传到Weed Volume Servers，并将大文件分成块，将元数据和块信息写入Filer存储区（Filer Store）。</p>
+<p>为了获取所有volumes的位置更新，Filer有一个持久化的client连接到master。</p>
+<p>对于读文件：</p>
+<ol>
+<li>Filer从Filer Store中查询元数据，Filer Store可能是Cassandra/Mysql/Postgres/Redis/LevelDB。</li>
+<li><p>Filer 从volume server中读数据并返回给读请求。<br><img src="https://z3.ax1x.com/2021/06/19/RPzOc8.png" alt="图片"><br>对于写文件：</p>
+</li>
+<li><p>Client将文件发送到Filer</p>
+</li>
+<li>Filer上传数据到volume servers, 并且将大文件切分成chunks</li>
+<li>Filer把元数据和chunk信息写到Filer Store<h3 id="Filer-Store"><a href="#Filer-Store" class="headerlink" title="Filer Store"></a>Filer Store</h3></li>
+</ol>
+<p>各种Filer Store的比较</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Filer Store Name</th>
+<th style="text-align:left">Lookup</th>
+<th style="text-align:left">number of entries in a folder</th>
+<th style="text-align:left">Scalability</th>
+<th style="text-align:left">Renaming</th>
+<th style="text-align:left">TTL</th>
+<th style="text-align:left">Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">memory</td>
+<td style="text-align:left">O(1)</td>
+<td style="text-align:left">limited by memory</td>
+<td style="text-align:left">Local, Fast</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">for testing only, no persistent storage</td>
+</tr>
+<tr>
+<td style="text-align:left">leveldb</td>
+<td style="text-align:left">O(logN)</td>
+<td style="text-align:left">unlimited</td>
+<td style="text-align:left">Local, Very Fast</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Default, fairly scalable</td>
+</tr>
+<tr>
+<td style="text-align:left">leveldb2</td>
+<td style="text-align:left">O(logN)</td>
+<td style="text-align:left">unlimited</td>
+<td style="text-align:left">Local, Very Fast, faster than leveldb</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Similar to leveldb, part of the lookup key is 128bit MD5 instead of the long full file path</td>
+</tr>
+<tr>
+<td style="text-align:left">Redis</td>
+<td style="text-align:left">O(1)</td>
+<td style="text-align:left">limited</td>
+<td style="text-align:left">Local or Distributed, Fastest</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Yes</td>
+<td style="text-align:left">one directory’s sub file names are stored in one key~value entry</td>
+</tr>
+<tr>
+<td style="text-align:left">Cassandra</td>
+<td style="text-align:left">O(logN)</td>
+<td style="text-align:left">unlimited</td>
+<td style="text-align:left">Local or Distributed, Very Fast</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Yes</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">MySql</td>
+<td style="text-align:left">O(logN)</td>
+<td style="text-align:left">unlimited</td>
+<td style="text-align:left">Local or Distributed, Fast</td>
+<td style="text-align:left">Atomic</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Easy to manage, export</td>
+</tr>
+<tr>
+<td style="text-align:left">Postgres</td>
+<td style="text-align:left">O(logN)</td>
+<td style="text-align:left">unlimited</td>
+<td style="text-align:left">Local or Distributed, Fast</td>
+<td style="text-align:left">Atomic</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Easy to manage, export</td>
+</tr>
+</tbody>
+</table>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://github.com/chrislusf/seaweedfs">https://github.com/chrislusf/seaweedfs</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/chrislusf/seaweedfs/wiki">https://github.com/chrislusf/seaweedfs/wiki</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/06/19/SeaweedFS%E5%88%9D%E6%8E%A2/" title="SeaweedFS初探">2021/06/19/SeaweedFS初探/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/sweedfs/" rel="tag"># sweedfs</a>
+          
+            <a href="/tags/%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8/" rel="tag"># 对象存储</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/20/cmake%E6%9E%84%E5%BB%BAc%E6%88%96c++%E9%A1%B9%E7%9B%AE/" rel="next" title="cmake构建c/c++项目">
+                <i class="fa fa-chevron-left"></i> cmake构建c/c++项目
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/08/31/Linux%E4%B8%ADHugePages%E7%9A%84%E4%BD%9C%E7%94%A8/" rel="prev" title="Linux中HugePages的作用">
+                Linux中HugePages的作用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Master-Server%E5%92%8CVolume-Server"><span class="nav-number">1.1.</span> <span class="nav-text">Master Server和Volume Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E6%96%87%E4%BB%B6%E5%92%8C%E8%AF%BB%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">写文件和读文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%A4%A7%E5%B0%8F"><span class="nav-number">1.3.</span> <span class="nav-text">存储大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E6%9C%AC%E7%AD%96%E7%95%A5"><span class="nav-number">1.4.</span> <span class="nav-text">复本策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-Server-API"><span class="nav-number">2.</span> <span class="nav-text">Master Server API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%85%8D%E4%B8%80%E4%B8%AAfile-key"><span class="nav-number">2.1.</span> <span class="nav-text">分配一个file key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2volume"><span class="nav-number">2.2.</span> <span class="nav-text">查询volume</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E5%88%86%E9%85%8Dvolumes"><span class="nav-number">2.3.</span> <span class="nav-text">预分配volumes</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#specify-a-specific-replication"><span class="nav-number"></span> <span class="nav-text">specify a specific replication</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E7%B3%BB%E7%BB%9F%E7%8A%B6%E6%80%81"><span class="nav-number">0.1.</span> <span class="nav-text">检查系统状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Volume-Server-API"><span class="nav-number">1.</span> <span class="nav-text">Volume Server API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6"><span class="nav-number">1.1.</span> <span class="nav-text">上传文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">删除文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5volume-server%E7%8A%B6%E6%80%81"><span class="nav-number">1.3.</span> <span class="nav-text">检查volume server状态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E4%BB%A5Time-To-Live%EF%BC%88TTL%EF%BC%89%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">存储文件以Time To Live（TTL）的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%8E%E6%A0%B7%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">怎样使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">高级用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E7%9A%84TTL%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.3.</span> <span class="nav-text">支持的TTL格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">2.4.</span> <span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">2.5.</span> <span class="nav-text">部署</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master-server%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB"><span class="nav-number">3.</span> <span class="nav-text">Master server故障转移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%AF%E6%8C%81EC%E7%89%B9%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">支持EC特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%8E%E4%B9%88%E9%85%8D%E7%BD%AE%E7%94%9F%E6%95%88"><span class="nav-number">4.1.</span> <span class="nav-text">怎么配置生效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E4%B8%AA%E4%B8%8EEC%E7%9B%B8%E5%85%B3%E7%9A%84%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="nav-number">4.2.</span> <span class="nav-text">3个与EC相关的步骤：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Filer"><span class="nav-number">4.3.</span> <span class="nav-text">Filer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Filer-Store"><span class="nav-number">4.4.</span> <span class="nav-text">Filer Store</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

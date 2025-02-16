@@ -1,37 +1,1366 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="brpc,RPC,通信," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于brpc的stream方式实现双向通信">
+<meta property="og:url" content="https://www.a-programmer.top/2022/03/12/%E5%9F%BA%E4%BA%8Ebrpc%E7%9A%84stream%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8C%E5%90%91%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://brpc.incubator.apache.org/images/docs/logo.png">
+<meta property="og:image" content="https://brpc.incubator.apache.org/images/docs/rpc.png">
+<meta property="og:image" content="https://github.com/ahnselina/temp/blob/main/client.png?raw=true">
+<meta property="og:image" content="https://github.com/ahnselina/temp/blob/main/server.png?raw=true">
+<meta property="article:published_time" content="2022-03-12T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.050Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="brpc">
+<meta property="article:tag" content="RPC">
+<meta property="article:tag" content="通信">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brpc.incubator.apache.org/images/docs/logo.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2022/03/12/基于brpc的stream方式实现双向通信/"/>
+
+
+
+
+
+  <title>基于brpc的stream方式实现双向通信 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2022/03/12/%E5%9F%BA%E4%BA%8Ebrpc%E7%9A%84stream%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8C%E5%90%91%E9%80%9A%E4%BF%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于brpc的stream方式实现双向通信</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-03-12T23:30:30+08:00">
+                2022-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%9F%A5%E8%AF%86%E7%A7%AF%E7%B4%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">知识积累</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/03/12/%E5%9F%BA%E4%BA%8Ebrpc%E7%9A%84stream%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8C%E5%90%91%E9%80%9A%E4%BF%A1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2022/03/12/%E5%9F%BA%E4%BA%8Ebrpc%E7%9A%84stream%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8C%E5%90%91%E9%80%9A%E4%BF%A1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,533 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://brpc.incubator.apache.org/images/docs/logo.png" alt=""></p>
+<span id="more"></span>
+<p>本文先简单介绍一下brpc，然后是brpc官方对stream方式使用的介绍，再看brpc官方的stream方式的使用示例。不过brpc官方示例是client通过stream一直向server发消息，而笔者希望能通过stream进行双向通信，所以对示例进行了修改，以实现client和server的通过stream方式的双向通信。</p>
+<h2 id="bRPC简介"><a href="#bRPC简介" class="headerlink" title="bRPC简介"></a>bRPC简介</h2><p>bRPC基础介绍。</p>
+<h3 id="什么是RPC"><a href="#什么是RPC" class="headerlink" title="什么是RPC?"></a>什么是RPC?</h3><p>互联网上的机器大都通过TCP/IP协议相互访问，但TCP/IP只是往远端发送了一段二进制数据，为了建立服务还有很多问题需要抽象：</p>
+<ul>
+<li><p>数据以什么格式传输？不同机器间，网络间可能是不同的字节序，直接传输内存数据显然是不合适的；随着业务变化，数据字段往往要增加或删减，怎么兼容前后不同版本的格式？</p>
+</li>
+<li><p>一个TCP连接可以被多个请求复用以减少开销么？多个请求可以同时发往一个TCP连接么?</p>
+</li>
+<li><p>如何管理和访问很多机器？</p>
+</li>
+<li><p>连接断开时应该干什么？</p>
+</li>
+<li><p>万一server不发送回复怎么办？<br>…<br>RPC可以解决这些问题，它把网络交互类比为“client访问server上的函数”：client向server发送request后开始等待，直到server收到、处理、回复client后，client又再度恢复并根据response做出反应。<br><img src="https://brpc.incubator.apache.org/images/docs/rpc.png" alt=""><br>我们来看看上面的一些问题是如何解决的：</p>
+</li>
+<li><p>数据需要序列化，<a target="_blank" rel="noopener" href="https://github.com/protocolbuffers/protobuf">protobuf</a>在这方面做的不错。用户填写protobuf::Message类型的request，RPC结束后，从同为protobuf::Message类型的response中取出结果。protobuf有较好的前后兼容性，方便业务调整字段。http广泛使用json作为序列化方法。</p>
+</li>
+<li><p>用户无需关心连接如何建立，但可以选择不同的<a target="_blank" rel="noopener" href="https://brpc.incubator.apache.org/docs/client/basics/#%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F">连接方式</a>：短连接，连接池，单连接。</p>
+</li>
+<li><p>大量机器一般通过命名服务被发现，可基于DNS, ZooKeeper, etcd等实现。在百度内，我们使用BNS (Baidu Naming Service)。brpc也提供“list://“和”file://“。用户可以指定负载均衡算法，让RPC每次选出一台机器发送请求，包括: round-robin, randomized, consistent-hashing(murmurhash3 or md5)和 <a target="_blank" rel="noopener" href="https://brpc.incubator.apache.org/docs/rpc-in-depth/locality-aware/">locality-aware</a>.</p>
+</li>
+<li><p>连接断开时可以重试。</p>
+</li>
+<li><p>如果server没有在给定时间内回复，client会返回超时错误。</p>
+</li>
+</ul>
+<h3 id="哪里可以使用RPC"><a href="#哪里可以使用RPC" class="headerlink" title="哪里可以使用RPC?"></a>哪里可以使用RPC?</h3><p>几乎所有的网络交互。</p>
+<p>RPC不是万能的抽象，否则我们也不需要TCP/IP这一层了。但是在我们绝大部分的网络交互中，RPC既能解决问题，又能隔离更底层的网络问题。</p>
+<p>对于RPC常见的质疑有：</p>
+<ul>
+<li>我的数据非常大，用protobuf序列化太慢了。首先这可能是个伪命题，你得用profiler证明慢了才是真的慢，其次很多协议支持携带二进制数据以绕过序列化。</li>
+<li>我传输的是流数据，RPC表达不了。事实上brpc中很多协议支持传递流式数据，包括http中的ProgressiveReader, h2的streams, streaming rpc, 和专门的流式协议RTMP。</li>
+<li>我的场景不需要回复。简单推理可知，你的场景中请求可丢可不丢，可处理也可不处理，因为client总是无法感知，你真的确认这是OK的？即使场景真的不需要，我们仍然建议用最小的结构体回复，因为这不大会是瓶颈，并且追查复杂bug时可能是很有价值的线索。</li>
+</ul>
+<h3 id="什么是brpc"><a href="#什么是brpc" class="headerlink" title="什么是brpc?"></a>什么是brpc?</h3><p>百度内最常使用的工业级RPC框架, 有1,000,000+个实例(不包含client)和上千种服务, 在百度内叫做”baidu-rpc”. 目前只开源C++版本。</p>
+<p>你可以使用它：</p>
+<ul>
+<li>搭建能在一个端口支持多协议的服务, 或访问各种服务</li>
+<li>Server能同步或异步处理请求。</li>
+<li>Client支持同步、异步、半同步，或使用组合channels简化复杂的分库或并发访问。</li>
+<li>通过http界面调试服务, 使用cpu, heap, contention profilers.</li>
+<li>获得更好的延时和吞吐.</li>
+<li>把你组织中使用的协议快速地加入brpc，或定制各类组件, 包括命名服务 (dns, zk, etcd), 负载均衡 (rr, random, consistent hashing)</li>
+</ul>
+<h2 id="流式-stream-RPC概述"><a href="#流式-stream-RPC概述" class="headerlink" title="流式(stream)RPC概述"></a>流式(stream)RPC概述</h2><p>在一些应用场景中， client或server需要向对面发送大量数据，这些数据非常大或者持续地在产生以至于无法放在一个RPC的附件中。比如一个分布式系统的不同节点间传递replica或snapshot。client/server之间虽然可以通过多次RPC把数据切分后传输过去，但存在如下问题：</p>
+<ul>
+<li>如果这些RPC是并行的，无法保证接收端有序地收到数据，拼接数据的逻辑相当复杂。</li>
+<li>如果这些RPC是串行的，每次传递都得等待一次网络RTT+处理数据的延时，特别是后者的延时可能是难以预估的。<br>为了让大块数据以流水线的方式在client/server之间传递， 我们提供了Streaming RPC这种交互模型。Streaming RPC让用户能够在client/service之间建立用户态连接，称为Stream, 同一个TCP连接之上能同时存在多个Stream。 Stream的传输数据以消息为基本单位， 输入端可以源源不断的往Stream中写入消息， 接收端会按输入端写入顺序收到消息。<br>Streaming RPC保证：</li>
+<li>有消息边界。</li>
+<li>接收消息的顺序和发送消息的顺序严格一致。</li>
+<li>全双工。</li>
+<li>支持流控。</li>
+<li>提供超时提醒<br>目前的实现还没有自动切割过大的消息，同一个tcp连接上的多个Stream之间可能有<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Head-of-line_blocking">Head-of-line blocking</a>问题，请尽量避免过大的单个消息，实现自动切割后我们会告知并更新文档。<br>例子见<a target="_blank" rel="noopener" href="https://github.com/apache/incubator-brpc/tree/master/example/streaming_echo_c++">example/streaming_echo_c++</a>。</li>
+</ul>
+<h2 id="建立Stream"><a href="#建立Stream" class="headerlink" title="建立Stream"></a>建立Stream</h2><p>目前Stream都由Client端建立。Client先在本地创建一个Stream，再通过一次RPC（必须使用baidu_std协议）与指定的Service建立一个Stream，如果Service在收到请求之后选择接受这个Stream， 那在response返回Client后Stream就会建立成功。过程中的任何错误都把RPC标记为失败，同时也意味着Stream创建失败。用linux下建立连接的过程打比方，Client先创建socket（创建Stream），再调用connect尝试与远端建立连接（通过RPC建立Stream），远端accept后连接就建立了（service接受后创建成功）。<br>如果Client尝试向不支持Streaming RPC的老Server建立Stream，将总是失败。<br>程序中我们用StreamId代表一个Stream，对Stream的读写，关闭操作都将作用在这个Id上。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StreamOptions</span></span><br><span class="line">    <span class="comment">// The max size of unconsumed data allowed at remote side.</span></span><br><span class="line">    <span class="comment">// If |max_buf_size| &lt;= 0, there&#x27;s no limit of buf size</span></span><br><span class="line">    <span class="comment">// default: 2097152 (2M)</span></span><br><span class="line">    <span class="type">int</span> max_buf_size;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Notify user when there&#x27;s no data for at least |idle_timeout_ms|</span></span><br><span class="line">    <span class="comment">// milliseconds since the last time that on_received_messages or on_idle_timeout</span></span><br><span class="line">    <span class="comment">// finished.</span></span><br><span class="line">    <span class="comment">// default: -1</span></span><br><span class="line">    <span class="type">long</span> idle_timeout_ms;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Maximum messages in batch passed to handler-&gt;on_received_messages</span></span><br><span class="line">    <span class="comment">// default: 128</span></span><br><span class="line">    <span class="type">size_t</span> messages_in_batch;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Handle input message, if handler is NULL, the remote side is not allowd to</span></span><br><span class="line">    <span class="comment">// write any message, who will get EBADF on writting</span></span><br><span class="line">    <span class="comment">// default: NULL</span></span><br><span class="line">    StreamInputHandler* handler;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [Called at the client side]</span></span><br><span class="line"><span class="comment">// Create a Stream at client-side along with the |cntl|, which will be connected</span></span><br><span class="line"><span class="comment">// when receiving the response with a Stream from server-side. If |options| is</span></span><br><span class="line"><span class="comment">// NULL, the Stream will be created with default options</span></span><br><span class="line"><span class="comment">// Return 0 on success, -1 otherwise</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">StreamCreate</span><span class="params">(StreamId* request_stream, Controller &amp;cntl, <span class="type">const</span> StreamOptions* options)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="读取Stream"><a href="#读取Stream" class="headerlink" title="读取Stream"></a>读取Stream</h2><p>在建立或者接受一个Stream的时候， 用户可以继承StreamInputHandler并把这个handler填入StreamOptions中. 通过这个handler，用户可以处理对端的写入数据，连接关闭以及idle timeout</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">StreamInputHandler</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 当接收到消息后被调用</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">int</span> <span class="title">on_received_messages</span><span class="params">(StreamId id, butil::IOBuf *<span class="type">const</span> messages[], <span class="type">size_t</span> size)</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当Stream上长时间没有数据交互后被调用</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">on_idle_timeout</span><span class="params">(StreamId id)</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当Stream被关闭时被调用</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">on_closed</span><span class="params">(StreamId id)</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次收到请求的时间<br>在client端，如果建立过程是一次同步RPC， 那在等待的线程被唤醒之后，on_received_message就可能会被调用到。 如果是异步RPC请求， 那等到这次请求的done-&gt;Run() 执行完毕之后， on_received_message就可能会被调用。<br>在server端， 当框架传入的done-&gt;Run()被调用完之后， on_received_message就可能会被调用。</p>
+</blockquote>
+<h2 id="写入Stream"><a href="#写入Stream" class="headerlink" title="写入Stream"></a>写入Stream</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Write |message| into |stream_id|. The remote-side handler will received the</span></span><br><span class="line"><span class="comment">// message by the written order</span></span><br><span class="line"><span class="comment">// Returns 0 on success, errno otherwise</span></span><br><span class="line"><span class="comment">// Errno:</span></span><br><span class="line"><span class="comment">//  - EAGAIN: |stream_id| is created with positive |max_buf_size| and buf size</span></span><br><span class="line"><span class="comment">//            which the remote side hasn&#x27;t consumed yet excceeds the number.</span></span><br><span class="line"><span class="comment">//  - EINVAL: |stream_id| is invalied or has been closed</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">StreamWrite</span><span class="params">(StreamId stream_id, <span class="type">const</span> butil::IOBuf &amp;message)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="流控"><a href="#流控" class="headerlink" title="流控"></a>流控</h2><p>当存在较多已发送但未接收的数据时，发送端的Write操作会立即失败(返回EAGAIN）， 这时候可以通过同步或异步的方式等待对端消费掉数据。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Wait util the pending buffer size is less than |max_buf_size| or error occurs</span></span><br><span class="line"><span class="comment">// Returns 0 on success, errno otherwise</span></span><br><span class="line"><span class="comment">// Errno:</span></span><br><span class="line"><span class="comment">//  - ETIMEDOUT: when |due_time| is not NULL and time expired this</span></span><br><span class="line"><span class="comment">//  - EINVAL: the Stream was close during waiting</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">StreamWait</span><span class="params">(StreamId stream_id, <span class="type">const</span> timespec* due_time)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Async wait</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">StreamWait</span><span class="params">(StreamId stream_id, <span class="type">const</span> timespec *due_time,</span></span></span><br><span class="line"><span class="params"><span class="function">                <span class="type">void</span> (*on_writable)(StreamId stream_id, <span class="type">void</span>* arg, <span class="type">int</span> error_code),</span></span></span><br><span class="line"><span class="params"><span class="function">                <span class="type">void</span> *arg)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="关闭Stream"><a href="#关闭Stream" class="headerlink" title="关闭Stream"></a>关闭Stream</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Close |stream_id|, after this function is called:</span></span><br><span class="line"><span class="comment">//  - All the following |StreamWrite| would fail</span></span><br><span class="line"><span class="comment">//  - |StreamWait| wakes up immediately.</span></span><br><span class="line"><span class="comment">//  - Both sides |on_closed| would be notifed after all the pending buffers have</span></span><br><span class="line"><span class="comment">//    been received</span></span><br><span class="line"><span class="comment">// This function could be called multiple times without side-effects</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">StreamClose</span><span class="params">(StreamId stream_id)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="对原始例子的修改"><a href="#对原始例子的修改" class="headerlink" title="对原始例子的修改"></a>对原始例子的修改</h2><p>brpc stream使用的官方原始例子为<a target="_blank" rel="noopener" href="https://github.com/apache/incubator-brpc/tree/master/example/streaming_echo_c++">https://github.com/apache/incubator-brpc/tree/master/example/streaming_echo_c++</a>。<br>不过官方的原始例子只是streaming_echo_client端一直往streaming_echo_server端发stream流消息。<br>client.cpp代码为：<a target="_blank" rel="noopener" href="https://github.com/apache/incubator-brpc/blob/master/example/streaming_echo_c%2B%2B/client.cpp">streaming_echo_client端代码</a><br>server.cpp代码为：<a target="_blank" rel="noopener" href="https://github.com/apache/incubator-brpc/blob/master/example/streaming_echo_c%2B%2B/server.cpp">https://github.com/apache/incubator-brpc/blob/master/example/streaming_echo_c%2B%2B/server.cpp</a></p>
+<p>修改后client.cpp代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gflags/gflags.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;butil/logging.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;brpc/channel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;brpc/stream.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;echo.pb.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">DEFINE_bool</span>(send_attachment, <span class="literal">true</span>, <span class="string">&quot;Carry attachment along with requests&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_string</span>(connection_type, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Connection type. Available values: single, pooled, short&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_string</span>(server, <span class="string">&quot;0.0.0.0:8001&quot;</span>, <span class="string">&quot;IP Address of server&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_int32</span>(timeout_ms, <span class="number">100</span>, <span class="string">&quot;RPC timeout in milliseconds&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_int32</span>(max_retry, <span class="number">3</span>, <span class="string">&quot;Max retries(not including the first RPC)&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ClientStreamReceiver</span> : <span class="keyword">public</span> brpc::StreamInputHandler &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">int</span> <span class="title">on_received_messages</span><span class="params">(brpc::StreamId id,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     butil::IOBuf *<span class="type">const</span> messages[],</span></span></span><br><span class="line"><span class="params"><span class="function">                                     <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">        std::ostringstream os;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; size; ++i) &#123;</span><br><span class="line">            os &lt;&lt; <span class="string">&quot;msg[&quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot;]=&quot;</span> &lt;&lt; *messages[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Received from Server Stream=&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; os.<span class="built_in">str</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">on_idle_timeout</span><span class="params">(brpc::StreamId id)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Server Stream=&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; has no data transmission for a while&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">on_closed</span><span class="params">(brpc::StreamId id)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Server Stream=&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; is closed&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Parse gflags. We recommend you to use gflags as well.</span></span><br><span class="line">    GFLAGS_NS::<span class="built_in">ParseCommandLineFlags</span>(&amp;argc, &amp;argv, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// A Channel represents a communication line to a Server. Notice that</span></span><br><span class="line">    <span class="comment">// Channel is thread-safe and can be shared by all threads in your program.</span></span><br><span class="line">    brpc::Channel channel;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Initialize the channel, NULL means using default options.</span></span><br><span class="line">    brpc::ChannelOptions options;</span><br><span class="line">    options.protocol = brpc::PROTOCOL_BAIDU_STD;</span><br><span class="line">    options.connection_type = FLAGS_connection_type;</span><br><span class="line">    options.timeout_ms = FLAGS_timeout_ms<span class="comment">/*milliseconds*/</span>;</span><br><span class="line">    options.max_retry = FLAGS_max_retry;</span><br><span class="line">    <span class="keyword">if</span> (channel.<span class="built_in">Init</span>(FLAGS_server.<span class="built_in">c_str</span>(), <span class="literal">NULL</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;Fail to initialize channel&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Normally, you should not call a Channel directly, but instead construct</span></span><br><span class="line">    <span class="comment">// a stub Service wrapping it. stub can be shared by all threads as well.</span></span><br><span class="line">    <span class="function">example::EchoService_Stub <span class="title">stub</span><span class="params">(&amp;channel)</span></span>;</span><br><span class="line">    brpc::Controller cntl;</span><br><span class="line">    brpc::StreamId stream;</span><br><span class="line">    ClientStreamReceiver _receiver;</span><br><span class="line">    brpc::StreamOptions stream_options;</span><br><span class="line">    stream_options.handler = &amp;_receiver;</span><br><span class="line">    <span class="keyword">if</span> (brpc::<span class="built_in">StreamCreate</span>(&amp;stream, cntl, &amp;stream_options) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;Fail to create stream&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Created Stream=&quot;</span> &lt;&lt; stream;</span><br><span class="line">    example::EchoRequest request;</span><br><span class="line">    example::EchoResponse response;</span><br><span class="line">    request.<span class="built_in">set_message</span>(<span class="string">&quot;I&#x27;m a RPC to connect stream&quot;</span>);</span><br><span class="line">    stub.<span class="built_in">Echo</span>(&amp;cntl, &amp;request, &amp;response, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (cntl.<span class="built_in">Failed</span>()) &#123;</span><br><span class="line">        <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;Fail to connect stream, &quot;</span> &lt;&lt; cntl.<span class="built_in">ErrorText</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!brpc::<span class="built_in">IsAskedToQuit</span>()) &#123;</span><br><span class="line">        butil::IOBuf msg1;</span><br><span class="line">        msg<span class="number">1.</span><span class="built_in">append</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span>);</span><br><span class="line">        <span class="built_in">CHECK_EQ</span>(<span class="number">0</span>, brpc::<span class="built_in">StreamWrite</span>(stream, msg1));</span><br><span class="line">        butil::IOBuf msg2;</span><br><span class="line">        msg<span class="number">2.</span><span class="built_in">append</span>(<span class="string">&quot;0123456789&quot;</span>);</span><br><span class="line">        <span class="built_in">CHECK_EQ</span>(<span class="number">0</span>, brpc::<span class="built_in">StreamWrite</span>(stream, msg2));</span><br><span class="line">        <span class="built_in">sleep</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CHECK_EQ</span>(<span class="number">0</span>, brpc::<span class="built_in">StreamClose</span>(stream));</span><br><span class="line">    <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;EchoClient is going to quit&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>修改后server.cpp代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gflags/gflags.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;butil/logging.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;brpc/server.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;echo.pb.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;brpc/stream.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">DEFINE_bool</span>(send_attachment, <span class="literal">true</span>, <span class="string">&quot;Carry attachment along with response&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_int32</span>(port, <span class="number">8001</span>, <span class="string">&quot;TCP Port of this server&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_int32</span>(idle_timeout_s, <span class="number">-1</span>, <span class="string">&quot;Connection will be closed if there is no &quot;</span></span><br><span class="line">             <span class="string">&quot;read/write operations during the last `idle_timeout_s&#x27;&quot;</span>);</span><br><span class="line"><span class="built_in">DEFINE_int32</span>(logoff_ms, <span class="number">2000</span>, <span class="string">&quot;Maximum duration of server&#x27;s LOGOFF state &quot;</span></span><br><span class="line">             <span class="string">&quot;(waiting for client to close connection before server stops)&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StreamReceiver</span> : <span class="keyword">public</span> brpc::StreamInputHandler &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">int</span> <span class="title">on_received_messages</span><span class="params">(brpc::StreamId id,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     butil::IOBuf *<span class="type">const</span> messages[],</span></span></span><br><span class="line"><span class="params"><span class="function">                                     <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">        std::ostringstream os;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; size; ++i) &#123;</span><br><span class="line">            os &lt;&lt; <span class="string">&quot;msg[&quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot;]=&quot;</span> &lt;&lt; *messages[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Received from client Stream=&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; os.<span class="built_in">str</span>();</span><br><span class="line"></span><br><span class="line">        butil::IOBuf msg1;</span><br><span class="line">        msg<span class="number">1.</span><span class="built_in">append</span>(<span class="string">&quot;server ===== send to client by stream....&quot;</span>);</span><br><span class="line">        <span class="built_in">CHECK_EQ</span>(<span class="number">0</span>, brpc::<span class="built_in">StreamWrite</span>(id, msg1));</span><br><span class="line">        butil::IOBuf msg2;</span><br><span class="line">        msg<span class="number">2.</span><span class="built_in">append</span>(<span class="string">&quot;server send to client by stream  0123456789&quot;</span>);</span><br><span class="line">        <span class="built_in">CHECK_EQ</span>(<span class="number">0</span>, brpc::<span class="built_in">StreamWrite</span>(id, msg2));</span><br><span class="line">        <span class="comment">//sleep(1);</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">on_idle_timeout</span><span class="params">(brpc::StreamId id)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Stream=&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; has no data transmission for a while&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">on_closed</span><span class="params">(brpc::StreamId id)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">LOG</span>(INFO) &lt;&lt; <span class="string">&quot;Stream=&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; is closed&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Your implementation of example::EchoService</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StreamingEchoService</span> : <span class="keyword">public</span> example::EchoService &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">StreamingEchoService</span>() : _sd(brpc::INVALID_STREAM_ID) &#123;&#125;;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">StreamingEchoService</span>() &#123;</span><br><span class="line">        brpc::<span class="built_in">StreamClose</span>(_sd);</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Echo</span><span class="params">(google::protobuf::RpcController* controller,</span></span></span><br><span class="line"><span class="params"><span class="function">                      <span class="type">const</span> example::EchoRequest* <span class="comment">/*request*/</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                      example::EchoResponse* response,</span></span></span><br><span class="line"><span class="params"><span class="function">                      google::protobuf::Closure* done)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// This object helps you to call done-&gt;Run() in RAII style. If you need</span></span><br><span class="line">        <span class="comment">// to process the request asynchronously, pass done_guard.release().</span></span><br><span class="line">        <span class="function">brpc::ClosureGuard <span class="title">done_guard</span><span class="params">(done)</span></span>;</span><br><span class="line"></span><br><span class="line">        brpc::Controller* cntl =</span><br><span class="line">            <span class="built_in">static_cast</span>&lt;brpc::Controller*&gt;(controller);</span><br><span class="line">        brpc::StreamOptions stream_options;</span><br><span class="line">        stream_options.handler = &amp;_receiver;</span><br><span class="line">        <span class="keyword">if</span> (brpc::<span class="built_in">StreamAccept</span>(&amp;_sd, *cntl, &amp;stream_options) != <span class="number">0</span>) &#123;</span><br><span class="line">            cntl-&gt;<span class="built_in">SetFailed</span>(<span class="string">&quot;Fail to accept stream&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        response-&gt;<span class="built_in">set_message</span>(<span class="string">&quot;Accepted stream&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    StreamReceiver _receiver;</span><br><span class="line">    brpc::StreamId _sd;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Parse gflags. We recommend you to use gflags as well.</span></span><br><span class="line">    GFLAGS_NS::<span class="built_in">ParseCommandLineFlags</span>(&amp;argc, &amp;argv, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generally you only need one Server.</span></span><br><span class="line">    brpc::Server server;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Instance of your service.</span></span><br><span class="line">    StreamingEchoService echo_service_impl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Add the service into server. Notice the second parameter, because the</span></span><br><span class="line">    <span class="comment">// service is put on stack, we don&#x27;t want server to delete it, otherwise</span></span><br><span class="line">    <span class="comment">// use brpc::SERVER_OWNS_SERVICE.</span></span><br><span class="line">    <span class="keyword">if</span> (server.<span class="built_in">AddService</span>(&amp;echo_service_impl,</span><br><span class="line">                          brpc::SERVER_DOESNT_OWN_SERVICE) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;Fail to add service&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Start the server.</span></span><br><span class="line">    brpc::ServerOptions options;</span><br><span class="line">    options.idle_timeout_sec = FLAGS_idle_timeout_s;</span><br><span class="line">    <span class="keyword">if</span> (server.<span class="built_in">Start</span>(FLAGS_port, &amp;options) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">LOG</span>(ERROR) &lt;&lt; <span class="string">&quot;Fail to start EchoServer&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Wait until Ctrl-C is pressed, then Stop() and Join() the server.</span></span><br><span class="line">    server.<span class="built_in">RunUntilAskedToQuit</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关键的是在<strong>在建立（StreamCreate方法）或者接受（brpc::StreamAccept(&amp;_sd, *cntl, &amp;stream_options)）一个Stream的时候</strong>， 把<strong>继承StreamInputHandler的具体实现的handler填入StreamOptions中</strong>，然后放入到<strong>StreamCreate方法和StreamAccept方法</strong>。<br>修改后运行streaming_echo_server端打印信息：</p>
+<p><img src="https://github.com/ahnselina/temp/blob/main/client.png?raw=true" alt=""></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ahnselina/temp/blob/main/client.png">如看不见图片，请直接点击</a></p>
+<p>修改后运行streaming_echo_client端打印信息：<br><img src="https://github.com/ahnselina/temp/blob/main/server.png?raw=true" alt=""></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ahnselina/temp/blob/main/server.png">如看不见图片，请直接点击</a></p>
+<p>通过如上的修改，就达到了client和server端通过stream双向通信的目的 ：)</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://brpc.incubator.apache.org/docs/overview/">brpc简介</a><br><a target="_blank" rel="noopener" href="https://github.com/apache/incubator-brpc/blob/master/docs/cn/streaming_rpc.md">brpc stream 官方资料</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2022/03/12/%E5%9F%BA%E4%BA%8Ebrpc%E7%9A%84stream%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8C%E5%90%91%E9%80%9A%E4%BF%A1/" title="基于brpc的stream方式实现双向通信">2022/03/12/基于brpc的stream方式实现双向通信/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/brpc/" rel="tag"># brpc</a>
+          
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
+          
+            <a href="/tags/%E9%80%9A%E4%BF%A1/" rel="tag"># 通信</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/11/20/JuiceFS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88%E4%BA%8C%EF%BC%89mount%E6%B5%81%E7%A8%8B/" rel="next" title="JuiceFS源码阅读（二）mount流程">
+                <i class="fa fa-chevron-left"></i> JuiceFS源码阅读（二）mount流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/07/12/%E3%80%8A%E9%AB%98%E6%95%88%E8%83%BD%E4%BA%BA%E5%A3%AB%E7%9A%84%E4%B8%83%E4%B8%AA%E4%B9%A0%E6%83%AF%E3%80%8B--%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="prev" title="《高效能人士的七个习惯》读书笔记">
+                《高效能人士的七个习惯》读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#bRPC%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">bRPC简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFRPC"><span class="nav-number">1.1.</span> <span class="nav-text">什么是RPC?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%AA%E9%87%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8RPC"><span class="nav-number">1.2.</span> <span class="nav-text">哪里可以使用RPC?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFbrpc"><span class="nav-number">1.3.</span> <span class="nav-text">什么是brpc?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E5%BC%8F-stream-RPC%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">流式(stream)RPC概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8BStream"><span class="nav-number">3.</span> <span class="nav-text">建立Stream</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96Stream"><span class="nav-number">4.</span> <span class="nav-text">读取Stream</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%85%A5Stream"><span class="nav-number">5.</span> <span class="nav-text">写入Stream</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%8E%A7"><span class="nav-number">6.</span> <span class="nav-text">流控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%97%ADStream"><span class="nav-number">7.</span> <span class="nav-text">关闭Stream</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E5%8E%9F%E5%A7%8B%E4%BE%8B%E5%AD%90%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">8.</span> <span class="nav-text">对原始例子的修改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">9.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

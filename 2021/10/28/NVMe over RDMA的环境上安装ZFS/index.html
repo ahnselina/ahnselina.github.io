@@ -1,37 +1,1322 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ZFS,NVMe,NVMeoF,RDMA," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="NVMe over RDMA的环境上安装ZFS">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/17/IhdUG4.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/17/IhaWD0.png">
+<meta property="article:published_time" content="2021-10-28T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.042Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="ZFS">
+<meta property="article:tag" content="NVMe">
+<meta property="article:tag" content="NVMeoF">
+<meta property="article:tag" content="RDMA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/11/17/IhdUG4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/28/NVMe over RDMA的环境上安装ZFS/"/>
+
+
+
+
+
+  <title>NVMe over RDMA的环境上安装ZFS | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">NVMe over RDMA的环境上安装ZFS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-28T23:30:30+08:00">
+                2021-10-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,689 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  15 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/11/17/IhdUG4.png" alt=""><br><span id="more"></span></p>
+<p>本文主要介绍将NVMe盘通过RDMA映射到远端机器后，再在该机器上安装ZFS。<br>如何安装NVMe over RDMA，请参考上一篇文章：<a href="http://www.a-programmer.top/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">NVMe over RDMA的安装配置</a>。</p>
+<p>说明：本文所有命令执行的系统为debian。</p>
+<h2 id="安装ZFS"><a href="#安装ZFS" class="headerlink" title="安装ZFS"></a>安装ZFS</h2><p>直接使用”apt install -y zfsutils-linux”安装ZFS,会出现问题，详细解决办法请参考本文后面的<strong>遇到的错误及解决办法</strong>。</p>
+<p>可直接按如下步骤进行安装：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. apt-get install dpkg-dev linux-headers-$(uname -r) linux-image-amd64</span><br><span class="line">2. apt-get install zfs-dkms zfsutils-linux</span><br><span class="line">3. modprobe zfs</span><br></pre></td></tr></table></figure></p>
+<h2 id="创建存储池"><a href="#创建存储池" class="headerlink" title="创建存储池"></a>创建存储池</h2><h3 id="创建ZFS存储池（普通存储池，相当于RAID0，无冗余）"><a href="#创建ZFS存储池（普通存储池，相当于RAID0，无冗余）" class="headerlink" title="创建ZFS存储池（普通存储池，相当于RAID0，无冗余）"></a>创建ZFS存储池（普通存储池，相当于RAID0，无冗余）</h3><p>1.机器上要有相应的硬盘，本文以NVMe盘为例，nvme0n1和nvme1n1。<br>2.查看存储池状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zpool status   </span><br><span class="line">no pools available</span><br></pre></td></tr></table></figure>
+<p>3.创建ZFS存储池，以nvme0n1和nvme1n1为例：<br>创建好后，用zpool status查看是如下结果，如遇到错误请参考后面的解决办法。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># zpool create mypool nvme0n1 nvme1n1</span><br><span class="line"># zpool status</span><br><span class="line">  pool: mypool</span><br><span class="line"> state: ONLINE</span><br><span class="line">  scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">	NAME        STATE     READ WRITE CKSUM</span><br><span class="line">	mypool      ONLINE       0     0     0</span><br><span class="line">	  nvme0n1   ONLINE       0     0     0</span><br><span class="line">	  nvme1n1   ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure><br>使用ZFS创建这种简单的池意义不大，这相当于没有冗余（类似RAID0）</p>
+<p>创建下一个存储池前，记得清理存储池<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zpool destroy mypool</span><br></pre></td></tr></table></figure></p>
+<h3 id="一个简单的镜像池"><a href="#一个简单的镜像池" class="headerlink" title="一个简单的镜像池"></a>一个简单的镜像池</h3><p>还是使用nvme0n1和nvme1n1两个盘，创建一个简单的镜像池：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># zpool create mypool mirror nvme0n1 nvme1n1</span><br><span class="line"># zpool status</span><br><span class="line">  pool: mypool</span><br><span class="line"> state: ONLINE</span><br><span class="line">  scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">	NAME         STATE     READ WRITE CKSUM</span><br><span class="line">	mypool       ONLINE       0     0     0</span><br><span class="line">	  mirror-0   ONLINE       0     0     0</span><br><span class="line">	    nvme0n1  ONLINE       0     0     0</span><br><span class="line">	    nvme1n1  ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
+<h3 id="创建RAIDZ2的存储池"><a href="#创建RAIDZ2的存储池" class="headerlink" title="创建RAIDZ2的存储池"></a>创建RAIDZ2的存储池</h3><p>RAIDZ-2至少需要4块硬盘，RAIDZ-2能容忍最多两盘故障。<br>例子中使用4块NVMe盘：nvme0n1 nvme1n1 nvme2n1 nvme3n1。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">zpool create zfstest raidz2 nvme0n1 nvme1n1 nvme2n1 nvme3n1</span><br><span class="line">root@cld-mon1-12002:~# zpool status</span><br><span class="line">  pool: zfstest</span><br><span class="line"> state: ONLINE</span><br><span class="line">  scan: none requested</span><br><span class="line">config:</span><br><span class="line"></span><br><span class="line">	NAME         STATE     READ WRITE CKSUM</span><br><span class="line">	zfstest      ONLINE       0     0     0</span><br><span class="line">	  raidz2-0   ONLINE       0     0     0</span><br><span class="line">	    nvme0n1  ONLINE       0     0     0</span><br><span class="line">	    nvme1n1  ONLINE       0     0     0</span><br><span class="line">	    nvme2n1  ONLINE       0     0     0</span><br><span class="line">	    nvme3n1  ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">errors: No known data errors</span><br></pre></td></tr></table></figure></p>
+<h2 id="对存储池创建数据集（创建文件系统）"><a href="#对存储池创建数据集（创建文件系统）" class="headerlink" title="对存储池创建数据集（创建文件系统）"></a>对存储池创建数据集（创建文件系统）</h2><p>使用命令查看上面创建的zfstest池：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># zfs list</span><br><span class="line">NAME      USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">zfstest   114K  2.80T  32.9K  /zfstest</span><br></pre></td></tr></table></figure><br>创建数据集test：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># zfs create zfstest/test</span><br><span class="line"># zfs list</span><br><span class="line">NAME           USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">zfstest        151K  2.80T  32.9K  /zfstest</span><br><span class="line">zfstest/test  32.9K  2.80T  32.9K  /zfstest/test</span><br></pre></td></tr></table></figure></p>
+<h2 id="销毁zfs数据集"><a href="#销毁zfs数据集" class="headerlink" title="销毁zfs数据集"></a>销毁zfs数据集</h2><p>销毁zfs数据集使用”zfs destroy”命令，下面的例子中把数据集tabriz销毁了：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># zfs destroy tank/home/tabriz</span><br></pre></td></tr></table></figure><br><strong>注意</strong>：如果遇到要销毁的数据集正忙，无法umount，可以使用-f参数强制销毁。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># zfs destroy tank/home/ahrens</span><br><span class="line">cannot unmount &#x27;tank/home/ahrens&#x27;: Device busy</span><br><span class="line"></span><br><span class="line"># zfs destroy -f tank/home/ahrens</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>另外，我犯了一个错误，就是在zfstest/test/目录下执行“zfs destory zfstest/test”，然后一直报<br>“umount: /zfstest/test: target is busy.<br>cannot unmount ‘/zfstest/test’: umount failed”，加-f参数也不行，其实不在那个目录就好了。</p>
+</blockquote>
+<h2 id="FIO测试其性能"><a href="#FIO测试其性能" class="headerlink" title="FIO测试其性能"></a>FIO测试其性能</h2><h3 id="大文件单线程写"><a href="#大文件单线程写" class="headerlink" title="大文件单线程写"></a>大文件单线程写</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@XXX:/zfstest/test# fio --group_reporting --time_based   --norandommap --name=big-file-single-write --directory=/zfstest/test --rw=write --bs=4M --size=10G --time_based --runtime=300  --numjobs=1 --output big-file-single-write.txt</span><br><span class="line">root@XXX:/zfstest/test# 7MiB/s][w=736 IOPS][eta 00m:00s]</span><br><span class="line">root@XXX:/zfstest/test#</span><br><span class="line">root@XXX:/zfstest/test# cat big-file-single-write.txt</span><br><span class="line">big-file-single-write: (g=0): rw=write, bs=(R) 4096KiB-4096KiB, (W) 4096KiB-4096KiB, (T) 4096KiB-4096KiB, ioengine=psync, iodepth=1</span><br><span class="line">fio-3.12</span><br><span class="line">Starting 1 process</span><br><span class="line">big-file-single-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line"></span><br><span class="line">big-file-single-write: (groupid=0, jobs=1): err= 0: pid=1769227: Thu Oct 14 20:25:16 2021</span><br><span class="line">  write: IOPS=692, BW=2771MiB/s (2906MB/s)(812GiB/300002msec); 0 zone resets</span><br><span class="line">    clat (usec): min=924, max=108499, avg=1342.66, stdev=639.84</span><br><span class="line">     lat (usec): min=973, max=108576, avg=1441.28, stdev=648.02</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1012],  5.00th=[ 1074], 10.00th=[ 1123], 20.00th=[ 1188],</span><br><span class="line">     | 30.00th=[ 1221], 40.00th=[ 1270], 50.00th=[ 1303], 60.00th=[ 1336],</span><br><span class="line">     | 70.00th=[ 1385], 80.00th=[ 1450], 90.00th=[ 1565], 95.00th=[ 1696],</span><br><span class="line">     | 99.00th=[ 2278], 99.50th=[ 2606], 99.90th=[ 3392], 99.95th=[ 3654],</span><br><span class="line">     | 99.99th=[ 4490]</span><br><span class="line">   bw (  MiB/s): min= 1944, max= 3080, per=99.99%, avg=2770.98, stdev=141.42, samples=600</span><br><span class="line">   iops        : min=  486, max=  770, avg=692.71, stdev=35.36, samples=600</span><br><span class="line">  lat (usec)   : 1000=0.51%</span><br><span class="line">  lat (msec)   : 2=97.68%, 4=1.78%, 10=0.02%, 250=0.01%</span><br><span class="line">  cpu          : usr=7.11%, sys=90.80%, ctx=61584, majf=0, minf=74187</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, &gt;=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     issued rwts: total=0,207849,0,0 short=0,0,0,0 dropped=0,0,0,0</span><br><span class="line">     latency   : target=0, window=0, percentile=100.00%, depth=1</span><br><span class="line"></span><br><span class="line">Run status group 0 (all jobs):</span><br><span class="line">  WRITE: bw=2771MiB/s (2906MB/s), 2771MiB/s-2771MiB/s (2906MB/s-2906MB/s), io=812GiB (872GB), run=300002-300002msec</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">root@XXX# fio --group_reporting --time_based  --iodepth=32 --norandommap --name=big-file-single-write --directory=/zfstest/test --rw=write --bs=4M --size=10G --time_based --runtime=300  --numjobs=1 --output big-file-single-write.txt</span><br><span class="line">root@XXX:# iB/s][w=672 IOPS][eta 00m:00s]</span><br><span class="line">root@XXX:#</span><br><span class="line">root@XX:/# cat big-file-single-write.txt</span><br><span class="line">big-file-single-write: (g=0): rw=write, bs=(R) 4096KiB-4096KiB, (W) 4096KiB-4096KiB, (T) 4096KiB-4096KiB, ioengine=psync, iodepth=32</span><br><span class="line">fio-3.12</span><br><span class="line">Starting 1 process</span><br><span class="line"></span><br><span class="line">big-file-single-write: (groupid=0, jobs=1): err= 0: pid=3774285: Thu Oct 14 20:43:03 2021</span><br><span class="line">  write: IOPS=685, BW=2742MiB/s (2875MB/s)(803GiB/300001msec); 0 zone resets</span><br><span class="line">    clat (usec): min=924, max=103373, avg=1357.26, stdev=552.14</span><br><span class="line">     lat (usec): min=979, max=103459, avg=1457.04, stdev=561.19</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1029],  5.00th=[ 1090], 10.00th=[ 1139], 20.00th=[ 1205],</span><br><span class="line">     | 30.00th=[ 1237], 40.00th=[ 1287], 50.00th=[ 1319], 60.00th=[ 1352],</span><br><span class="line">     | 70.00th=[ 1401], 80.00th=[ 1467], 90.00th=[ 1565], 95.00th=[ 1713],</span><br><span class="line">     | 99.00th=[ 2278], 99.50th=[ 2671], 99.90th=[ 3490], 99.95th=[ 3851],</span><br><span class="line">     | 99.99th=[ 4883]</span><br><span class="line">   bw (  MiB/s): min= 2104, max= 3027, per=100.00%, avg=2741.44, stdev=122.83, samples=599</span><br><span class="line">   iops        : min=  526, max=  756, avg=685.33, stdev=30.71, samples=599</span><br><span class="line">  lat (usec)   : 1000=0.34%</span><br><span class="line">  lat (msec)   : 2=97.88%, 4=1.75%, 10=0.03%, 250=0.01%</span><br><span class="line">  cpu          : usr=6.98%, sys=91.12%, ctx=58822, majf=0, minf=66995</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, &gt;=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     issued rwts: total=0,205618,0,0 short=0,0,0,0 dropped=0,0,0,0</span><br><span class="line">     latency   : target=0, window=0, percentile=100.00%, depth=32</span><br><span class="line"></span><br><span class="line">Run status group 0 (all jobs):</span><br><span class="line">  WRITE: bw=2742MiB/s (2875MB/s), 2742MiB/s-2742MiB/s (2875MB/s-2875MB/s), io=803GiB (862GB), run=300001-300001msec</span><br></pre></td></tr></table></figure>
+<h3 id="大文件并发写"><a href="#大文件并发写" class="headerlink" title="大文件并发写"></a>大文件并发写</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">root@XXX:/zfstest/test# fio --group_reporting --time_based --iodepth=32  --norandommap --name=big-file-multi-write --directory=/zfstest/test/ --rw=write --bs=4M --size=10G --time_based --runtime=300  --numjobs=16 --output big-file-multi-write.txt</span><br><span class="line">root@XXX:/zfstest/test# 3367MiB/s][w=841 IOPS][eta 00m:00s]</span><br><span class="line">root@XXX:/zfstest/test# cat big-file-multi-write.txt</span><br><span class="line">big-file-multi-write: (g=0): rw=write, bs=(R) 4096KiB-4096KiB, (W) 4096KiB-4096KiB, (T) 4096KiB-4096KiB, ioengine=psync, iodepth=32</span><br><span class="line">...</span><br><span class="line">fio-3.12</span><br><span class="line">Starting 16 processes</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line">big-file-multi-write: Laying out IO file (1 file / 10240MiB)</span><br><span class="line"></span><br><span class="line">big-file-multi-write: (groupid=0, jobs=16): err= 0: pid=1473793: Thu Oct 14 20:59:04 2021</span><br><span class="line">  write: IOPS=834, BW=3339MiB/s (3501MB/s)(978GiB/300016msec); 0 zone resets</span><br><span class="line">    clat (usec): min=1428, max=162761, avg=18864.46, stdev=6169.03</span><br><span class="line">     lat (usec): min=1668, max=163066, avg=19166.41, stdev=6189.02</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[14484],  5.00th=[15139], 10.00th=[15533], 20.00th=[15926],</span><br><span class="line">     | 30.00th=[16450], 40.00th=[17171], 50.00th=[17433], 60.00th=[17957],</span><br><span class="line">     | 70.00th=[18220], 80.00th=[19006], 90.00th=[22414], 95.00th=[30278],</span><br><span class="line">     | 99.00th=[49021], 99.50th=[58459], 99.90th=[69731], 99.95th=[73925],</span><br><span class="line">     | 99.99th=[83362]</span><br><span class="line">   bw (  KiB/s): min=147456, max=589824, per=6.25%, avg=213576.59, stdev=22303.40, samples=9595</span><br><span class="line">   iops        : min=   36, max=  144, avg=52.10, stdev= 5.45, samples=9595</span><br><span class="line">  lat (msec)   : 2=0.03%, 4=0.08%, 10=0.20%, 20=85.23%, 50=13.51%</span><br><span class="line">  lat (msec)   : 100=0.94%, 250=0.01%</span><br><span class="line">  cpu          : usr=1.62%, sys=10.60%, ctx=8083125, majf=0, minf=172228</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, &gt;=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     issued rwts: total=0,250401,0,0 short=0,0,0,0 dropped=0,0,0,0</span><br><span class="line">     latency   : target=0, window=0, percentile=100.00%, depth=32</span><br><span class="line"></span><br><span class="line">Run status group 0 (all jobs):</span><br><span class="line">  WRITE: bw=3339MiB/s (3501MB/s), 3339MiB/s-3339MiB/s (3501MB/s-3501MB/s), io=978GiB (1050GB), run=300016-300016msec</span><br></pre></td></tr></table></figure>
+<h2 id="遇到的错误及解决办法"><a href="#遇到的错误及解决办法" class="headerlink" title="遇到的错误及解决办法"></a>遇到的错误及解决办法</h2><h3 id="使用zpool-status命令，报“ZFS-modules-are-not-loaded”错误"><a href="#使用zpool-status命令，报“ZFS-modules-are-not-loaded”错误" class="headerlink" title="使用zpool status命令，报“ZFS modules are not loaded”错误"></a>使用zpool status命令，报“ZFS modules are not loaded”错误</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">zpool status</span><br><span class="line">The ZFS modules are not loaded.</span><br><span class="line">Try running &#x27;/sbin/modprobe zfs&#x27; as root to load them.</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong>：使用命令”modprobe zfs”加载zfs模块，不过很可能会遇到下一个的问题，把下面的那个问题解决了，该问题也就解决了，详情看下个问题的解决办法</p>
+<h3 id="使用“modprobe-zfs”报“Module-zfs-not-found-in-directory”错误"><a href="#使用“modprobe-zfs”报“Module-zfs-not-found-in-directory”错误" class="headerlink" title="使用“modprobe zfs”报“Module zfs not found in directory”错误"></a>使用“modprobe zfs”报“Module zfs not found in directory”错误</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~# modprobe zfs</span><br><span class="line">modprobe: FATAL: Module zfs not found in directory /lib/modules/4.19.0-10-amd64</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong>：需要先安装内核相关的头文件，然后在重新安装zfs相关组件，具体步骤如下：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. apt-get install dpkg-dev linux-headers-$(uname -r) linux-image-amd64</span><br><span class="line">2. apt-get install zfs-dkms zfsutils-linux</span><br><span class="line">3. modprobe zfs</span><br></pre></td></tr></table></figure><br>这样，该问题解决，上一个问题也就解决了。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zpool status</span><br><span class="line">no pools available</span><br></pre></td></tr></table></figure></p>
+<h3 id="创建存储池遇到”xx-is-in-use-and-contains-a-LVM2-member-filesystem”错误"><a href="#创建存储池遇到”xx-is-in-use-and-contains-a-LVM2-member-filesystem”错误" class="headerlink" title="创建存储池遇到”xx is in use and contains a LVM2_member filesystem”错误"></a>创建存储池遇到”xx is in use and contains a LVM2_member filesystem”错误</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># zpool create mypool nvme0n1 nvme1n1</span><br><span class="line">/dev/nvme0n1 is in use and contains a LVM2_member filesystem.</span><br><span class="line">/dev/nvme1n1 is in use and contains a LVM2_member filesystem.</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong>：这是因为我原先使用该环境搭建了Ceph并且已经使用了那两个盘,清理掉相应的环境，并删除对应的LVM即可。删除LVM可以参考该文章<a href="http://www.a-programmer.top/2021/10/03/关于LVM的概念及相关操作/">关于LVM的概念及相关操作</a><br><img src="https://z3.ax1x.com/2021/11/17/IhaWD0.png" alt=""></p>
+<p>删除卷组vg：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for i in `pvs | grep ceph | awk &#x27;&#123; print $2 &#125;&#x27;`; do vgremove -y $i; done</span><br></pre></td></tr></table></figure><br>删除物理卷：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for i in `pvs | grep dev | awk &#x27;&#123; print $1 &#125;&#x27;`; do pvremove -y $i; done</span><br></pre></td></tr></table></figure></p>
+<h3 id="cannot-unmount-‘tank-home-ahrens’-Device-busy"><a href="#cannot-unmount-‘tank-home-ahrens’-Device-busy" class="headerlink" title="cannot unmount ‘tank/home/ahrens’: Device busy"></a>cannot unmount ‘tank/home/ahrens’: Device busy</h3><p><strong>解决办法</strong>：  </p>
+<ol>
+<li>加 -f 参数  </li>
+<li>如果还不行看看是不是自己正在那个要umount的目录下，换到其他目录再执行umount即可。</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.a-programmer.top/2021/10/03/关于LVM的概念及相关操作/">关于LVM的概念及相关操作</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.escapelife.site/posts/caf259ea.html">在Linux上安装和使用ZFS</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/" title="NVMe over RDMA的环境上安装ZFS">2021/10/28/NVMe over RDMA的环境上安装ZFS/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+            <a href="/tags/NVMe/" rel="tag"># NVMe</a>
+          
+            <a href="/tags/NVMeoF/" rel="tag"># NVMeoF</a>
+          
+            <a href="/tags/RDMA/" rel="tag"># RDMA</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" rel="next" title="NVMe over RDMA的安装配置">
+                <i class="fa fa-chevron-left"></i> NVMe over RDMA的安装配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/29/%E6%B5%8B%E8%AF%95NVMe%20over%20RDMA%E4%B8%8A%E7%9A%84ZFS%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="测试NVMe over RDMA上的ZFS遇到的问题">
+                测试NVMe over RDMA上的ZFS遇到的问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85ZFS"><span class="nav-number">1.</span> <span class="nav-text">安装ZFS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%AD%98%E5%82%A8%E6%B1%A0"><span class="nav-number">2.</span> <span class="nav-text">创建存储池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAZFS%E5%AD%98%E5%82%A8%E6%B1%A0%EF%BC%88%E6%99%AE%E9%80%9A%E5%AD%98%E5%82%A8%E6%B1%A0%EF%BC%8C%E7%9B%B8%E5%BD%93%E4%BA%8ERAID0%EF%BC%8C%E6%97%A0%E5%86%97%E4%BD%99%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">创建ZFS存储池（普通存储池，相当于RAID0，无冗余）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E9%95%9C%E5%83%8F%E6%B1%A0"><span class="nav-number">2.2.</span> <span class="nav-text">一个简单的镜像池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BARAIDZ2%E7%9A%84%E5%AD%98%E5%82%A8%E6%B1%A0"><span class="nav-number">2.3.</span> <span class="nav-text">创建RAIDZ2的存储池</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E5%AD%98%E5%82%A8%E6%B1%A0%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE%E9%9B%86%EF%BC%88%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">对存储池创建数据集（创建文件系统）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%80%E6%AF%81zfs%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">4.</span> <span class="nav-text">销毁zfs数据集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FIO%E6%B5%8B%E8%AF%95%E5%85%B6%E6%80%A7%E8%83%BD"><span class="nav-number">5.</span> <span class="nav-text">FIO测试其性能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E6%96%87%E4%BB%B6%E5%8D%95%E7%BA%BF%E7%A8%8B%E5%86%99"><span class="nav-number">5.1.</span> <span class="nav-text">大文件单线程写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E6%96%87%E4%BB%B6%E5%B9%B6%E5%8F%91%E5%86%99"><span class="nav-number">5.2.</span> <span class="nav-text">大文件并发写</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF%E5%8F%8A%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">遇到的错误及解决办法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8zpool-status%E5%91%BD%E4%BB%A4%EF%BC%8C%E6%8A%A5%E2%80%9CZFS-modules-are-not-loaded%E2%80%9D%E9%94%99%E8%AF%AF"><span class="nav-number">6.1.</span> <span class="nav-text">使用zpool status命令，报“ZFS modules are not loaded”错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E2%80%9Cmodprobe-zfs%E2%80%9D%E6%8A%A5%E2%80%9CModule-zfs-not-found-in-directory%E2%80%9D%E9%94%99%E8%AF%AF"><span class="nav-number">6.2.</span> <span class="nav-text">使用“modprobe zfs”报“Module zfs not found in directory”错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%AD%98%E5%82%A8%E6%B1%A0%E9%81%87%E5%88%B0%E2%80%9Dxx-is-in-use-and-contains-a-LVM2-member-filesystem%E2%80%9D%E9%94%99%E8%AF%AF"><span class="nav-number">6.3.</span> <span class="nav-text">创建存储池遇到”xx is in use and contains a LVM2_member filesystem”错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cannot-unmount-%E2%80%98tank-home-ahrens%E2%80%99-Device-busy"><span class="nav-number">6.4.</span> <span class="nav-text">cannot unmount ‘tank&#x2F;home&#x2F;ahrens’: Device busy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

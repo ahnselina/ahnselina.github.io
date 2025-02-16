@@ -1,37 +1,1632 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="habor,habor安装,habor打包," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="从Habor源码进行安装及打包">
+<meta property="og:url" content="https://www.a-programmer.top/2019/03/27/%E4%BB%8EHabor%E6%BA%90%E7%A0%81%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85%E5%8F%8A%E6%89%93%E5%8C%85/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxK7F.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmx1h9.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmx8pR.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxG11.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxJ6x.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxYX6.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxNnK.md.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxU0O.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxa7D.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxwAe.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmx0tH.jpg">
+<meta property="og:image" content="https://z3.ax1x.com/2021/05/04/gmxBhd.jpg">
+<meta property="article:published_time" content="2019-03-27T09:54:08.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.026Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="habor">
+<meta property="article:tag" content="habor安装">
+<meta property="article:tag" content="habor打包">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/05/04/gmxK7F.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2019/03/27/从Habor源码进行安装及打包/"/>
+
+
+
+
+
+  <title>从Habor源码进行安装及打包 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2019/03/27/%E4%BB%8EHabor%E6%BA%90%E7%A0%81%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85%E5%8F%8A%E6%89%93%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从Habor源码进行安装及打包</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-27T17:54:08+08:00">
+                2019-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%91%E8%AE%A1%E7%AE%97/" itemprop="url" rel="index">
+                    <span itemprop="name">云计算</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/27/%E4%BB%8EHabor%E6%BA%90%E7%A0%81%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85%E5%8F%8A%E6%89%93%E5%8C%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/03/27/%E4%BB%8EHabor%E6%BA%90%E7%A0%81%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85%E5%8F%8A%E6%89%93%E5%8C%85/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,360 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/05/04/gmxK7F.jpg" alt=""><br><span id="more"></span><br>   本文将介绍从Habor的源码进行安装部署和从源码打包的方法。由于笔者在近期的项目过程中会需要修改Habor源码，所以必须要从源码开始编译打包并进行安装部署，本文也是记录这个过程中踩过的坑。</p>
+<h2 id="环境要求"><a href="#环境要求" class="headerlink" title="环境要求"></a>环境要求</h2><h3 id="硬件要求"><a href="#硬件要求" class="headerlink" title="硬件要求"></a>硬件要求</h3><table>
+<thead>
+<tr>
+<th>资源</th>
+<th>容量</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU</td>
+<td>minimal 2 CPU</td>
+<td>4 CPU is prefered</td>
+</tr>
+<tr>
+<td>Mem</td>
+<td>minimal 4GB</td>
+<td>8GB is prefered</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>minimal 40GB</td>
+<td>160GB is prefered</td>
+</tr>
+</tbody>
+</table>
+<h3 id="软件要求"><a href="#软件要求" class="headerlink" title="软件要求"></a>软件要求</h3><table>
+<thead>
+<tr>
+<th>Software</th>
+<th>Version</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>version 2.7 or higher</td>
+<td>Note that you may have to install Python on Linux distributions (Gentoo, Arch) that do not come with a Python interpreter installed by default</td>
+</tr>
+<tr>
+<td>Docker engine</td>
+<td>version 1.10 or higher</td>
+<td>For installation instructions, please refer to: <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/installation/">https://docs.docker.com/engine/installation/</a></td>
+</tr>
+<tr>
+<td>Docker Compose</td>
+<td>version 1.6.0 or higher</td>
+<td>For installation instructions, please refer to: <a target="_blank" rel="noopener" href="https://docs.docker.com/compose/install/">https://docs.docker.com/compose/install/</a></td>
+</tr>
+<tr>
+<td>Openssl</td>
+<td>latest is prefered</td>
+<td>Generate certificate and keys for Harbor</td>
+</tr>
+</tbody>
+</table>
+<h2 id="官方的从源码编译安装的指导文档"><a href="#官方的从源码编译安装的指导文档" class="headerlink" title="官方的从源码编译安装的指导文档"></a>官方的从源码编译安装的指导文档</h2><h3 id="Step-1-为Habor准备编构建环境"><a href="#Step-1-为Habor准备编构建环境" class="headerlink" title="Step 1: 为Habor准备编构建环境"></a>Step 1: 为Habor准备编构建环境</h3><p>Habor是部署为几个docker容器，并且其大部分代码均采用GO语言编写。编译环境需要 Python, Docker, Docker Compose 和 GO语言的开发环境。请安装下面必须预先安装的软件:</p>
+<table>
+<thead>
+<tr>
+<th>Software</th>
+<th>Required Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>docker</td>
+<td>1.12.0 +</td>
+</tr>
+<tr>
+<td>docker-compose</td>
+<td>1.11.0 +</td>
+</tr>
+<tr>
+<td>python</td>
+<td>2.7 +</td>
+</tr>
+<tr>
+<td>git</td>
+<td>1.9.1 +</td>
+</tr>
+<tr>
+<td>make</td>
+<td>3.81 +</td>
+</tr>
+<tr>
+<td>golang*</td>
+<td>1.7.3 +</td>
+</tr>
+</tbody>
+</table>
+<p>*optional, required only if you use your own Golang environment.</p>
+<p><strong>用自己go环境才需要预先安装GO环境</strong></p>
+<h3 id="Step-2-获取源代码"><a href="#Step-2-获取源代码" class="headerlink" title="Step 2: 获取源代码"></a>Step 2: 获取源代码</h3>   <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/vmware/harbor</span><br></pre></td></tr></table></figure>
+<p>   也可以到发布页面<a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/releases">habor release</a>下载自己需要的版本</p>
+<h3 id="Step-3-构建安装habor"><a href="#Step-3-构建安装habor" class="headerlink" title="Step 3: 构建安装habor"></a>Step 3: 构建安装habor</h3><h4 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h4><p>编辑 <strong>make/harbor.cfg</strong> ，主要做必要的配置修改，比如 hostname, admin password and mail server等，详细信息可以参考官方的<strong><a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/blob/master/docs/installation_guide.md">Installation and Configuration Guide</a></strong> 。</p>
+   <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> harbor</span><br><span class="line">$ vi make/harbor.cfg</span><br></pre></td></tr></table></figure>
+<h4 id="编译运行"><a href="#编译运行" class="headerlink" title="编译运行"></a>编译运行</h4><p>你可以用下面的三种方法之一来编译habor源码：</p>
+<h5 id="I-用官方的-Golang-image来编译构建"><a href="#I-用官方的-Golang-image来编译构建" class="headerlink" title="I. 用官方的 Golang image来编译构建"></a>I. 用官方的 Golang image来编译构建</h5><ul>
+<li><p>从docker hub获取 Golang image:</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker pull golang:1.9.2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译构建，安装启动Habor不带Notary:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make install GOBUILDIMAGE=golang:1.9.2 COMPILETAG=compile_golangimage CLARITYIMAGE=vmware/harbor-clarity-ui-builder:1.3.0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译构建，安装启动Habor带Notary:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make install GOBUILDIMAGE=golang:1.9.2 COMPILETAG=compile_golangimage CLARITYIMAGE=vmware/harbor-clarity-ui-builder:1.3.0 NOTARYFLAG=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译构建，安装启动Habor带 Clair:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make install GOBUILDIMAGE=golang:1.9.2 COMPILETAG=compile_golangimage CLARITYIMAGE=vmware/harbor-clarity-ui-builder:1.3.0 CLAIRFLAG=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="II-用自己的GO开发环境来编译Habor，然后构建-Harbor"><a href="#II-用自己的GO开发环境来编译Habor，然后构建-Harbor" class="headerlink" title="II. 用自己的GO开发环境来编译Habor，然后构建 Harbor"></a>II. 用自己的GO开发环境来编译Habor，然后构建 Harbor</h4><ul>
+<li><p>把源码放到 $GOPATH</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> <span class="variable">$GOPATH</span>/src/github.com/vmware/</span><br><span class="line">$ <span class="built_in">cd</span> ..</span><br><span class="line">$ <span class="built_in">mv</span> harbor <span class="variable">$GOPATH</span>/src/github.com/vmware/.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译构建，安装启动Habor不带Notary Notary 和 Clair:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> <span class="variable">$GOPATH</span>/src/github.com/vmware/harbor</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译构建，安装启动Habor带  Notary 和 Clair:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">      $ <span class="built_in">cd</span> <span class="variable">$GOPATH</span>/src/github.com/vmware/harbor</span><br><span class="line">      $ make install -e NOTARYFLAG=<span class="literal">true</span> CLAIRFLAG=<span class="literal">true</span></span><br><span class="line">   ```   </span><br><span class="line"> </span><br><span class="line"><span class="comment">### 验证你的安装</span></span><br><span class="line"></span><br><span class="line">If everything worked properly, you can get the below message:</span><br><span class="line"></span><br><span class="line">   ```sh</span><br><span class="line">      ...</span><br><span class="line">      Start complete. You can visit harbor now.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>Refer to <a href="installation_guide.md#managing-harbors-lifecycle">Installation and Configuration Guide</a> for more information about managing your Harbor instance.   </p>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><ul>
+<li>使用 Makefile</li>
+</ul>
+<p>The <code>Makefile</code> contains these configurable parameters:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BASEIMAGE</td>
+<td>Container base image, default: photon</td>
+</tr>
+<tr>
+<td>CLARITYIMAGE</td>
+<td>Clarity UI builder image, default: harbor-clarity-ui-builder</td>
+</tr>
+<tr>
+<td>DEVFLAG</td>
+<td>Build model flag, default: dev</td>
+</tr>
+<tr>
+<td>COMPILETAG</td>
+<td>Compile model flag, default: compile_normal (local golang build)</td>
+</tr>
+<tr>
+<td>NOTARYFLAG</td>
+<td>Notary mode flag, default: false</td>
+</tr>
+<tr>
+<td>CLAIRFLAG</td>
+<td>Clair mode flag, default: false</td>
+</tr>
+<tr>
+<td>HTTPPROXY</td>
+<td>NPM http proxy for Clarity UI builder</td>
+</tr>
+<tr>
+<td>REGISTRYSERVER</td>
+<td>Remote registry server IP address</td>
+</tr>
+<tr>
+<td>REGISTRYUSER</td>
+<td>Remote registry server user name</td>
+</tr>
+<tr>
+<td>REGISTRYPASSWORD</td>
+<td>Remote registry server user password</td>
+</tr>
+<tr>
+<td>REGISTRYPROJECTNAME</td>
+<td>Project name on remote registry server</td>
+</tr>
+<tr>
+<td>VERSIONTAG</td>
+<td>Harbor images tag, default: dev</td>
+</tr>
+<tr>
+<td>PKGVERSIONTAG</td>
+<td>Harbor online and offline version tag, default:dev</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Predefined targets:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>all</td>
+<td>prepare env, compile binaries, build images and install images</td>
+</tr>
+<tr>
+<td>prepare</td>
+<td>prepare env</td>
+</tr>
+<tr>
+<td>compile</td>
+<td>compile ui and jobservice code</td>
+</tr>
+<tr>
+<td>compile_ui</td>
+<td>compile ui binary</td>
+</tr>
+<tr>
+<td>compile_jobservice</td>
+<td>compile jobservice binary</td>
+</tr>
+<tr>
+<td>compile_clarity</td>
+<td>compile Clarity binary</td>
+</tr>
+<tr>
+<td>build</td>
+<td>build Harbor docker images (default: using build_photon)</td>
+</tr>
+<tr>
+<td>build_photon</td>
+<td>build Harbor docker images from Photon OS base image</td>
+</tr>
+<tr>
+<td>install</td>
+<td>compile binaries, build images, prepare specific version of compose file and startup Harbor instance</td>
+</tr>
+<tr>
+<td>start</td>
+<td>startup Harbor instance (set NOTARYFLAG=true when with Notary)</td>
+</tr>
+<tr>
+<td>down</td>
+<td>shutdown Harbor instance (set NOTARYFLAG=true when with Notary)</td>
+</tr>
+<tr>
+<td>package_online</td>
+<td>prepare online install package</td>
+</tr>
+<tr>
+<td>package_offline</td>
+<td>prepare offline install package</td>
+</tr>
+<tr>
+<td>pushimage</td>
+<td>push Harbor images to specific registry server</td>
+</tr>
+<tr>
+<td>clean all</td>
+<td>remove binary, Harbor images, specific version docker-compose file, specific version tag and online/offline install package</td>
+</tr>
+<tr>
+<td>cleanbinary</td>
+<td>remove ui and jobservice binary</td>
+</tr>
+<tr>
+<td>cleanimage</td>
+<td>remove Harbor images</td>
+</tr>
+<tr>
+<td>cleandockercomposefile</td>
+<td>remove specific version docker-compose</td>
+</tr>
+<tr>
+<td>cleanversiontag</td>
+<td>remove specific version tag</td>
+</tr>
+<tr>
+<td>cleanpackage</td>
+<td>remove online/offline install package</td>
+</tr>
+</tbody>
+</table>
+<p>好了，看了官方的指引，感觉还好挺简单的嘛，然后就开始踩坑旅程。</p>
+<h2 id="在windows版本下踩过的坑（最终放弃在windows下安装，坑太多了）"><a href="#在windows版本下踩过的坑（最终放弃在windows下安装，坑太多了）" class="headerlink" title="在windows版本下踩过的坑（最终放弃在windows下安装，坑太多了）"></a>在windows版本下踩过的坑（最终放弃在windows下安装，坑太多了）</h2><p>python安装（略）</p>
+<h3 id="windows下docker安装"><a href="#windows下docker安装" class="headerlink" title="windows下docker安装"></a>windows下docker安装</h3><p>到docker官网下载windows版本<a target="_blank" rel="noopener" href="https://docs.docker-cn.com/docker-for-windows/install/">Install Docker for Windows</a><br>Docker发布了Docker for Windows的正式版，于是就可以在Windows下运行Docker容器了。要在Windows下运行Docker，需要满足以下先决条件：</p>
+<ul>
+<li>64位Windows 10 Pro、Enterprise或者Education版本（Build 10586以上版本，需要安装1511 November更新）</li>
+<li>在系统中启用Hyper-V。如果没有启用，Docker for Windows在安装过程中会自动启用Hyper-V（这个过程需要重启系统）</li>
+</ul>
+<p>由于本人电脑是win10家庭版系统，并没有仔细看说明，安装好Docker for Windows之后运行报错：<strong>Docker for Windows requires Windows 10 Pro or Enterprise version 10586, or Windows server 2016 RTM to run</strong><br><img src="https://z3.ax1x.com/2021/05/04/gmx1h9.jpg" alt=""><br>也就是说docker要求win10用户是pro版的，那普通版用户就没法用docker了呢，不过，如果不是使用的Windows 10，也没有关系，可以使用Docker Toolbox作为替代方案。Docker Toolbox on Windows安装步骤参考：<br><a target="_blank" rel="noopener" href="https://docs.docker-cn.com/toolbox/toolbox_install_windows/">Install Docker Toolbox on Windows</a></p>
+<h3 id="Windows下make安装"><a href="#Windows下make安装" class="headerlink" title="Windows下make安装"></a>Windows下make安装</h3><p>先安装MinGW官网下载地址：<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/mingw/files/latest/download?source=files">https://sourceforge.net/projects/mingw/files/latest/download?source=files</a></p>
+<p>环境变量：F:\MINGW\bin</p>
+<p>在cmd里面输入命令：mingw-get install gcc g++ mingw32-make</p>
+<h3 id="检查环境报错check-env-failed-CreateProcess-give-error-193"><a href="#检查环境报错check-env-failed-CreateProcess-give-error-193" class="headerlink" title="检查环境报错check env failed (CreateProcess give error 193)"></a>检查环境报错check env failed (CreateProcess give error 193)</h3><p>安装好需要的软件之后，运行<br>  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make install GOBUILDIMAGE=golang:1.9.2 COMPILETAG=compile_golangimage CLARITYIMAGE=vmware/harbor-clarity-ui-builder:1.3.0</span><br></pre></td></tr></table></figure><br>   报如下错误：<br><img src="https://z3.ax1x.com/2021/05/04/gmx8pR.jpg" alt=""><br>参考<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12637203/why-does-createprocess-give-error-193-1-is-not-a-valid-win32-app"> CreateProcess give error 193 </a>：</p>
+<blockquote>
+<p>The file you are attempting to load is not an executable file. CreateProcess requires you to provide an executable file. If you wish to be able to open any file with its associated application then you need ShellExecute rather than CreateProcess</p>
+</blockquote>
+<p><img src="https://z3.ax1x.com/2021/05/04/gmxG11.jpg" alt=""><br>查看源码是在执行checkenv.sh脚本，看该脚本权限，确实没有可执行权限<br><img src="https://z3.ax1x.com/2021/05/04/gmxJ6x.jpg" alt=""><br>因此将脚本修改为<br><img src="https://z3.ax1x.com/2021/05/04/gmxYX6.jpg" alt=""></p>
+<h3 id="“sh-C-Program-No-such-file-or-directory”"><a href="#“sh-C-Program-No-such-file-or-directory”" class="headerlink" title="“sh: C:\Program: No such file or directory”"></a>“sh: C:\Program: No such file or directory”</h3><p>改掉这之后，继续又遇到“sh: C:\Program: No such file or directory”错误，查阅资料发现可能是windows里面make版本可能存在bug，遂放弃在windows尝试的念头了。有兴趣的童鞋可以查看：<a target="_blank" rel="noopener" href="https://github.com/STAT545-UBC/Discussion/issues/54">sh: C:\Program: No such file or directory</a></p>
+<h2 id="在Linux下面的安装（CentOS-7）"><a href="#在Linux下面的安装（CentOS-7）" class="headerlink" title="在Linux下面的安装（CentOS 7）"></a>在Linux下面的安装（CentOS 7）</h2><p>下面的安装步骤都是针对CentOS 7,其他版本系统请参考各软件官方的安装方法。</p>
+<h3 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h3><p>移除旧的版本：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">sudo</span> yum remove docker \</span></span><br><span class="line"><span class="language-bash">                  docker-client \</span></span><br><span class="line"><span class="language-bash">                  docker-client-latest \</span></span><br><span class="line"><span class="language-bash">                  docker-common \</span></span><br><span class="line"><span class="language-bash">                  docker-latest \</span></span><br><span class="line"><span class="language-bash">                  docker-latest-logrotate \</span></span><br><span class="line"><span class="language-bash">                  docker-logrotate \</span></span><br><span class="line"><span class="language-bash">                  docker-selinux \</span></span><br><span class="line"><span class="language-bash">                  docker-engine-selinux \</span></span><br><span class="line"><span class="language-bash">                  docker-engine</span></span><br></pre></td></tr></table></figure><br>安装一些必要的系统工具：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install -y yum-utils device-mapper-persistent-data lvm2</span><br></pre></td></tr></table></figure></p>
+<p>添加软件源信息：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure><br>更新 yum 缓存：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum makecache fast</span><br></pre></td></tr></table></figure><br>安装 Docker-ce：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum -y install docker-ce</span><br></pre></td></tr></table></figure><br>启动 Docker 后台服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl start docker</span><br></pre></td></tr></table></figure><br>测试运行 hello-world<br><img src="https://z3.ax1x.com/2021/05/04/gmxNnK.md.jpg" alt=""></p>
+<h3 id="安装docker-compose"><a href="#安装docker-compose" class="headerlink" title="安装docker-compose"></a>安装docker-compose</h3><p>步骤1：把下面命令中版本1.23.2换成你需要的版本<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo curl -L &quot;https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)&quot; -o /usr/local/bin/docker-compose</span><br></pre></td></tr></table></figure></p>
+<p>步骤2：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod +x /usr/local/bin/docker-compose</span><br></pre></td></tr></table></figure></p>
+<p>步骤3：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose</span><br></pre></td></tr></table></figure></p>
+<p>步骤4：验证安装是否成功<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker-compose --version</span><br><span class="line">docker-compose version 1.23.2, build 1110ad01</span><br></pre></td></tr></table></figure></p>
+<h4 id="安装docker-compose遇到的问题"><a href="#安装docker-compose遇到的问题" class="headerlink" title="安装docker-compose遇到的问题"></a>安装docker-compose遇到的问题</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo curl -L &quot;https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)&quot; -o /usr/local/bin/docker-compose</span><br></pre></td></tr></table></figure>
+<p>出现<strong>curl:(6) Could not resovle host: github.com</strong>之类的错误<br><strong>解决办法</strong>：</p>
+<ul>
+<li>Linux在/etc/hosts文件中添加：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">192.30.253.113    github.com  </span><br><span class="line">192.30.252.131 github.com  </span><br><span class="line">185.31.16.185 github.global.ssl.fastly.net  </span><br><span class="line">74.125.237.1 dl-ssl.google.com  </span><br><span class="line">173.194.127.200 groups.google.com  </span><br><span class="line">192.30.252.131 github.com  </span><br><span class="line">185.31.16.185 github.global.ssl.fastly.net  </span><br><span class="line">74.125.128.95 ajax.googleapis.com  </span><br></pre></td></tr></table></figure>
+<ul>
+<li>Windows：<br>在路径C:\Windows\System32\drivers\etc<br>找到host文件，右键-属性-安全-编辑，选中当前电脑登录的用户，给自己最高权限，确认。<br>然后用记事本打开，将</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">192.30.253.113    github.com</span><br><span class="line">192.30.252.131 github.com</span><br><span class="line">185.31.16.185 github.global.ssl.fastly.net</span><br><span class="line">74.125.237.1 dl-ssl.google.com</span><br><span class="line">173.194.127.200 groups.google.com</span><br><span class="line">192.30.252.131 github.com</span><br><span class="line">185.31.16.185 github.global.ssl.fastly.net</span><br><span class="line">74.125.128.95 ajax.googleapis.com</span><br></pre></td></tr></table></figure>
+<p>添加到最后即可。</p>
+<h2 id="编译打包Habor离线包出现”invalid-reference-format”错误"><a href="#编译打包Habor离线包出现”invalid-reference-format”错误" class="headerlink" title="编译打包Habor离线包出现”invalid reference format”错误"></a>编译打包Habor离线包出现”invalid reference format”错误</h2><p>错误如图<br><img src="https://z3.ax1x.com/2021/05/04/gmxU0O.jpg" alt=""><br>解决办法：<br><a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/issues/5316">https://github.com/goharbor/harbor/issues/5316</a></p>
+<p>使用正确的编译打包命令,如下的命令打包不包括NOTARY，CLAIR，MIGRATOR，CHART等：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make package_offline GOBUILDIMAGE=golang:1.9.2 COMPILETAG=compile_golangimage CLARITYIMAGE=vmware/harbor-clarity-ui-builder:1.3.0</span><br></pre></td></tr></table></figure></p>
+<p>如果需要签名工具和漏洞扫描工具则用如下命令打包：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make package_offline GOBUILDIMAGE=golang:1.9.2 COMPILETAG=compile_golangimage CLARITYIMAGE=vmware/harbor-clarity-ui-builder:1.3.0 NOTARYFLAG=true CLAIRFLAG=true MIGRATORFLAG=true CHARTFLAG=true HTTPPROXY=</span><br></pre></td></tr></table></figure></p>
+<p>注意：</p>
+<ul>
+<li>vmware/harbor-clarity-ui-builder:后面那个版本号请根据实际填写</li>
+<li>如未有特别说明，其余步骤按照官方指导操作即可</li>
+<li>在线安装包直接执行make package_online即可</li>
+</ul>
+<p>成功打出了离线安装包<br><img src="https://z3.ax1x.com/2021/05/04/gmxa7D.jpg" alt=""></p>
+<h2 id="Harbor的启动和停止"><a href="#Harbor的启动和停止" class="headerlink" title="Harbor的启动和停止"></a>Harbor的启动和停止</h2><p>Harbor 的日常运维管理是通过docker-compose来完成的，Harbor本身有多个服务进程，都放在docker容器之中运行，我们可以通过docker ps命令查看:<br><img src="https://z3.ax1x.com/2021/05/04/gmxwAe.jpg" alt=""></p>
+<p>或者docker-compose ps来查看：<br><img src="https://z3.ax1x.com/2021/05/04/gmx0tH.jpg" alt=""></p>
+<p><strong>注意</strong>:使用docker-compose ps来查看habor，路径要正确，否则会报<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ERROR:</span><br><span class="line">        Can&#x27;t find a suitable configuration file in this directory or any</span><br><span class="line">        parent. Are you in the right directory?</span><br><span class="line"></span><br><span class="line">        Supported filenames: docker-compose.yml, docker-compose.yaml</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<p>启动Harbor<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># docker-compose start</span><br></pre></td></tr></table></figure><br>停止Harbor<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># docker-comose stop</span><br></pre></td></tr></table></figure><br>重启Harbor<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># docker-compose restart</span><br></pre></td></tr></table></figure></p>
+<h2 id="访问测试"><a href="#访问测试" class="headerlink" title="访问测试"></a>访问测试</h2><p>根据自己的配置情况输入访问的域名；<br>默认账号密码： admin / Harbor12345 登录后可修改密码<br>登录成功后如下图：<br><img src="https://z3.ax1x.com/2021/05/04/gmxBhd.jpg" alt=""></p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p><a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/blob/master/docs/installation_guide.md">Habor Installation and Configuration Guide</a><br><a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor/issues/5316">Is COMPILETAG still in use? </a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/12637203/why-does-createprocess-give-error-193-1-is-not-a-valid-win32-app"> CreateProcess give error 193 </a><br><a target="_blank" rel="noopener" href="https://github.com/STAT545-UBC/Discussion/issues/54">sh: C:\Program: No such file or directory</a><br><a target="_blank" rel="noopener" href="http://www.runoob.com/docker/centos-docker-install.html">CentOS Docker 安装</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/pangguoping/p/7650014.html">搭建Harbor企业级docker仓库</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2019/03/27/%E4%BB%8EHabor%E6%BA%90%E7%A0%81%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85%E5%8F%8A%E6%89%93%E5%8C%85/" title="从Habor源码进行安装及打包">2019/03/27/从Habor源码进行安装及打包/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/habor/" rel="tag"># habor</a>
+          
+            <a href="/tags/habor%E5%AE%89%E8%A3%85/" rel="tag"># habor安装</a>
+          
+            <a href="/tags/habor%E6%89%93%E5%8C%85/" rel="tag"># habor打包</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/26/Habor%E5%88%9D%E5%8D%B0%E8%B1%A1/" rel="next" title="Habor初印象">
+                <i class="fa fa-chevron-left"></i> Habor初印象
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/03/%E8%A7%A3%E5%86%B3git%20push%20%E6%8A%A5%E9%94%99ERROR%20%E2%80%9CPermission%20to%20xxx.git%20denied%20to%20deploy%20key%E2%80%9D/" rel="prev" title="解决git push 报错ERROR “Permission to xxx.git denied to deploy key”">
+                解决git push 报错ERROR “Permission to xxx.git denied to deploy key” <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="nav-number">1.</span> <span class="nav-text">环境要求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">1.1.</span> <span class="nav-text">硬件要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="nav-number">1.2.</span> <span class="nav-text">软件要求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%98%E6%96%B9%E7%9A%84%E4%BB%8E%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E7%9A%84%E6%8C%87%E5%AF%BC%E6%96%87%E6%A1%A3"><span class="nav-number">2.</span> <span class="nav-text">官方的从源码编译安装的指导文档</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-1-%E4%B8%BAHabor%E5%87%86%E5%A4%87%E7%BC%96%E6%9E%84%E5%BB%BA%E7%8E%AF%E5%A2%83"><span class="nav-number">2.1.</span> <span class="nav-text">Step 1: 为Habor准备编构建环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-2-%E8%8E%B7%E5%8F%96%E6%BA%90%E4%BB%A3%E7%A0%81"><span class="nav-number">2.2.</span> <span class="nav-text">Step 2: 获取源代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-3-%E6%9E%84%E5%BB%BA%E5%AE%89%E8%A3%85habor"><span class="nav-number">2.3.</span> <span class="nav-text">Step 3: 构建安装habor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.1.</span> <span class="nav-text">修改配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E8%BF%90%E8%A1%8C"><span class="nav-number">2.3.2.</span> <span class="nav-text">编译运行</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#I-%E7%94%A8%E5%AE%98%E6%96%B9%E7%9A%84-Golang-image%E6%9D%A5%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">I. 用官方的 Golang image来编译构建</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#II-%E7%94%A8%E8%87%AA%E5%B7%B1%E7%9A%84GO%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%9D%A5%E7%BC%96%E8%AF%91Habor%EF%BC%8C%E7%84%B6%E5%90%8E%E6%9E%84%E5%BB%BA-Harbor"><span class="nav-number">2.3.3.</span> <span class="nav-text">II. 用自己的GO开发环境来编译Habor，然后构建 Harbor</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">2.4.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8windows%E7%89%88%E6%9C%AC%E4%B8%8B%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%EF%BC%88%E6%9C%80%E7%BB%88%E6%94%BE%E5%BC%83%E5%9C%A8windows%E4%B8%8B%E5%AE%89%E8%A3%85%EF%BC%8C%E5%9D%91%E5%A4%AA%E5%A4%9A%E4%BA%86%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">在windows版本下踩过的坑（最终放弃在windows下安装，坑太多了）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#windows%E4%B8%8Bdocker%E5%AE%89%E8%A3%85"><span class="nav-number">3.1.</span> <span class="nav-text">windows下docker安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows%E4%B8%8Bmake%E5%AE%89%E8%A3%85"><span class="nav-number">3.2.</span> <span class="nav-text">Windows下make安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E7%8E%AF%E5%A2%83%E6%8A%A5%E9%94%99check-env-failed-CreateProcess-give-error-193"><span class="nav-number">3.3.</span> <span class="nav-text">检查环境报错check env failed (CreateProcess give error 193)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9Csh-C-Program-No-such-file-or-directory%E2%80%9D"><span class="nav-number">3.4.</span> <span class="nav-text">“sh: C:\Program: No such file or directory”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8Linux%E4%B8%8B%E9%9D%A2%E7%9A%84%E5%AE%89%E8%A3%85%EF%BC%88CentOS-7%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">在Linux下面的安装（CentOS 7）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85docker"><span class="nav-number">4.1.</span> <span class="nav-text">安装docker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85docker-compose"><span class="nav-number">4.2.</span> <span class="nav-text">安装docker-compose</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85docker-compose%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.1.</span> <span class="nav-text">安装docker-compose遇到的问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85Habor%E7%A6%BB%E7%BA%BF%E5%8C%85%E5%87%BA%E7%8E%B0%E2%80%9Dinvalid-reference-format%E2%80%9D%E9%94%99%E8%AF%AF"><span class="nav-number">5.</span> <span class="nav-text">编译打包Habor离线包出现”invalid reference format”错误</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Harbor%E7%9A%84%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2"><span class="nav-number">6.</span> <span class="nav-text">Harbor的启动和停止</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%B5%8B%E8%AF%95"><span class="nav-number">7.</span> <span class="nav-text">访问测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">8.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

@@ -1,37 +1,1403 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="存储,Ceph," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ceph的基本概念和常用命令">
+<meta property="og:url" content="https://www.a-programmer.top/2021/09/26/Ceph%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4c2eSI.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4c23kQ.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4c2ItH.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4c2UXV.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4c2xAg.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4cRZEF.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4cRQjx.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4cRYUe.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/09/26/4cWvWj.png">
+<meta property="article:published_time" content="2021-09-26T14:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.034Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="Ceph">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/09/26/4c2eSI.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/09/26/Ceph基本概念和常用命令/"/>
+
+
+
+
+
+  <title>Ceph的基本概念和常用命令 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/09/26/Ceph%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Ceph的基本概念和常用命令</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-09-26T22:30:30+08:00">
+                2021-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式存储</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/09/26/Ceph%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/09/26/Ceph%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,857 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/09/26/4c2eSI.png" alt=""></p>
+<span id="more"></span>
+<p>本文主要简单介绍Ceph的一些基本概念以及常用的一些命令。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>Ceph项目最早起源于Sage就读博士期间的工作（最早的成果于2004年发表），并随后贡献给开源社区。在经过了数年的发展之后，目前已得到众多云计算厂商的支持并被广泛应用。RedHat及OpenStack都可与Ceph整合以支持虚拟机镜像的后端存储。<br><img src="https://z3.ax1x.com/2021/09/26/4c23kQ.png" alt=""><br>Ceph 提供了一个可无限伸缩的 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-21">Ceph 存储集群</a>，它基于 RADOS ，见论文 <a target="_blank" rel="noopener" href="http://ceph.com/papers/weil-rados-pdsw07.pdf">RADOS - A Scalable, Reliable Storage Service for Petabyte-scale Storage Clusters</a> 。</p>
+<p>Ceph 存储集群包含两种类型的守护进程：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-59">Ceph 监视器</a></li>
+<li><a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-56">Ceph OSD 守护进程</a></li>
+</ul>
+<p><img src="https://z3.ax1x.com/2021/09/26/4c2ItH.png" alt="图片"></p>
+<p>Ceph 监视器维护着集群运行图的主副本。一个监视器集群确保了当某个监视器失效时的高可用性。存储集群客户端向 Ceph 监视器索取集群运行图的最新副本。</p>
+<p>Ceph OSD 守护进程检查自身状态、以及其它 OSD 的状态，并报告给监视器们。</p>
+<p>存储集群的客户端和各个 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-56">Ceph OSD 守护进程</a>使用 CRUSH 算法高效地计算数据位置，而不是依赖于一个中心化的查询表。它的高级功能包括：基于 librados的原生存储接口、和多种基于 librados 的服务接口。</p>
+<p><strong>注：通过上面的介绍可以看出Ceph集群中最主要的两个组件是Monitors和OSDs，MDS是CephFS中用来提供原数据管理的组件，在Ceph对象存储和块存储集群中不需要部署该组件。</strong></p>
+<p>不管你是想为<a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-48">云平台</a>提供<a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-30">Ceph 对象存储</a>和/或 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-38">Ceph 块设备</a>，还是想部署一个 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-45">Ceph 文件系统</a>或者把 Ceph 作为他用，所有 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-21">Ceph 存储集群</a>的部署都始于部署一个个 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-13">Ceph 节点</a>、网络和 Ceph 存储集群。 Ceph 存储集群至少需要一个 Ceph Monitor 和两个 OSD 守护进程。而运行 Ceph 文件系统客户端时，则必须要有元数据服务器（ Metadata Server ）。</p>
+<p><img src="https://z3.ax1x.com/2021/09/26/4c2UXV.png" alt="图片"></p>
+<ul>
+<li><strong>Ceph OSDs</strong>: <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-56">Ceph OSD 守护进程</a>（ Ceph OSD ）的功能是存储数据，处理数据的复制、恢复、回填、再均衡，并通过检查其他OSD 守护进程的心跳来向 Ceph Monitors 提供一些监控信息。当 Ceph 存储集群设定为有2个副本时，至少需要2个 OSD 守护进程，集群才能达到 active+clean 状态（ Ceph 默认有3个副本，但你可以调整副本数）。</li>
+<li><strong>Monitors</strong>: <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-ceph-monitor">Ceph Monitor</a>维护着展示集群状态的各种图表，包括监视器图、 OSD 图、归置组（ PG ）图、和 CRUSH 图。 Ceph 保存着发生在Monitors 、 OSD 和 PG上的每一次状态变更的历史信息（称为 epoch ）。</li>
+<li><strong>MDSs</strong>: <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-63">Ceph 元数据服务器</a>（ MDS ）为 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-45">Ceph 文件系统</a>存储元数据（也就是说，Ceph 块设备和 Ceph 对象存储不使用MDS ）。元数据服务器使得 POSIX 文件系统的用户们，可以在不对 Ceph 存储集群造成负担的前提下，执行诸如 ls、find 等基本命令。<h2 id="Ceph对象存储"><a href="#Ceph对象存储" class="headerlink" title="Ceph对象存储"></a>Ceph对象存储</h2></li>
+</ul>
+<p><a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-34">Ceph 对象网关</a>是一个构建在 librados 之上的对象存储接口，它为应用程序访问Ceph 存储集群提供了一个 RESTful 风格的网关 。 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-30">Ceph 对象存储</a>支持 2 种接口：</p>
+<ol>
+<li><strong>兼容S3:</strong> 提供了对象存储接口，兼容 亚马逊S3 RESTful 接口的一个大子集。</li>
+<li><strong>兼容Swift:</strong> 提供了对象存储接口，兼容 Openstack Swift 接口的一个大子集。</li>
+</ol>
+<p>Ceph 对象存储使用 Ceph 对象网关守护进程（ radosgw ），它是个与 Ceph 存储集群交互的 FastCGI 模块。因为它提供了与 OpenStack Swift 和 Amazon S3 兼容的接口， RADOS 要有它自己的用户管理。 Ceph 对象网关可与 Ceph FS 客户端或 Ceph 块设备客户端共用一个存储集群。 S3 和 Swift 接口共用一个通用命名空间，所以你可以用一个接口写如数据、然后用另一个接口取出数据。</p>
+<p><img src="https://z3.ax1x.com/2021/09/26/4c2xAg.png" alt="图片"></p>
+<p><strong>Note</strong></p>
+<p> Ceph 对象存储<strong>不</strong>使用 Ceph 元数据服务器即MDS。</p>
+<p>RGW就是提供对象存储的网关，也即对象存储网关。所谓对象存储网关，也就是对象存储的入口，本质上是一个HTTP服务器，与Nginx和Apache无异。通过这个入口，用户可以通过HTTP协议，以RESTful的方式访问Ceph的对象存储。</p>
+<p>Ceph RGW的整体架构见上图，对象存储网关实际上是调用librados的API来实现数据的存储和读取。而该网关同时提供了<strong>兼容AWS S3和OpenStack Swift的对象存储访问接口（API）</strong>。</p>
+<p>另外，有些同学可能不清楚对象存储的特点。在介绍后续内容之前，我们大概了解一下对象存储是如何存储数据的。对象存储的应用场景通常是互联网场景，一个对象存储通常会给多个<strong>用户</strong>（租户）使用。而在一个用户下面可以创建多个<strong>桶</strong>（swift里面称为容器container）。在桶中可以存储<strong>对象</strong>，对象就是我们存储的数据，比如图片或者是视频等。如果将对象存储与我们常规存储做一个类比，<strong>桶</strong>就好比文件夹，而<strong>对象</strong>就好比文件，但不同之处在于桶里面只能存储对象，而<strong>不能嵌套桶</strong>。如图2是对象存储数据组织形式。</p>
+<p><img src="https://z3.ax1x.com/2021/09/26/4cRZEF.png" alt="图片"></p>
+<pre><code>图2 对象存储数据组织
+</code></pre><h2 id="Ceph-块设备"><a href="#Ceph-块设备" class="headerlink" title="Ceph 块设备"></a>Ceph 块设备</h2><p>块是一个字节序列（例如，一个 512 字节的数据块）。基于块的存储接口是最常见的存储数据方法，它们基于旋转介质，像硬盘、 CD 、软盘、甚至传统的 9 磁道磁带。无处不在的块设备接口使虚拟块设备成为与 Ceph 这样的海量存储系统交互的理想之选。</p>
+<p>Ceph 块设备是精简配置的、大小可调且将数据条带化存储到集群内的多个 OSD 。 Ceph 块设备利用 RADOS 的多种能力，如快照、复制和一致性。 Ceph 的 RADOS 块设备（ RBD ）使用内核模块或 librbd 库与 OSD 交互。</p>
+<p><img src="https://z3.ax1x.com/2021/09/26/4cRQjx.png" alt="图片"></p>
+<p><strong>Note</strong></p>
+<p> 内核模块可使用 Linux 页缓存。对基于 librbd 的应用程序， Ceph 可提供 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/rbd/rbd-config-ref/">RBD 缓存</a>。</p>
+<p>Ceph 块设备靠无限伸缩性提供了高性能，如向<a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/rbd/rbd-ko/">内核模块</a>、或向 abbr:KVM (kernel virtual machines) （如 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/rbd/qemu-rbd/">Qemu</a> 、 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/rbd/rbd-openstack">OpenStack</a> 和 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/rbd/rbd-cloudstack">CloudStack</a> 等云计算系统通过 libvirt 和 Qemu 可与 Ceph 块设备集成）。你可以用同一个集群同时运行 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/radosgw/">Ceph RADOS 网关</a>、 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/cephfs/">Ceph FS 文件系统</a>、和 Ceph 块设备。</p>
+<p><strong>Important</strong></p>
+<p> 要使用 Ceph 块设备，你必须有一个在运行的 Ceph 集群。</p>
+<h2 id="Ceph-文件系统"><a href="#Ceph-文件系统" class="headerlink" title="Ceph 文件系统"></a>Ceph 文件系统</h2><p><a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-45">Ceph 文件系统</a>（ Ceph FS ）是个 POSIX 兼容的文件系统，它使用 Ceph 存储集群来存储数据。 Ceph 文件系统与 Ceph 块设备、同时提供 S3 和 Swift API 的 Ceph 对象存储、或者原生库（ librados ）一样，都使用着相同的 Ceph 存储集群系统。</p>
+<p><strong>Important</strong></p>
+<p> 当前， CephFS 还缺乏健壮得像 ‘fsck’ 这样的检查和修复功能。存储重要数据时需小心使用，因为灾难恢复工具还没开发完。更多的 CephFS 使用现状见 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/cephfs/early-adopters/">CephFS 尝鲜</a> 。</p>
+<p><img src="https://z3.ax1x.com/2021/09/26/4cRYUe.png" alt="图片"></p>
+<p>Ceph 文件系统要求 Ceph 存储集群内至少有一个 <a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/glossary/#term-63">Ceph 元数据服务器</a>。</p>
+<p><img src="https://z3.ax1x.com/2021/09/26/4cWvWj.png" alt=""><br>见文档<a target="_blank" rel="noopener" href="http://docs.ceph.org.cn/cephfs/">http://docs.ceph.org.cn/cephfs/</a></p>
+<h2 id="Ceph常用命令"><a href="#Ceph常用命令" class="headerlink" title="Ceph常用命令"></a>Ceph常用命令</h2><h3 id="集群相关命令"><a href="#集群相关命令" class="headerlink" title="集群相关命令"></a>集群相关命令</h3><ol>
+<li>查看机器的监控状态</li>
+</ol>
+<p>[root<a target="_blank" rel="noopener" href="http://my.oschina.net/client">@client</a>  ~]# ceph health</p>
+<p>HEALTH_OK</p>
+<ol start="2">
+<li>查看ceph的实时运行状态<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root[@client](http://my.oschina.net/client)  ~]# ceph -w</span><br><span class="line"></span><br><span class="line">    cluster be1756f2-54f7-4d8f-8790-820c82721f17</span><br><span class="line"></span><br><span class="line">     health HEALTH_OK</span><br><span class="line"></span><br><span class="line">     monmap e2: 3 mons at  &#123;node1=10.240.240.211:6789/0,node2=10.240.240.212:6789/0,node3=10.240.240.213:6789/0&#125;,  election epoch 294, quorum 0,1,2 node1,node2,node3</span><br><span class="line"></span><br><span class="line">     mdsmap e95: 1/1/1 up &#123;0=node2=up:active&#125;, 1 up:standby</span><br><span class="line"></span><br><span class="line">     osdmap e88: 3 osds: 3 up, 3 in</span><br><span class="line"></span><br><span class="line">      pgmap v1164: 448 pgs, 4 pools, 10003 MB data, 2520 objects</span><br><span class="line"></span><br><span class="line">            23617 MB used, 37792 MB / 61410 MB avail</span><br><span class="line"></span><br><span class="line">                 448 active+clean</span><br><span class="line">2014-06-30 00:48:28.756948 mon.0 [INF] pgmap v1163: 448 pgs: 448  active+clean; 10003 MB data, 23617 MB used, 37792 MB / 61410 MB avail</span><br></pre></td></tr></table></figure></li>
+<li>查看集群的状态 ceph -s</li>
+<li>查看ceph存储空间 ceph df</li>
+<li>用下列命令可以连 Ceph 安装包一起清除：</li>
+</ol>
+<p>ceph-deploy purge {ceph-node} [{ceph-node}]</p>
+<ol start="6">
+<li><p>查看集群健康状态细节 ceph health detail</p>
+<h3 id="pool相关命令"><a href="#pool相关命令" class="headerlink" title="pool相关命令"></a>pool相关命令</h3></li>
+<li><p>查看ceph集群中的pool数量:ceph osd lspools</p>
+</li>
+<li>显示集群中pool的详细信息: rados df</li>
+<li><p>查看某一个pool的pg数量：ceph osd pool get <strong>pool_name</strong> pg_num（pool_name填真实的pool名称）</p>
+<h3 id="mon相关的命令"><a href="#mon相关的命令" class="headerlink" title="mon相关的命令"></a>mon相关的命令</h3></li>
+<li><p>查看mon的状态信息：ceph mon stat</p>
+</li>
+<li>查看mon的选举状态：ceph quorum_status</li>
+<li>查看mon的映射信息：ceph mon dump</li>
+<li><h3 id="OSD相关命令"><a href="#OSD相关命令" class="headerlink" title="OSD相关命令"></a>OSD相关命令</h3></li>
+<li><p>查看ceph osd运行状态：ceph osd stat</p>
+</li>
+<li>查看osd映射信息：ceph osd dump</li>
+<li>查看osd的目录树: ceph osd tree</li>
+<li>down掉一个osd硬盘:ceph osd down 0   #down掉osd.0节点</li>
+<li>在集群中删除一个osd硬盘:ceph osd rm 0</li>
+<li>把一个osd节点逐出集群:ceph osd out osd.3</li>
+<li>把逐出的osd加入集群:ceph osd in osd.3<h3 id="MDS命令（略）"><a href="#MDS命令（略）" class="headerlink" title="MDS命令（略）"></a>MDS命令（略）</h3></li>
+</ol>
+<h3 id="常见命令"><a href="#常见命令" class="headerlink" title="常见命令"></a>常见命令</h3><p>ceph -v //查看ceph的版本</p>
+<p>ceph -s //查看集群的状态</p>
+<p>ceph -w //监控集群的实时更改</p>
+<p>ceph health //查看集群是否健康</p>
+<p>ceph health detail //先显示集群是否健康的详细信息</p>
+<p>ceph time-sync-status //查看mon节点的时间同步情况</p>
+<p>ceph osd df //查看osd的使用信息</p>
+<p>ceph osd dump //osd的map信息</p>
+<p>ceph osd find osd.o//查看osd.0节点ip和主机名 </p>
+<p>ceph osd tree //查看osd的状态和编号以及分布情况</p>
+<p>ceph osd  metadata 0//查看osd元数据的详细信息</p>
+<p>/var/run/ceph //存放所有的sock</p>
+<p>运行状态导出集群monmap（集群正常时确认集群monIP和进程名）</p>
+<p>ceph mon getmap -o /mnt/monmap</p>
+<p>ceph mon dump //查看mon的信息</p>
+<p>查看当前集群主mon</p>
+<p>ceph quorum_status -f json-pretty|grep ‘leader’</p>
+<p>ceph mon stat //查看mon状态</p>
+<p>ceph osd stat //查看osd的状态</p>
+<p>ceph osd dump //查看osd的map信息</p>
+<p>ceph osd pool ls //查看集群中的存储池名称</p>
+<p>ceph osd pool set mytest size 3 //可以修改mytest池的副本数为3</p>
+<p>ceph osd pool ls detail //查看池的的详细信息</p>
+<p>ceph osd pool stats //查看池的IO情况</p>
+<p>ceph pg dump  //查看pg的详细信息</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过本文介绍可以发现Ceph的核心就是OSD和Monitor，搭建好这两个，再根据需求就可以搭建对应的块服务或者对象存储服务以及文件服务，MDS组件是CephFS所需要的，所以在搭建对象和块服务时，其实不需要MDS。在没有看文档之前一直对MDS和Monitor的作用不清楚，还以为Monitor是监控进程的，其实Monitor的作用是维护表示集群状态的各种视图，包括监视器图、 OSD 图、归置组（ PG ）图、和 CRUSH 图（Monitor的作用相当于我们自己开发的KV存储系统中的master的功能）。通过资料可以发现目前文件服务CephFS其实还不是十分的成熟，如果生产环境使用还是得慎重。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="http://docs.ceph.org.cn">欢迎来到 CEPH 世界</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15265005/2888378">Ceph对象存储RGW架构及安装实战</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1411441">ceph 运维常用命令总结</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/blogzjt/p/11978595.html">CEPH 常用命令总结</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/09/26/Ceph%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E5%92%8C%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" title="Ceph的基本概念和常用命令">2021/09/26/Ceph基本概念和常用命令/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%AD%98%E5%82%A8/" rel="tag"># 存储</a>
+          
+            <a href="/tags/Ceph/" rel="tag"># Ceph</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/08/31/Linux%E4%B8%ADHugePages%E7%9A%84%E4%BD%9C%E7%94%A8/" rel="next" title="Linux中HugePages的作用">
+                <i class="fa fa-chevron-left"></i> Linux中HugePages的作用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/09/29/Ceph%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4%E5%8F%8A%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/" rel="prev" title="Ceph手动安装步骤及安装过程中遇到的问题">
+                Ceph手动安装步骤及安装过程中遇到的问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8"><span class="nav-number">2.</span> <span class="nav-text">Ceph对象存储</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph-%E5%9D%97%E8%AE%BE%E5%A4%87"><span class="nav-number">3.</span> <span class="nav-text">Ceph 块设备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.</span> <span class="nav-text">Ceph 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ceph%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">Ceph常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">5.1.</span> <span class="nav-text">集群相关命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pool%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">5.2.</span> <span class="nav-text">pool相关命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mon%E7%9B%B8%E5%85%B3%E7%9A%84%E5%91%BD%E4%BB%A4"><span class="nav-number">5.3.</span> <span class="nav-text">mon相关的命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OSD%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">5.4.</span> <span class="nav-text">OSD相关命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MDS%E5%91%BD%E4%BB%A4%EF%BC%88%E7%95%A5%EF%BC%89"><span class="nav-number">5.5.</span> <span class="nav-text">MDS命令（略）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4"><span class="nav-number">5.6.</span> <span class="nav-text">常见命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">7.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

@@ -1,37 +1,1318 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="NVMe,NVMeoF,RDMA," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="NVMe over RDMA的安装配置">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/11/I0LqZn.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/11/I0LEvQ.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/11/I0L32F.png">
+<meta property="article:published_time" content="2021-10-27T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.042Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="NVMe">
+<meta property="article:tag" content="NVMeoF">
+<meta property="article:tag" content="RDMA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/11/11/I0LqZn.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/27/NVMe over RDMA的安装配置/"/>
+
+
+
+
+
+  <title>NVMe over RDMA的安装配置 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">NVMe over RDMA的安装配置</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-27T23:30:30+08:00">
+                2021-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,048 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/11/11/I0LqZn.png" alt=""><br><span id="more"></span></p>
+<p>本文主要介绍NVMe over RDMA的安装和配置。关于什么是NVMe over Fabrics,什么是NVMe over RDMA，本文就不做介绍了，网上资料一大堆。<br>可以看看<a target="_blank" rel="noopener" href="https://www.sdnlab.com/24838.html">什么是NVMe over Fabrics？</a><br>RDMA（全称：Remote Direct Memory Access）是一种远程直接内存访问技术，通过在硬件中实现传输层协议，将内存/消息原语接口暴露至用户空间，通过绕过CPU和内核网络协议栈来实现高吞吐和低延迟的网络。RoCE（RDMA over Converged Ethernet）是一种允许通过以太网使用远程直接内存访问（RDMA）的网络协议。</p>
+<h2 id="RDMA安装配置"><a href="#RDMA安装配置" class="headerlink" title="RDMA安装配置"></a>RDMA安装配置</h2><h3 id="RDMA驱动安装"><a href="#RDMA驱动安装" class="headerlink" title="RDMA驱动安装"></a>RDMA驱动安装</h3><p>1.下载驱动包 debian10.5<br>下载页面：<a target="_blank" rel="noopener" href="https://www.mellanox.com/products/infiniband-drivers/linux/mlnx_ofed">https://www.mellanox.com/products/infiniband-drivers/linux/mlnx_ofed</a></p>
+<p><img src="https://z3.ax1x.com/2021/11/11/I0LEvQ.png" alt=""><br>选好对应的OS版本等信息后就可以点击下载：<br><img src="https://z3.ax1x.com/2021/11/11/I0L32F.png" alt=""></p>
+<p>2.安装驱动<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./mlnxofedinstall  --add-kernel-support --with-nvmf --force</span><br><span class="line">./mlnxofedinstall --force --without-dkms --with-nvmf --add-kernel-support update-initramfs -u</span><br></pre></td></tr></table></figure></p>
+<h3 id="验证RDMA的联通性"><a href="#验证RDMA的联通性" class="headerlink" title="验证RDMA的联通性"></a>验证RDMA的联通性</h3><p>target端和client端都安装驱动后，可以验证RDMA的联通性<br>1.查询服务器的ib device<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#target端</span><br><span class="line">:~#ibdev2netdev</span><br><span class="line">mlx5_4 port 1 ==&gt; eth4 (Down)</span><br><span class="line">mlx5_5 port 1 ==&gt; eth5 (Down)</span><br><span class="line">mlx5_bond_0 port 1 ==&gt; bond0 (Up)</span><br><span class="line">mlx5_bond_1 port 1 ==&gt; bond1 (Up)</span><br><span class="line">#client端</span><br><span class="line">:~# ibdev2netdev</span><br><span class="line">mlx5_bond_0 port 1 ==&gt; bond0 (Up)</span><br><span class="line">mlx5_bond_1 port 1 ==&gt; bond1 (Up)</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<p>2.开启target端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># ib_send_bw --ib-dev=mlx5_bond_1</span><br><span class="line"></span><br><span class="line">************************************</span><br><span class="line">* Waiting for client to connect... *</span><br><span class="line">************************************</span><br></pre></td></tr></table></figure>
+<p>3.连接target端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">:~# ib_send_bw --ib-dev=mlx5_bond_1 target端的ip</span><br><span class="line">---------------------------------------------------------------------------------------</span><br><span class="line">                    Send BW Test</span><br><span class="line"> Dual-port       : OFF		Device         : mlx5_bond_1</span><br><span class="line"> Number of qps   : 1		Transport type : IB</span><br><span class="line"> Connection type : RC		Using SRQ      : OFF</span><br><span class="line"> PCIe relax order: ON</span><br><span class="line"> ibv_wr* API     : ON</span><br><span class="line"> TX depth        : 128</span><br><span class="line"> CQ Moderation   : 1</span><br><span class="line"> Mtu             : 1024[B]</span><br><span class="line"> Link type       : Ethernet</span><br><span class="line"> GID index       : 3</span><br><span class="line"> Max inline data : 0[B]</span><br><span class="line"> rdma_cm QPs	 : OFF</span><br><span class="line"> Data ex. method : Ethernet</span><br><span class="line">---------------------------------------------------------------------------------------</span><br><span class="line"> local address: LID 0000 QPN 0x117f PSN 0x3a5e58</span><br><span class="line"> GID: 00:00:00:00:00:00:00:00:00:00:255:255:07:32:205:201</span><br><span class="line"> remote address: LID 0000 QPN 0x126d PSN 0xf975cb</span><br><span class="line"> GID: 00:00:00:00:00:00:00:00:00:00:255:255:07:32:205:198</span><br><span class="line">---------------------------------------------------------------------------------------</span><br><span class="line"> #bytes     #iterations    BW peak[MB/sec]    BW average[MB/sec]   MsgRate[Mpps]</span><br><span class="line"> 65536      1000             2757.96            2757.93		   0.044127</span><br><span class="line">---------------------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+<p>查看网卡支持的RoCE版本<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ show_gids //看看网卡支持的roce版本, </span><br><span class="line">DEV     PORT    INDEX   GID                                     IPv4            VER     DEV</span><br><span class="line">---     ----    -----   ---                                     ------------    ---     ---</span><br><span class="line">mlx5_4  1       0       fe80:0000:0000:0000:ee0d:9aff:fe2f:c21a                 v1      p1p1</span><br><span class="line">mlx5_4  1       1       fe80:0000:0000:0000:ee0d:9aff:fe2f:c21a                 v2      p1p1</span><br><span class="line">mlx5_4  1       2       0000:0000:0000:0000:0000:ffff:c0a8:0101 192.168.1.1     v1      p1p1</span><br><span class="line">mlx5_4  1       3       0000:0000:0000:0000:0000:ffff:c0a8:0101 192.168.1.1     v2      p1p1</span><br></pre></td></tr></table></figure></p>
+<p>show_gids是一个脚本，脚本内容为：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">black=&#x27;\E[30;50m&#x27;</span><br><span class="line">red=&#x27;\E[31;50m&#x27;</span><br><span class="line">green=&#x27;\E[32;50m&#x27;</span><br><span class="line">yellow=&#x27;\E[33;50m&#x27;</span><br><span class="line">blue=&#x27;\E[34;50m&#x27;</span><br><span class="line">magenta=&#x27;\E[35;50m&#x27;</span><br><span class="line">cyan=&#x27;\E[36;50m&#x27;</span><br><span class="line">white=&#x27;\E[37;50m&#x27;</span><br><span class="line">bold=&#x27;\033[1m&#x27;</span><br><span class="line"></span><br><span class="line">gid_count=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">cecho (color <span class="built_in">echo</span>) prints text <span class="keyword">in</span> color.</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">first parameter should be the desired color followed by text</span></span><br><span class="line">function cecho ()</span><br><span class="line">&#123;</span><br><span class="line">    echo -en $1</span><br><span class="line">    shift</span><br><span class="line">    echo -n $*</span><br><span class="line"></span><br><span class="line">    tput sgr0</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">becho (color <span class="built_in">echo</span>) prints text <span class="keyword">in</span> bold.</span></span><br><span class="line">becho ()</span><br><span class="line">&#123;</span><br><span class="line">    echo -en $bold</span><br><span class="line">    echo -n $*</span><br><span class="line"></span><br><span class="line">    tput sgr0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function print_gids()</span><br><span class="line">&#123;</span><br><span class="line">    dev=$1</span><br><span class="line">    port=$2</span><br><span class="line"></span><br><span class="line">    for gf in /sys/class/infiniband/$dev/ports/$port/gids/* ; do</span><br><span class="line"></span><br><span class="line">    gid=$(cat $gf);</span><br><span class="line">    if [ $gid = 0000:0000:0000:0000:0000:0000:0000:0000 ] ; then</span><br><span class="line">        continue</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    echo -e $(basename $gf) &quot;\t&quot; $gid</span><br><span class="line"></span><br><span class="line">    done</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">echo -e &quot;DEV\tPORT\tINDEX\tGID\t\t\t\t\tIPv4 \t\tVER\tDEV&quot;</span><br><span class="line">echo -e &quot;---\t----\t-----\t---\t\t\t\t\t------------ \t---\t---&quot;</span><br><span class="line"></span><br><span class="line">DEVS=$1</span><br><span class="line">if [ -z &quot;$DEVS&quot; ] ; then</span><br><span class="line">    DEVS=$(ls /sys/class/infiniband/)</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">for d in $DEVS ; do</span><br><span class="line">    for p in $(ls /sys/class/infiniband/$d/ports/) ; do</span><br><span class="line">        for g in $(ls /sys/class/infiniband/$d/ports/$p/gids/) ; do</span><br><span class="line">            gid=$(cat /sys/class/infiniband/$d/ports/$p/gids/$g);</span><br><span class="line">            if [ $gid = 0000:0000:0000:0000:0000:0000:0000:0000 ] ; then</span><br><span class="line">                continue</span><br><span class="line">            fi</span><br><span class="line"></span><br><span class="line">            if [ $gid = fe80:0000:0000:0000:0000:0000:0000:0000 ] ; then</span><br><span class="line">                continue</span><br><span class="line">            fi</span><br><span class="line"></span><br><span class="line">            _ndev=$(cat /sys/class/infiniband/$d/ports/$p/gid_attrs/ndevs/$g 2&gt;/dev/null)</span><br><span class="line">            __type=$(cat /sys/class/infiniband/$d/ports/$p/gid_attrs/types/$g 2&gt;/dev/null)</span><br><span class="line">            _type=$(echo $__type| grep -o &quot;[Vv].*&quot;)</span><br><span class="line"></span><br><span class="line">            if [ $(echo $gid | cut -d &quot;:&quot; -f -1) = &quot;0000&quot; ] ; then</span><br><span class="line">                ipv4=$(printf &quot;%d.%d.%d.%d&quot; 0x$&#123;gid:30:2&#125; 0x$&#123;gid:32:2&#125; 0x$&#123;gid:35:2&#125; 0x$&#123;gid:37:2&#125;)</span><br><span class="line">                echo -e &quot;$d\t$p\t$g\t$gid\t$ipv4 \t$_type\t$_ndev&quot;</span><br><span class="line">            else</span><br><span class="line">                echo -e &quot;$d\t$p\t$g\t$gid\t\t\t$_type\t$_ndev&quot;</span><br><span class="line">            fi</span><br><span class="line"></span><br><span class="line">            gid_count=$(expr 1 + $gid_count)</span><br><span class="line"></span><br><span class="line">        done #g (gid)</span><br><span class="line">    done #p (port)</span><br><span class="line">done #d (dev)</span><br><span class="line"></span><br><span class="line">echo</span><br><span class="line">echo n_gids_found=$gid_count</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h3 id="NVMe-Initiator-和-target-配置"><a href="#NVMe-Initiator-和-target-配置" class="headerlink" title="NVMe Initiator 和 target 配置"></a>NVMe Initiator 和 target 配置</h3><p>Initiator 和 target 分别为 2 台服务器，target 端 NVMe SSD能通过 RoCE 方式连接到 Initiator 端，连接至 Initiator 端的 SSD 与本地的块设备使用方式一致，例如 mkfs，mount等操作。可以理解为多个 target 端 NVMe 盘可以横向扩展至 Initiator 端，组成 NVMe 存储池使用。</p>
+<p>其中nvme discover -q host nqn中nqn是指是NVMe 合格名称 (NVMe Qualified Name) 的缩写</p>
+<h4 id="NVMe-target端配置"><a href="#NVMe-target端配置" class="headerlink" title="NVMe target端配置"></a>NVMe target端配置</h4><ol>
+<li>安装nvme-cli（apt-get install nvme-cli）</li>
+<li>配置target端</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"># NVMe target configuration</span><br><span class="line"># Assuming the following:</span><br><span class="line"># IP is 192.168.13.147/24</span><br><span class="line"># link is up</span><br><span class="line"># using ib device eth2</span><br><span class="line"># modprobe nvme and rdma module</span><br><span class="line"></span><br><span class="line">modprobe nvmet</span><br><span class="line">modprobe nvmet-rdma</span><br><span class="line">modprobe nvme-rdma</span><br><span class="line"></span><br><span class="line"># 1、config nvme subsystem</span><br><span class="line">mkdir /sys/kernel/config/nvmet/subsystems/nvme-subsystem-name</span><br><span class="line">cd /sys/kernel/config/nvmet/subsystems/nvme-subsystem-name</span><br><span class="line"></span><br><span class="line"># 2、allow any host to be connected to this target</span><br><span class="line">echo 1 &gt; attr_allow_any_host</span><br><span class="line"></span><br><span class="line"># 3、create a namesapce，example: nsid=10</span><br><span class="line">mkdir namespaces/10</span><br><span class="line">cd namespaces/10</span><br><span class="line"></span><br><span class="line"># 4、set the path to the NVMe device</span><br><span class="line">echo -n /dev/nvme0n1&gt; device_path</span><br><span class="line">echo 1 &gt; enable</span><br><span class="line"></span><br><span class="line"># 5、create the following dir with an NVMe port</span><br><span class="line">mkdir /sys/kernel/config/nvmet/ports/1</span><br><span class="line">cd /sys/kernel/config/nvmet/ports/1</span><br><span class="line"></span><br><span class="line"># 6、set ip address to traddr</span><br><span class="line">echo &quot;192.168.13.147&quot; &gt; addr_traddr</span><br><span class="line"></span><br><span class="line"># 7、set rdma as a transport type，addr_trsvcid is unique.</span><br><span class="line">echo rdma &gt; addr_trtype</span><br><span class="line">echo 4420 &gt; addr_trsvcid</span><br><span class="line"></span><br><span class="line"># 8、set ipv4 as the Address family</span><br><span class="line">echo ipv4 &gt; addr_adrfam</span><br><span class="line"></span><br><span class="line"># 9、create a soft link</span><br><span class="line">ln -s /sys/kernel/config/nvmet/subsystems/nvme-subsystem-name /sys/kernel/config/nvmet/ports/1/subsystems/nvme-subsystem-name</span><br><span class="line"></span><br><span class="line"># 10、Check dmesg to make sure that the NVMe target is listening on the port</span><br><span class="line">dmesg -T| grep &quot;enabling port&quot;</span><br><span class="line">[369910.403503] nvmet_rdma: enabling port 1 (192.168.13.147:4420)`</span><br></pre></td></tr></table></figure>
+<h4 id="配置initiator端"><a href="#配置initiator端" class="headerlink" title="配置initiator端"></a>配置initiator端</h4><p>initiator 端，又称为host/client端，initiator 配置前提：RDMA基础环境已搭建。通过NVMe 互联命令探测和连接target 端 NVMe SSD 即可。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#探测 192.168.13.147 机器上 4420 端口 nvme ssd</span><br><span class="line">nvme discover -t rdma -q nvme-subsystem-name -a 192.168.13.147 -s 4420</span><br><span class="line"></span><br><span class="line">#连接 192.168.13.147 4420 端口 nvme ssd</span><br><span class="line">nvme connect -t rdma -q nvme-subsystem-name -n nvme-subsystem-name  -a 192.168.13.147 -s 4420</span><br><span class="line"></span><br><span class="line">#显示NVMe盘</span><br><span class="line">lsblk</span><br><span class="line">NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</span><br><span class="line">sda       8:0    0  1.1T  0 disk</span><br><span class="line">├─sda1    8:1    0    8G  0 part /</span><br><span class="line">├─sda2    8:2    0    1K  0 part</span><br><span class="line">├─sda5    8:5    0    4G  0 part [SWAP]</span><br><span class="line">├─sda6    8:6    0    8G  0 part /usr</span><br><span class="line">├─sda7    8:7    0    8G  0 part /var</span><br><span class="line">├─sda8    8:8    0    4G  0 part /tmp</span><br><span class="line">└─sda9    8:9    0  1.1T  0 part /home</span><br><span class="line">nvme0n1 259:1    0  1.5T  0 disk</span><br><span class="line"></span><br><span class="line">#与target 端 nvme ssd 断开连接</span><br><span class="line">nvme disconnect -n nvme-subsystem-name</span><br></pre></td></tr></table></figure></p>
+<h2 id="安装配置过程中遇到的问题"><a href="#安装配置过程中遇到的问题" class="headerlink" title="安装配置过程中遇到的问题"></a>安装配置过程中遇到的问题</h2><h3 id="1-如何配置多个NVMe盘的问题"><a href="#1-如何配置多个NVMe盘的问题" class="headerlink" title="1. 如何配置多个NVMe盘的问题"></a>1. 如何配置多个NVMe盘的问题</h3><p>一般的配置文档都是只映射了一个NVMe盘到远端客户端，然后自己用如下两种思路尝试摸索：</p>
+<ul>
+<li>按单个NVMe盘的操作思路来，多个盘就做多次，也就是这种思路创建了多个NVMe子系统，然后再客户端做多次nvme connect</li>
+<li>只做单个子系统，在单个子系统下面创建多个命名空间（相当于每个命名空间对应一个NVMe盘）</li>
+</ul>
+<p>实践发现第一个思路操作没有成功，按第二个思路操作成功了！不过在操作的时候需要注意，不同的盘需要对应不同的端口。<br>最后因为都是一个子系统，所以connect的时候就不用输端口了，命令如下：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvme connect -t rdma -q ahnselina_test -n ahnselina_test -a x.x.x.x</span><br></pre></td></tr></table></figure><br>请把上面命令中的”ahnselina_test”换成你自己创建的子系统名称，x.x.x.x替换成你那台机器上的IP。</p>
+<h3 id="2-使用nvme-connect遇到的问题"><a href="#2-使用nvme-connect遇到的问题" class="headerlink" title="2. 使用nvme connect遇到的问题"></a>2. 使用nvme connect遇到的问题</h3><p>使用nvme connect遇到报”Failed to write to /dev/nvme-fabrics: Input/output error”错误。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvme connect -t rdma -q ahnselina_test -n ahnselinatest -a x.x.x.x</span><br><span class="line">Failed to write to /dev/nvme-fabrics: Input/output error</span><br></pre></td></tr></table></figure><br>错误原因：通过看dmesg -T｜ grep nvme发现是自己把nqn名称打错了，尴尬，把名称该正确即可:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvme connect -t rdma -q ahnselina_test -n ahnselina_test -a x.x.x.x</span><br></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://community.mellanox.com/s/article/howto-install-mlnx-ofed-driver">HowTo Install MLNX_OFED Driver</a></p>
+<p><a target="_blank" rel="noopener" href="https://community.mellanox.com/s/article/howto-configure-nvme-over-fabrics">HowTo Configure NVMe over Fabrics</a></p>
+<p><a target="_blank" rel="noopener" href="https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/8/html/managing_storage_devices/overview-of-nvme-over-fabric-devicesmanaging-storage-devices">NVME OVER FABRIC 设备概述</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/345609031">NVMe over RoCE 初探</a><br><a target="_blank" rel="noopener" href="https://www.sdnlab.com/24673.html">浅析RoCE网络技术</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/27/NVMe%20over%20RDMA%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" title="NVMe over RDMA的安装配置">2021/10/27/NVMe over RDMA的安装配置/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NVMe/" rel="tag"># NVMe</a>
+          
+            <a href="/tags/NVMeoF/" rel="tag"># NVMeoF</a>
+          
+            <a href="/tags/RDMA/" rel="tag"># RDMA</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/25/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E5%9B%9B%EF%BC%89%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D%E7%9A%84%E7%9C%9F%E5%AE%9E%E4%BB%A3%E4%BB%B7/" rel="next" title="ZFS系列补充（四）数据去重的真实代价">
+                <i class="fa fa-chevron-left"></i> ZFS系列补充（四）数据去重的真实代价
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/28/NVMe%20over%20RDMA%E7%9A%84%E7%8E%AF%E5%A2%83%E4%B8%8A%E5%AE%89%E8%A3%85ZFS/" rel="prev" title="NVMe over RDMA的环境上安装ZFS">
+                NVMe over RDMA的环境上安装ZFS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDMA%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">RDMA安装配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RDMA%E9%A9%B1%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">RDMA驱动安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81RDMA%E7%9A%84%E8%81%94%E9%80%9A%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">验证RDMA的联通性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NVMe-Initiator-%E5%92%8C-target-%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">NVMe Initiator 和 target 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NVMe-target%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.1.</span> <span class="nav-text">NVMe target端配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEinitiator%E7%AB%AF"><span class="nav-number">1.3.2.</span> <span class="nav-text">配置initiator端</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">安装配置过程中遇到的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AANVMe%E7%9B%98%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.1.</span> <span class="nav-text">1. 如何配置多个NVMe盘的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8nvme-connect%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.</span> <span class="nav-text">2. 使用nvme connect遇到的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

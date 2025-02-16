@@ -1,37 +1,1321 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,文件系统,ZFS,压缩,去重," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZFS系列（九）压缩与数据去重">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/15/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/10/14/51lt0K.png">
+<meta property="article:published_time" content="2021-10-15T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.038Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="ZFS">
+<meta property="article:tag" content="压缩">
+<meta property="article:tag" content="去重">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/10/14/51lt0K.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/15/ZFS系列（九）压缩与数据去重/"/>
+
+
+
+
+
+  <title>ZFS系列（九）压缩与数据去重 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/15/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ZFS系列（九）压缩与数据去重</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-15T23:30:30+08:00">
+                2021-10-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/15/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/15/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,573 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/10/14/51lt0K.png" alt=""></p>
+<span id="more"></span>
+<p>本文主要介绍ZFS的压缩和数据去重特性。</p>
+<h2 id="压缩"><a href="#压缩" class="headerlink" title="压缩"></a>压缩</h2><p>如果你开启了ZFS的压缩功能，这个压缩过程是透明的。也就是说，在你开启压缩功能后，在你存储池中的每一个文件都被压缩了，但是从应用程序的角度来看，感受不到这一点，感觉文件没有被压缩。主要是ZFS压缩解压磁盘上的数据是动态进行的，并且压缩对CPU消耗很小而且一些压缩算法很快，所以上层通常感知不到（没有注意到压缩这个事情）。</p>
+<p>可以对每个数据集启用和禁用压缩。支持的压缩算法有LZJB、LZ4、ZLE和Gzip。对于Gzip，支持标准级别是1到9，其中1是尽可能快的，压缩率最少，9是压缩比例高，但是耗时最多，默认值是6，这是GNU/Linux和其他Unix操作系统的标准值。LZJB是由Jeff Bonwick发明的，同时他也是ZFS的作者。LZJB被设计为具有紧凑的压缩比，这是大多数Lempel-Ziv算法的标准。LZJB是ZFS默认采用的压缩算法。ZLE是一个速度非常块，具有非常轻的压缩比。在性能和压缩方面，LZJB似乎提供了最好的全面结果。</p>
+<p><strong>更新</strong>:自从写这篇文章以来，<strong>LZ4已经被引入到Linux上的ZFS中，现在它是使用ZFS进行压缩的首选方式</strong>。它不仅速度快，而且提供了比LZJB更紧凑的压缩比——平均约为0.23%</p>
+<p>显然，根据存储的数据的不同，压缩节省的磁盘空间也会有所不同。如果数据集主要存储未压缩的数据，如纯文本日志文件或配置文件，则压缩比可能是巨大的。如果数据集主要存储的是压缩的图像和视频，那么在磁盘节省方面就不可观。压缩在默认情况下是禁用的，启用LZJB或LZ4似乎不会产生任何性能影响。因此，即使您存储的是大量压缩的数据，对于那些未压缩的数据文件，启用压缩后您也可以节约一些磁盘空间，而不会影响存储服务器的性能。所以，在我看来，我建议对所有的数据集启用压缩。</p>
+<p><strong>警告</strong>:对数据集启用压缩是不可追溯的!它只适用于新提交或修改的数据。数据集中以前的任何数据都将保持未压缩状态。因此，如果您想使用压缩，您应该在开始提交数据之前启用它。</p>
+<p>要在数据集上启用压缩，我们只需要修改“compression”属性。该属性的有效值是:”on”， “off”， “lzjb”， “lz4”， “gzip”， “gzip[1-9]”和”zle”。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># zfs create tank/log</span><br><span class="line"># zfs set compression=lz4 tank/log</span><br></pre></td></tr></table></figure><br>现在我们已经在这个数据集上启用了压缩，让我们复制一些未压缩的数据，看看我们会看到节省多少空间。未压缩数据的源文件是/etc/和/var/log/目录。让我们为这些目录创建一个tar包，看看它的原始大小，然后再看看节省了多少空间:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># tar -cf /tank/test/text.tar /var/log/ /etc/</span><br><span class="line"># ls -lh /tank/test/text.tar</span><br><span class="line">-rw-rw-r-- 1 root root 24M Dec 17 21:24 /tank/test/text.tar</span><br><span class="line"># zfs list tank/test</span><br><span class="line">NAME        USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">tank/test  11.1M  2.91G  11.1M  /tank/test</span><br><span class="line"># zfs get compressratio tank/test</span><br><span class="line">NAME       PROPERTY       VALUE  SOURCE</span><br><span class="line">tank/test  compressratio  2.14x  -</span><br></pre></td></tr></table></figure><br>在上面的例子中，我创建一个24MB的未压缩的tar包，把它拷贝到开启压缩的数据中后，它只占用11.1MB，还不到原始文件的一半（文本文件很适合压缩）！我们可以读取数据集上的“compressratio”属性，看看节省了多少磁盘空间。在上面的例子中，输出告诉我，如果未压缩，压缩后的数据将占用2.14倍的磁盘空间，非常好的结果。</p>
+<h2 id="数据去重（Deduplication，重复数据删除-重删）"><a href="#数据去重（Deduplication，重复数据删除-重删）" class="headerlink" title="数据去重（Deduplication，重复数据删除/重删）"></a>数据去重（Deduplication，重复数据删除/重删）</h2><p> 我们还有另一种与压缩相结合的方法来节约磁盘空间，那就是重复数据删除。现在，有三种主要的重复数据删除类型:文件、块和字节。文件重复数据删除是性能最高、系统资源成本最低的。每个文件都使用加密哈希算法进行哈希，比如SHA-256。如果哈希值匹配多个文件，则不将新文件存储在磁盘上，而是在元数据中引用原始文件。这可以节省大量空间，但也有一个严重的缺点。如果文件中的单个字节发生了变化，哈希值将不再匹配，这意味着我们不能再在文件系统元数据中引用整个文件。因此，我们必须将磁盘所有块做一个复本，对于大文件，这对性能有很大的影响。</p>
+<p>另一种极端情况是字节重复数据删除，这种重复数据删除方法成本最高，因为您必须保留“锚点”，以确定重复数据删除和唯一字节区域的开始和结束位置。毕竟，字节就是字节，是不知道哪些文件需要它们，它只不过是一个数据的海洋。这种重复数据删除技术适用于文件可能被存储多次的存储，即使文件没有在相同的块下对齐，比如邮件附件。</p>
+<p> 块重复数据删除处于三者中间位置。<strong>ZFS仅支持块重复数据删除</strong>。块重删共享文件中所有相同的块。这允许我们只在磁盘上存储唯一的块，并在RAM中引用共享块。它比字节重复数据删除更高效，比文件重复数据删除更灵活。然而，它有一个缺点——它需要大量的内存来记录哪些块是共享的，哪些不是。不过，因为文件系统读写数据是以块的方式，所以对现代文件系统使用块重复数据删除是最有意义的。</p>
+<p>共享块被存储在所谓的“重复数据删除表”中，文件系统上重复的块越多，这个表就越大。每次写入或读取数据时，重复数据删除表都会被引用。这意味着您希望将整个重复数据删除表保存在快速RAM中。如果您没有足够的RAM，那么表将溢出到磁盘上。这可能会对存储的性能产生巨大的影响，无论是读数据还是写数据。</p>
+<h2 id="数据去重的开销"><a href="#数据去重的开销" class="headerlink" title="数据去重的开销"></a>数据去重的开销</h2><p>所以这还有个问题:你需要多少内存来存储你的重复数据删除表?这个问题没有一个简单的答案，但是我们可以对如何处理这个问题有一个很好的总体思路。首先，查看存储池中的块数量。你可以看到这个信息，用如下的命令(耐心点-在它给出报告之前，可能需要一段时间来扫描文件系统中的所有块):<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># zdb -b rpool</span><br><span class="line"></span><br><span class="line">Traversing all blocks to verify nothing leaked ...</span><br><span class="line"></span><br><span class="line">        No leaks (block sum matches space maps exactly)</span><br><span class="line"></span><br><span class="line">        bp count:          288674</span><br><span class="line">        bp logical:    34801465856      avg: 120556</span><br><span class="line">        bp physical:   30886096384      avg: 106992     compression:   1.13</span><br><span class="line">        bp allocated:  31092428800      avg: 107707     compression:   1.12</span><br><span class="line">        bp deduped:             0    ref&gt;1:      0   deduplication:   1.00</span><br><span class="line">        SPA allocated: 31092244480     used: 13.53%</span><br></pre></td></tr></table></figure><br>在本例中，存储池“rpool”中有288674块被使用(查看“bp count”)。<strong>池中的每个重复数据删除块需要大约320字节的内存</strong>。因此，对于288674块乘以320字节/块，我们得到大约92 MB。文件系统大约有200 GB大小，所以我们可以假设重复数据删除只能增长到大约670 MB，尽管它只有13.53%被填满。也就是说，每1GB的文件系统需要3.35 MB的重复数据删除数据，或者每1TB的磁盘需要3.35 GB的RAM。</p>
+<p>如果您需要提前规划存储，并且希望在提交数据之前知道大小，那么您需要计算出块的平均大小。 在这种情况下，您需要非常熟悉这些数据。ZFS以128KB块大小的形式读写数据。但是，如果您要存储大量的配置文件、主目录等，那么您的文件将小于128KB。对于本例，我们假设平均块大小为100 KB，如上例所示。如果我的总存储是1TB，那么1TB除以100KB每个块大约是10737418块，然后乘以每块320字节，我们得到3.2 GB的RAM，这接近我们之前得到的数字。</p>
+<p><strong>一个好的经验法则是，为每1TB磁盘规划5GB RAM</strong>。这很快就会变得非常昂贵。一个12 TB的池(在许多企业中很小)将需要60 GB RAM来确保您的重复数据删除表被存储和快速访问。请记住，一旦重复数据删除表溢出到磁盘，就会造成严重的性能影响。</p>
+<h2 id="数据去重的总内存开销"><a href="#数据去重的总内存开销" class="headerlink" title="数据去重的总内存开销"></a>数据去重的总内存开销</h2><p>ZFS在RAM中存储的不仅仅是重复数据删除表。它还存储ARC以及其他ZFS元数据。你猜怎么着?重复数据删除表的大小上限是ARC的25%。这意味着，一个12TB的存储阵列需要的内存不只是60GB，而是需要240GB RAM来确保您的重复数据删除表能被完全存下。换句话说，如果您计划做重复数据删除，请确保将内存占用增加四倍，否则您将受到伤害（性能受到很大影响）。</p>
+<p>请确保系统具有足够的内存来支持重复数据删除，如下所示：  </p>
+<ul>
+<li><strong>每个块的对应的重复数据删除表项大小约为 320 字节</strong>。  </li>
+<li>用分配的块数乘以 320，即可得到大概需要多少内存。<br>例如：<pre><code>in-core DDT size = 2.63M x 320 = 841.60M
+</code></pre></li>
+</ul>
+<h2 id="L2ARC中的重复数据删除表"><a href="#L2ARC中的重复数据删除表" class="headerlink" title="L2ARC中的重复数据删除表"></a>L2ARC中的重复数据删除表</h2><p>内存放不下的重复数据删除表可能会溢出到L2ARC，不一定是慢盘。如果您的L2ARC由快SSD或RAM驱动器组成，那么每次读取和写入重复数据删除表对性能的影响不会像溢出到盘片磁盘那样严重。然而，它仍然会有影响，因为SSD性能还是比不上内存。因此，对于性能要求不是很高的存储服务器，例如夜间或每周备份服务器，重复数据删除表溢出到L2ARC上，是完全可以接受的。</p>
+<h2 id="启用数据去重"><a href="#启用数据去重" class="headerlink" title="启用数据去重"></a>启用数据去重</h2><p>可以通过设置”dedup”属性来启用数据去重。同压缩一样，数据去重对以前提交的数据不起作用。它只应用于新提交或修改的数据。此外，重复数据删除后的数据不会作为原子事务刷新到磁盘。相反，这些块是串行地写入磁盘的，每次一个块。因此，在写入块之前出现电源故障时，这将使您面临数据损坏的风险。</p>
+<p>让我们在“tank/test”数据集上启用数据去重特性，然后拷贝一个相同的tar包，给它一个不同的名称，并看看这将如何影响重复数据删除比率。注意，获取重复数据删除比率是使用“zpool”命令，而不是使用“zfs”命令。首先，我们需要启用数据集的重复数据删除功能:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># zfs set dedup=on tank/test</span><br><span class="line"># cp /tank/test/text.tar&#123;,.2&#125;</span><br><span class="line"># tar -cf /tank/test/boot.tar /boot</span><br><span class="line"># zfs get compressratio tank/test</span><br><span class="line">NAME       PROPERTY       VALUE  SOURCE</span><br><span class="line">tank/test  compressratio  1.74x  -</span><br><span class="line"># zpool get dedupratio tank</span><br><span class="line">NAME  PROPERTY    VALUE  SOURCE</span><br><span class="line">tank  dedupratio  1.42x  -</span><br><span class="line"># ls -lh /tank/test</span><br><span class="line">total 38M</span><br><span class="line">-rw-rw-r-- 1 root root 18M Dec 17 22:31 boot.tar</span><br><span class="line">-rw-rw-r-- 1 root root 24M Dec 17 22:27 text.tar</span><br><span class="line">-rw-rw-r-- 1 root root 24M Dec 17 22:29 text.tar.2</span><br><span class="line"># zfs list tank/test</span><br><span class="line">NAME        USED  AVAIL  REFER  MOUNTPOINT</span><br><span class="line">tank/test  37.1M  2.90G  37.1M  /tank/test</span><br></pre></td></tr></table></figure><br>在这个例子中，首先对数据进行压缩，然后进行数据去重。原始数据通占用66MB的磁盘空间，但是由于压缩和数据去重，它只占用37MB，节约了不少存储空间。</p>
+<h2 id="结论及建议"><a href="#结论及建议" class="headerlink" title="结论及建议"></a>结论及建议</h2><p>毫无疑问，压缩和数据去重可以提供巨大的存储效益。对于实时运行的生产数据，压缩节省了巨大的存储空间，而对性能的影响可以忽略不计。对于混合数据，我通常会看到1.15倍的节省，就成本而言，这是很值得的。但是，对于数据去重，我发现不值得这么麻烦，除非性能根本不是问题。数据去重对RAM和L2ARC的消耗占比是巨大的。当它溢出到普通盘上时（内存和L2ARC上存不下数据去重表），你就可以和性能说再见了。对于混合数据，我很少看到它能节省超过1.10倍的，在我看来这是不值得的。此外，在我看来，数据去重带来的数据损坏风险也是不值得的。因此，作为建议，我建议您在默认情况下对所有数据集启用压缩，不要开启数据去重，除非您知道您有足够的内存来容纳数据去重表。如果您负担得起这种开销，那么节省的空间将非常可观，这是ext4、XFS和其他文件系统无法实现的。</p>
+<p>关于是否启用ZFS的数据去重，我再多说一点：主要还是取决于你的数据。如果你的数据确实不包含重复，则开启去重功能则会带来额外的开销且没有任何的好处。但是如果你的数据包含重复，则使用ZFS的去重可以节约空间而且提高性能。节约空间是显而易见的，性能的提高是因为减少了重复数据的写磁盘消耗和内存页的置换。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://pthree.org/2012/12/18/zfs-administration-part-xi-compression-and-deduplication/">https://pthree.org/2012/12/18/zfs-administration-part-xi-compression-and-deduplication/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/itech/archive/2012/06/19/2555442.html">ZFS与数据去重</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/15/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D/" title="ZFS系列（九）压缩与数据去重">2021/10/15/ZFS系列（九）压缩与数据去重/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+            <a href="/tags/%E5%8E%8B%E7%BC%A9/" rel="tag"># 压缩</a>
+          
+            <a href="/tags/%E5%8E%BB%E9%87%8D/" rel="tag"># 去重</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/14/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="next" title="ZFS系列（八）创建文件系统">
+                <i class="fa fa-chevron-left"></i> ZFS系列（八）创建文件系统
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/16/ZFS%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%EF%BC%89%E5%BF%AB%E7%85%A7%E5%92%8C%E5%85%8B%E9%9A%86/" rel="prev" title="ZFS系列（十）快照和克隆">
+                ZFS系列（十）快照和克隆 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9"><span class="nav-number">1.</span> <span class="nav-text">压缩</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D%EF%BC%88Deduplication%EF%BC%8C%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%E5%88%A0%E9%99%A4-%E9%87%8D%E5%88%A0%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">数据去重（Deduplication，重复数据删除&#x2F;重删）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D%E7%9A%84%E5%BC%80%E9%94%80"><span class="nav-number">3.</span> <span class="nav-text">数据去重的开销</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D%E7%9A%84%E6%80%BB%E5%86%85%E5%AD%98%E5%BC%80%E9%94%80"><span class="nav-number">4.</span> <span class="nav-text">数据去重的总内存开销</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#L2ARC%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%E5%88%A0%E9%99%A4%E8%A1%A8"><span class="nav-number">5.</span> <span class="nav-text">L2ARC中的重复数据删除表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D"><span class="nav-number">6.</span> <span class="nav-text">启用数据去重</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA%E5%8F%8A%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">结论及建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

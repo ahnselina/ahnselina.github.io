@@ -1,37 +1,1382 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Redis,Key-Value存储系统,源码阅读," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="整数集合（intset）是集合键的底层实现之一，当一个集合只包含整数值元素， 并且这个集合的元素数量不多时， Redis就会使用整数集合作为集合键的底层实现。本文主要介绍Redis源码中的整数数组。主要内容如下：  Redis中的整数集合实现及特点 Redis中的整数集合源码难点分析 Redis中的整数集合源码部分节选   Redis中的整数集合实现及特点整数集合的具体实现在头文件intset.h">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis源码阅读--整数集合">
+<meta property="og:url" content="https://www.a-programmer.top/2018/06/05/Redis%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB--%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:description" content="整数集合（intset）是集合键的底层实现之一，当一个集合只包含整数值元素， 并且这个集合的元素数量不多时， Redis就会使用整数集合作为集合键的底层实现。本文主要介绍Redis源码中的整数数组。主要内容如下：  Redis中的整数集合实现及特点 Redis中的整数集合源码难点分析 Redis中的整数集合源码部分节选   Redis中的整数集合实现及特点整数集合的具体实现在头文件intset.h">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-06-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.022Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="Key-Value存储系统">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2018/06/05/Redis源码阅读--整数集合/"/>
+
+
+
+
+
+  <title>Redis源码阅读--整数集合 | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2018/06/05/Redis%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB--%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis源码阅读--整数集合</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-05T00:00:00+08:00">
+                2018-06-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/06/05/Redis%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB--%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018/06/05/Redis%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB--%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,146 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>整数集合（intset）是集合键的底层实现之一，当一个集合只包含整数值元素， 并且这个集合的元素数量不多时， Redis就会使用整数集合作为集合键的底层实现。本文主要介绍Redis源码中的整数数组。主要内容如下：</p>
+<ul>
+<li>Redis中的整数集合实现及特点</li>
+<li>Redis中的整数集合源码难点分析</li>
+<li>Redis中的整数集合源码部分节选</li>
+</ul>
+<hr>
+<h3 id="Redis中的整数集合实现及特点"><a href="#Redis中的整数集合实现及特点" class="headerlink" title="Redis中的整数集合实现及特点"></a>Redis中的整数集合实现及特点</h3><p><strong>整数集合的具体实现</strong><br>在头文件intset.h中，相关API在intset.c中；整数集合的数据结构定义如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> encoding;<span class="comment">//保存元素所使用类型的长度</span></span><br><span class="line">    <span class="type">uint32_t</span> length;<span class="comment">//保存元素的个数</span></span><br><span class="line">    <span class="type">int8_t</span> contents[];<span class="comment">//保存元素的数组</span></span><br><span class="line">&#125; intset;</span><br></pre></td></tr></table></figure></p>
+<p><strong>整数集合相关API</strong>  </p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th style="text-align:center">作用</th>
+<th style="text-align:right">时间复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>intsetNew</td>
+<td style="text-align:center">创建一个新的整数集合</td>
+<td style="text-align:right">O(1)</td>
+</tr>
+<tr>
+<td>intsetAdd</td>
+<td style="text-align:center">将指定元素添加到整数集合中</td>
+<td style="text-align:right">O(N)</td>
+</tr>
+<tr>
+<td>intsetRemove</td>
+<td style="text-align:center">从整数集合中移除指定元素</td>
+<td style="text-align:right">O(N)</td>
+</tr>
+<tr>
+<td>intsetFind</td>
+<td style="text-align:center">查找指定的值是否在集合中</td>
+<td style="text-align:right">因数组有序，可通过二分查找法来进行，故复杂度为O(logN)</td>
+</tr>
+<tr>
+<td>intsetRandom</td>
+<td style="text-align:center">从整数集合中随机返回一个元素</td>
+<td style="text-align:right">O(1)</td>
+</tr>
+<tr>
+<td>intsetGet</td>
+<td style="text-align:center">获取指定索引上的元素</td>
+<td style="text-align:right">O(1)</td>
+</tr>
+<tr>
+<td>intsetLen</td>
+<td style="text-align:center">返回整数集合包含的元素个数</td>
+<td style="text-align:right">O(1)</td>
+</tr>
+<tr>
+<td>intsetBlobLen</td>
+<td style="text-align:center">返回整数集合占用的内存字节数</td>
+<td style="text-align:right">O(1)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>整数集合特点</strong>  </p>
+<ul>
+<li>新建整数集合时，其encoding是int16_t类型</li>
+<li>只支持升级，不支持降级</li>
+<li>查找使用二分查找法</li>
+<li>整数集合的底层实现为数组，这个数组以<strong>有序、无重复</strong>的方式保存集合元素， 在有需要时， 程序会根据新添加元素的类型，改变这个数组的类型。</li>
+<li>升级操作为整数集合带来了操作上的灵活性， 并且尽可能地节约了内存。</li>
+</ul>
+<p>创建一个空的inset<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Create an empty intset. */</span></span><br><span class="line">intset *<span class="title function_">intsetNew</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    intset *is = zmalloc(<span class="keyword">sizeof</span>(intset));</span><br><span class="line">    is-&gt;encoding = intrev32ifbe(INTSET_ENC_INT16);</span><br><span class="line">    is-&gt;length = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> is;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Redis中的整数集合源码难点分析"><a href="#Redis中的整数集合源码难点分析" class="headerlink" title="Redis中的整数集合源码难点分析"></a>Redis中的整数集合源码难点分析</h3><p><strong>小端模式与大端模式</strong><br><strong>小端模式</strong>：按照从低地址到高地址的顺序，依次存放数据的低字节到高字节<br><strong>大端模式</strong>：按照从低地址到高地址的顺序，依次存放数据的高字节到低字节<br>详细介绍可参考<a target="_blank" rel="noopener" href="http://blog.163.com/shengrui_step/blog/static/20870918720139103944374/">计算机中的小端模式和大端模式</a><br>比如0x1234abcd，分别用大小端表示如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align:center">低地址</th>
+<th style="text-align:right">高地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小端模式</td>
+<td style="text-align:center">0xcd  0xab</td>
+<td style="text-align:right">0x34  0x12</td>
+</tr>
+<tr>
+<td>大端模式</td>
+<td style="text-align:center">0x12  0x34</td>
+<td style="text-align:right">0xab  0xcd</td>
+</tr>
+</tbody>
+</table>
+<p>Redis中有关大小端的部分代码如下:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/* Toggle the 16 bit unsigned integer pointed by *p from little endian to</span></span><br><span class="line"><span class="comment"> * big endian */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">memrev16</span><span class="params">(<span class="type">void</span> *p)</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> *x = p, t;</span><br><span class="line"></span><br><span class="line">    t = x[<span class="number">0</span>];</span><br><span class="line">    x[<span class="number">0</span>] = x[<span class="number">1</span>];</span><br><span class="line">    x[<span class="number">1</span>] = t;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Toggle the 32 bit unsigned integer pointed by *p from little endian to</span></span><br><span class="line"><span class="comment"> * big endian */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">memrev32</span><span class="params">(<span class="type">void</span> *p)</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> *x = p, t;</span><br><span class="line"></span><br><span class="line">    t = x[<span class="number">0</span>];</span><br><span class="line">    x[<span class="number">0</span>] = x[<span class="number">3</span>];</span><br><span class="line">    x[<span class="number">3</span>] = t;</span><br><span class="line">    t = x[<span class="number">1</span>];</span><br><span class="line">    x[<span class="number">1</span>] = x[<span class="number">2</span>];</span><br><span class="line">    x[<span class="number">2</span>] = t;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* variants of the function doing the actual convertion only if the target</span></span><br><span class="line"><span class="comment"> * host is big endian */</span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (BYTE_ORDER == LITTLE_ENDIAN)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> memrev16ifbe(p)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> memrev32ifbe(p)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> memrev64ifbe(p)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> intrev16ifbe(v) (v)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> intrev32ifbe(v) (v)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> intrev64ifbe(v) (v)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> memrev16ifbe(p) memrev16(p)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> memrev32ifbe(p) memrev32(p)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> memrev64ifbe(p) memrev64(p)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> intrev16ifbe(v) intrev16(v)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> intrev32ifbe(v) intrev32(v)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> intrev64ifbe(v) intrev64(v)</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<h3 id="Redis中的整数集合源码部分节选"><a href="#Redis中的整数集合源码部分节选" class="headerlink" title="Redis中的整数集合源码部分节选"></a>Redis中的整数集合源码部分节选</h3><p><strong>在整数集合中查找一个值，利用二分查找</strong><br>如果找到返回1，pos返回该值在整数集合中的位置；如果没有找到返回0，pos值为当前值value应该插入的位置。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Search for the position of &quot;value&quot;. Return 1 when the value was found and</span></span><br><span class="line"><span class="comment"> * sets &quot;pos&quot; to the position of the value within the intset. Return 0 when</span></span><br><span class="line"><span class="comment"> * the value is not present in the intset and sets &quot;pos&quot; to the position</span></span><br><span class="line"><span class="comment"> * where &quot;value&quot; can be inserted. */</span></span><br><span class="line"><span class="type">static</span> <span class="type">uint8_t</span> <span class="title function_">intsetSearch</span><span class="params">(intset *is, <span class="type">int64_t</span> value, <span class="type">uint32_t</span> *pos)</span> &#123;</span><br><span class="line">    <span class="type">int</span> min = <span class="number">0</span>, max = intrev32ifbe(is-&gt;length)<span class="number">-1</span>, mid = <span class="number">-1</span>;</span><br><span class="line">    <span class="type">int64_t</span> cur = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* The value can never be found when the set is empty */</span></span><br><span class="line">    <span class="keyword">if</span> (intrev32ifbe(is-&gt;length) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (pos) *pos = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* Check for the case where we know we cannot find the value,</span></span><br><span class="line"><span class="comment">         * but do know the insert position. */</span></span><br><span class="line">        <span class="keyword">if</span> (value &gt; _intsetGet(is,intrev32ifbe(is-&gt;length)<span class="number">-1</span>)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (pos) *pos = intrev32ifbe(is-&gt;length);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (value &lt; _intsetGet(is,<span class="number">0</span>)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (pos) *pos = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(max &gt;= min) &#123;</span><br><span class="line">        mid = ((<span class="type">unsigned</span> <span class="type">int</span>)min + (<span class="type">unsigned</span> <span class="type">int</span>)max) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">        cur = _intsetGet(is,mid);</span><br><span class="line">        <span class="keyword">if</span> (value &gt; cur) &#123;</span><br><span class="line">            min = mid+<span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (value &lt; cur) &#123;</span><br><span class="line">            max = mid<span class="number">-1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (value == cur) &#123;</span><br><span class="line">        <span class="keyword">if</span> (pos) *pos = mid;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (pos) *pos = min;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>因为整数集合是有序的，所以其中数组最后一个元素是最大的，第一个元素是最小的，如果当前value值比最大值还大，那当前插入位置应该是<em>pos = intrev32ifbe(is-&gt;length);如果比最小值还小，那么插入位置就应该是 </em>pos = 0;<br>再下面就是一个二分查找。</p>
+<p><strong>升级集合并往整数集合中添加给定的整数</strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Upgrades the intset to a larger encoding and inserts the given integer. */</span></span><br><span class="line"><span class="type">static</span> intset *<span class="title function_">intsetUpgradeAndAdd</span><span class="params">(intset *is, <span class="type">int64_t</span> value)</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> curenc = intrev32ifbe(is-&gt;encoding);</span><br><span class="line">    <span class="type">uint8_t</span> newenc = _intsetValueEncoding(value);</span><br><span class="line">    <span class="type">int</span> length = intrev32ifbe(is-&gt;length);</span><br><span class="line">	<span class="comment">/*1表示头，0表示尾*/</span></span><br><span class="line">	<span class="comment">/*如果是小于0的数，那自然比所有数都小，所以添加到头部*/</span></span><br><span class="line">    <span class="type">int</span> prepend = value &lt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* First set new encoding and resize */</span></span><br><span class="line">    is-&gt;encoding = intrev32ifbe(newenc);</span><br><span class="line">    is = intsetResize(is,intrev32ifbe(is-&gt;length)+<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Upgrade back-to-front so we don&#x27;t overwrite values.</span></span><br><span class="line"><span class="comment">     * Note that the &quot;prepend&quot; variable is used to make sure we have an empty</span></span><br><span class="line"><span class="comment">     * space at either the beginning or the end of the intset. */</span></span><br><span class="line">    <span class="comment">/*从后往前，按原来的curenc把值取出来，重新按占newenc大小放到数组中去</span></span><br><span class="line"><span class="comment">    prepend为1，表示添加的元素要放到最前面，所以原来位置的值都往后移动一个位置*/</span></span><br><span class="line">    <span class="keyword">while</span>(length--)</span><br><span class="line">        _intsetSet(is,length+prepend,_intsetGetEncoded(is,length,curenc));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Set the value at the beginning or the end. */</span></span><br><span class="line">    <span class="keyword">if</span> (prepend)</span><br><span class="line">        _intsetSet(is,<span class="number">0</span>,value);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        _intsetSet(is,intrev32ifbe(is-&gt;length),value);</span><br><span class="line">    is-&gt;length = intrev32ifbe(intrev32ifbe(is-&gt;length)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> is;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>往集合中添加元素</strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Insert an integer in the intset */</span></span><br><span class="line">intset *<span class="title function_">intsetAdd</span><span class="params">(intset *is, <span class="type">int64_t</span> value, <span class="type">uint8_t</span> *success)</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> valenc = _intsetValueEncoding(value);</span><br><span class="line">    <span class="type">uint32_t</span> pos;</span><br><span class="line">    <span class="keyword">if</span> (success) *success = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Upgrade encoding if necessary. If we need to upgrade, we know that</span></span><br><span class="line"><span class="comment">     * this value should be either appended (if &gt; 0) or prepended (if &lt; 0),</span></span><br><span class="line"><span class="comment">     * because it lies outside the range of existing values. */</span></span><br><span class="line">    <span class="keyword">if</span> (valenc &gt; intrev32ifbe(is-&gt;encoding)) &#123;</span><br><span class="line">        <span class="comment">/* This always succeeds, so we don&#x27;t need to curry *success. */</span></span><br><span class="line">        <span class="keyword">return</span> intsetUpgradeAndAdd(is,value);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* Abort if the value is already present in the set.</span></span><br><span class="line"><span class="comment">         * This call will populate &quot;pos&quot; with the right position to insert</span></span><br><span class="line"><span class="comment">         * the value when it cannot be found. */</span></span><br><span class="line">        <span class="keyword">if</span> (intsetSearch(is,value,&amp;pos)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (success) *success = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">return</span> is;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        is = intsetResize(is,intrev32ifbe(is-&gt;length)+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (pos &lt; intrev32ifbe(is-&gt;length)) intsetMoveTail(is,pos,pos+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    _intsetSet(is,pos,value);</span><br><span class="line">    is-&gt;length = intrev32ifbe(intrev32ifbe(is-&gt;length)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> is;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>其中intsetMoveTail是将pos位置往后的所有元素移动到pos+1位置，就是为当前要加入的元素挪出一个位置。具体实现如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">intsetMoveTail</span><span class="params">(intset *is, <span class="type">uint32_t</span> from, <span class="type">uint32_t</span> to)</span> &#123;</span><br><span class="line">    <span class="type">void</span> *src, *dst;</span><br><span class="line">    <span class="type">uint32_t</span> bytes = intrev32ifbe(is-&gt;length)-from;</span><br><span class="line">    <span class="type">uint32_t</span> encoding = intrev32ifbe(is-&gt;encoding);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (encoding == INTSET_ENC_INT64) &#123;</span><br><span class="line">        src = (<span class="type">int64_t</span>*)is-&gt;contents+from;</span><br><span class="line">        dst = (<span class="type">int64_t</span>*)is-&gt;contents+to;</span><br><span class="line">        bytes *= <span class="keyword">sizeof</span>(<span class="type">int64_t</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (encoding == INTSET_ENC_INT32) &#123;</span><br><span class="line">        src = (<span class="type">int32_t</span>*)is-&gt;contents+from;</span><br><span class="line">        dst = (<span class="type">int32_t</span>*)is-&gt;contents+to;</span><br><span class="line">        bytes *= <span class="keyword">sizeof</span>(<span class="type">int32_t</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        src = (<span class="type">int16_t</span>*)is-&gt;contents+from;</span><br><span class="line">        dst = (<span class="type">int16_t</span>*)is-&gt;contents+to;</span><br><span class="line">        bytes *= <span class="keyword">sizeof</span>(<span class="type">int16_t</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    memmove(dst,src,bytes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>需要说明的是，intsetMoveTail这个函数也可以往前挪动，比如删除元素的时候：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Delete integer from intset */</span></span><br><span class="line">intset *<span class="title function_">intsetRemove</span><span class="params">(intset *is, <span class="type">int64_t</span> value, <span class="type">int</span> *success)</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> valenc = _intsetValueEncoding(value);</span><br><span class="line">    <span class="type">uint32_t</span> pos;</span><br><span class="line">    <span class="keyword">if</span> (success) *success = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (valenc &lt;= intrev32ifbe(is-&gt;encoding) &amp;&amp; intsetSearch(is,value,&amp;pos)) &#123;</span><br><span class="line">        <span class="type">uint32_t</span> len = intrev32ifbe(is-&gt;length);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* We know we can delete */</span></span><br><span class="line">        <span class="keyword">if</span> (success) *success = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Overwrite value with tail and update length */</span></span><br><span class="line">        <span class="keyword">if</span> (pos &lt; (len<span class="number">-1</span>)) intsetMoveTail(is,pos+<span class="number">1</span>,pos);</span><br><span class="line">        is = intsetResize(is,len<span class="number">-1</span>);</span><br><span class="line">        is-&gt;length = intrev32ifbe(len<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> is;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><strong>返回整数集合含有元素个数</strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Return intset length */</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">intsetLen</span><span class="params">(intset *is)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> intrev32ifbe(is-&gt;length);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><strong>返回整数集合占用的内存字节数</strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Return intset blob size in bytes. */</span></span><br><span class="line"><span class="type">size_t</span> <span class="title function_">intsetBlobLen</span><span class="params">(intset *is)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">sizeof</span>(intset)+intrev32ifbe(is-&gt;length)*intrev32ifbe(is-&gt;encoding);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><strong>查找指定元素</strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Determine whether a value belongs to this set */</span></span><br><span class="line"><span class="type">uint8_t</span> <span class="title function_">intsetFind</span><span class="params">(intset *is, <span class="type">int64_t</span> value)</span> &#123;</span><br><span class="line">    <span class="type">uint8_t</span> valenc = _intsetValueEncoding(value);</span><br><span class="line">    <span class="keyword">return</span> valenc &lt;= intrev32ifbe(is-&gt;encoding) &amp;&amp; intsetSearch(is,value,<span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>如果查找的元素的类型使用的长度比当前集合的使用的类型长度encoding都还大，肯定就不在集合中咯，intsetSearch参考前面的说明。</p>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="http://redisbook.com/preview/skiplist/content.html">Redis设计与实现</a><br><a target="_blank" rel="noopener" href="https://github.com/antirez/redis/releases/tag/3.0.6">Redis源码3.0.6</a><br><a target="_blank" rel="noopener" href="http://blog.163.com/shengrui_step/blog/static/20870918720139103944374/">计算机中的小端模式和大端模式</a> </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2018/06/05/Redis%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB--%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88/" title="Redis源码阅读--整数集合">2018/06/05/Redis源码阅读--整数集合/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/Key-Value%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/" rel="tag"># Key-Value存储系统</a>
+          
+            <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/04/%E5%A6%82%E4%BD%95%E9%98%B2%E6%AD%A2%E4%B8%9A%E5%8A%A1%E8%BF%9B%E7%A8%8B%E8%A2%ABOOM%20kill/" rel="next" title="如何防止业务进程被OOM kill">
+                <i class="fa fa-chevron-left"></i> 如何防止业务进程被OOM kill
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/06/Redis%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB--%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8/" rel="prev" title="Redis源码阅读--压缩列表">
+                Redis源码阅读--压缩列表 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E4%B8%AD%E7%9A%84%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88%E5%AE%9E%E7%8E%B0%E5%8F%8A%E7%89%B9%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">Redis中的整数集合实现及特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E4%B8%AD%E7%9A%84%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88%E6%BA%90%E7%A0%81%E9%9A%BE%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Redis中的整数集合源码难点分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E4%B8%AD%E7%9A%84%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88%E6%BA%90%E7%A0%81%E9%83%A8%E5%88%86%E8%8A%82%E9%80%89"><span class="nav-number">3.</span> <span class="nav-text">Redis中的整数集合源码部分节选</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+

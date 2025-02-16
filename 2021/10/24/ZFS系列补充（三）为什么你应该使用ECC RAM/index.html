@@ -1,37 +1,1323 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,文件系统,ZFS," />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZFS系列补充（三）为什么你应该使用ECC RAM">
+<meta property="og:url" content="https://www.a-programmer.top/2021/10/24/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E4%B8%89%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8ECC%20RAM/index.html">
+<meta property="og:site_name" content="成长录-知行合一">
+<meta property="og:locale">
+<meta property="og:image" content="https://z3.ax1x.com/2021/11/09/INm0N4.png">
+<meta property="article:published_time" content="2021-10-24T15:30:30.000Z">
+<meta property="article:modified_time" content="2025-02-16T02:32:04.042Z">
+<meta property="article:author" content="ahnselina">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="ZFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/11/09/INm0N4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://www.a-programmer.top/2021/10/24/ZFS系列补充（三）为什么你应该使用ECC RAM/"/>
+
+
+
+
+
+  <title>ZFS系列补充（三）为什么你应该使用ECC RAM | 成长录-知行合一</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">成长录-知行合一</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-书籍">
+          <a href="/books/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-book"></i> <br />
+            
+            书籍
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://www.a-programmer.top/2021/10/24/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E4%B8%89%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8ECC%20RAM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成长录-知行合一">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ZFS系列补充（三）为什么你应该使用ECC RAM</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-24T23:30:30+08:00">
+                2021-10-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/10/24/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E4%B8%89%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8ECC%20RAM/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2021/10/24/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E4%B8%89%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8ECC%20RAM/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,213 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://z3.ax1x.com/2021/11/09/INm0N4.png" alt=""><br><span id="more"></span></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>随着ZFS扩展到FreeBSD、Linux、FreeNAS、Illumos和许多其他操作系统，以及OpenZFS的引入，将所有项目统一到一个整体下，越来越多的人开始在许多不同的情况下使用并修复ZFS的一些问题。有些人将其安装在主生产服务器上，有些人将其安装在大型后端存储阵列上，甚至还有一些人将其安装在他们的工作站或笔记本电脑上。随着ZFS越来越流行，您将看到越来越多的ZFS安装在商品硬件上，而不是企业硬件上。因此，您将看到越来越多的ZFS安装在不支持ECC RAM的硬件上。</p>
+<p>我在这里提出的问题是:这是个坏主意吗?如果您花一些时间在Web上搜索，您会发现一篇又一篇关于为什么应该为ZFS安装选择ECC RAM的文章，这些文章有很好的论点，也有很好的理由。本文我希望重申这些观点，并为ECC RAM辩护。您的链的强度取决于最薄弱的一环，如果该链接是非ECC RAM，那么您将失去ZFS开发人员为防止数据损坏而付出的所有努力。</p>
+<h2 id="好的RAM-vs-坏的RAM-vs-ECC-RAM"><a href="#好的RAM-vs-坏的RAM-vs-ECC-RAM" class="headerlink" title="好的RAM vs 坏的RAM vs ECC RAM"></a>好的RAM vs 坏的RAM vs ECC RAM</h2><p>首先，让我们明确区分“好RAM”和“坏RAM”，以及它们与“ECC RAM”的区别:</p>
+<ul>
+<li>好的RAM – 有很低失败率的高质量RAM模块</li>
+<li>坏的RAM – 有很高失败率的低质量RAM模块</li>
+<li>ECC RAM – 具有纠错能力的RAM模块</li>
+</ul>
+<p>“坏RAM”并不一定是非ECC RAM。我过去部署过“坏的”（质量不好的）ECC RAM，即使它们有纠错能力，但它们经常失败，需要更换。也就是说，ECC RAM不一定就是“好RAM”。比如我有这样的经历，已经部署了多年的非ECC RAM，它没有纠错功能，但一直也没有看到数据损坏的文件。关键是，您可以有例外的非ECC“好RAM”，它永远不会让您失败，也可以有可怕的ECC“坏RAM”，它仍然会造成数据损坏。</p>
+<p>你需要注意的是失败率。一个ECC RAM模块可能与一个具有相同构建质量的非ECC模块一样频繁地发生故障。希望失败率是这样的，ECC可以修复它检测到的错误，并且仍然在没有数据损坏的情况下运行。但是ECC RAM和硬件的故障率是脱节的，这可能是徒劳无功。只是因为它是ECC RAM并不意味着硬件故障的频率更低。ECC的全部意思是，它检测故障，并试图纠正它们。</p>
+<h2 id="ECC-RAM"><a href="#ECC-RAM" class="headerlink" title="ECC RAM"></a>ECC RAM</h2><p>失败率很难控制。如果你读过维基百科关于ECC RAM的文章，它提到了一些研究，这些研究试图掌握内存模块中发生bit错误的频率:</p>
+<blockquote>
+<p> 2007年至2009年间发表的研究显示，错误率变化很大，差异超过7个数量级，范围从10^(−10)[到]10^(−17)error/bit-h[ours]。在SIGMETRICS/Performance ‘ 09会议上提出了一项基于谷歌的大量服务器的非常大规模的研究。发现的实际错误率比之前的小规模或实验室研究高出几个数量级，每兆位(约2.5^(-7)x 10^(- 11)error/bit-h[ours])每十亿台设备小时25,000到70,000个错误(即:以最大错误率计算，8GB RAM每小时约5个单比特错误)，每年有超过8%的内存模块受到错误的影响。</p>
+</blockquote>
+<p>粗略地说，从谷歌在他们的数据中心所看到的，在他们安装的8%的RAM中，每小时8GB的RAM中有5位错误。如果你不认为这很重要，那你就是在欺骗自己。大多数这些位错是由背景辐射影响已安装的内存条造成的，这是由于宇宙射线产生的中子。但是电压波动，坏的电路，仅仅是差的构建质量也可以作为“位翻转”的因素。</p>
+<p>ECC RAM通过每个字节使用一个额外的奇偶校验位来检测这个坏位。换句话说，对于每8位，就有一个第9位奇偶校验位，它作为前8位的校验和。因此，对于一个在系统中注册为64GB的内存模块，实际上有72GB的物理安装在芯片上，以便为奇偶校验提供空间。然而，需要注意的是，ECC RAM每字节只能纠正1位翻转(8位)。如果每字节有2位翻转，ECC RAM将无法恢复数据。</p>
+<p>ZFS被设计用于检测由于硬件和其他因素而发生的静默数据错误。ZFS从上到下对数据进行校验，以确保没有数据损坏。如果您从一开始就阅读了本系列文章，那么您就会知道ZFS是如何构建的，以及ZFS是如何优先考虑数据完整性。使用ZFS的人之所以使用它，是因为他们无法忍受文件系统中任何地方、任何时候的数据损坏。但是，如果您的RAM不是ECC RAM，那么您就不能保证您的文件在存储到磁盘时不会损坏。如果文件由于RAM中的某个bit损坏而在RAM中损坏，那么当存储到ZFS时，它将使用这个坏位进行校验，因为ZFS将假定它正在接收的数据是好的。因此，您的ZFS数据集中有损坏的数据，并且这个已经损坏的数据会被当作完好的数据来校验，并且没有办法在内部修复错误。这是一件很糟糕的事情。<br>（<strong>简单的说，就是不用ECC RAM的话，很可能数据在存储到ZFS前，在内存中已经就损坏了，这样ZFS自然没有办法知道，也没办法修复</strong>）</p>
+<h2 id="一个场景"><a href="#一个场景" class="headerlink" title="一个场景"></a>一个场景</h2><p>为了更深入地了解ZFS中的ECC RAM，让我们创建一个场景。让我们假设您没有使用ECC RAM。也许它安装在您的工作站上或笔记本电脑上，因为您喜欢ZFS用户空间工具，并且喜欢ZFS背后的思想。你想在本地使用它。但是，让我们假设您有上面定义的非ECC “Bad RAM”。不管出于什么原因，您的一个RAM模块中出现了一个“冻结位”。DIMM只在特定位置存储“0”或“1”。假设由于硬件故障，它总是报告一个“0”，不管应该在那里写什么。为了简单起见，我们将在示例中查看8位，即1字节。我用红色的“<span style="color:red;">0</span>”表示坏的部分。</p>
+<p> 你的应用程序希望写“11001011”，但由于你的坏RAM，你以“1100<span style="color:red;">0</span>011”结束。因此，“1100<span style="color:red;">0</span>011”被发送到ZFS进行存储。ZFS将校验和添加到“1100<span style="color:red;">0</span>011”并将其存储在池中。您有数据损坏，而ZFS并不知道。ZFS假设从RAM输出的数据是正确的，因此奇偶校验和校验都是基于该结果计算的。</p>
+<p>但是，当您从磁盘读取数据并将其存储回故障的非ECC RAM中时，会发生什么呢?在这一点上，事情变得很糟糕。所以，你读回“1100<span style="color:red;">0</span>011”到RAM。然而，在它被发送到磁盘之前，它被存储在几乎相同的位置。假设它只存储了4位。然后，你得到“<span style="color:red;">0</span>100<span style="color:red;">0</span>011”。不仅你的文件在磁盘上损坏了，而且你把它们存储到有故障的硬件所在的RAM中，使事情变得更糟。但是，ZFS是为了纠正这个问题而设计的，对吧?所以，我们可以修复坏位到“<strong>1</strong>1000011”，但问题是数据仍然是损坏的!</p>
+<p>事情从这里开始越来越糟糕。因为这是一个物理硬件故障，我们实际上不能将第一个位设置为“1”。因此，任何这样做的尝试都会立即将其恢复为“0”。因此，当数据存储在我们错误的非ECC RAM中时，字节将保持为“<span style="color:red;">0</span>100<span style="color:red;">0</span>011”。现在，假设我们准备将RAM中的数据刷新到磁盘上，我们将“<span style="color:red;">0</span>100<span style="color:red;">0</span>011”存储在磁盘上，从而加剧了我们的错误。ZFS计算一个新的校验和基于新损坏的数据，并再次认为DIMM模块告诉我们的就是实际的值，但其实不是，这样下去就进一步损坏了我们的数据。</p>
+<p>正如您所看到的，我们对非ECC RAM读写的数据越多，文件系统中损坏数据的可能性就越大。ZFS旨在保护我们不受这种情况的影响，但我们的保护链的强度是受最薄弱的环节决定，在本例中是非ECC RAM破坏了我们的数据。</p>
+<p>您可能认为备份可以拯救您。如果你有一个未损坏的文件，你可以恢复，很好。但是，如果您的ZFS快照或rsync(1)复制了损坏的位到您的备份，那么您就没辙了。ZFS数据清理在这里也帮不了你。如前所述，您正确地将损坏的数据存储在磁盘上，这意味着损坏字节的checksum是正确的。然而，如果您在RAM中有额外的坏位，擦洗实际上会尝试“修复”坏位。但是，因为这是硬件故障，导致位冻结，所以擦洗将继续，继续，使您的池发生抖动。因此，数据清理（scrub）实际上会使性能下降，试图修复RAM中的一个坏比特。此外，数据清理不会修复池中已经正确校验的坏位。</p>
+<p>无论你如何分割它，你信任你的非ECC RAM，而你信任的RAM出现了错误，而且你没有尝试恢复的手段和方法。</p>
+<h2 id="ECC价格"><a href="#ECC价格" class="headerlink" title="ECC价格"></a>ECC价格</h2><p> 由于内存上的额外硬件，ECC RAM肯定比非ECC RAM更贵，但不是很多。事实上，因为ECC dimm有9/8额外的硬件，价格非常接近这一点。根据我的经验，64GB的ECC RAM大约比64GB的非ECC RAM贵9/8。许多通用主板也将支持无缓冲ECC RAM，尽管您应该选择支持主动ECC scrub的主板，以保持位损坏最小化。</p>
+<p>你可以获得高质量的ECC DDR3 SDRAM从新蛋大约50美元每4GB。非ECC DDR3 SDRAM的零售价几乎完全相同。对我来说，这是显而易见的。你所需要的只是一个支持它的主板，并且支持ECC RAM的Supermicro主板也可以相对便宜。我知道这是主观的，但我最近构建了一个双节点的KVM管理程序共享存储集群，每个主机上有32 GB的注册ECC RAM和Tyan主板。</p>
+<p> 所有32GB的总成本肯定比系统中的其他所有东西都要高，但我能够以每16GB 150美元的价格购买它们，或者以每64GB 600美元的价格购买它们。每个主板的价格是250美元，两块价格总共是500美元。所以，对于两个非常强大的服务器，我总共花费了1100美元，不包含CPU和磁盘等。对我来说，这是确保数据完整性的一项小投资，如果采用非ECC的RAM，也不会节省多少钱。小小的额外投资是非常值得的，能够确保我从上到下拥有数据完整性。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>ZFS从头开始构建，具有奇偶校验、镜像、校验和和其他机制来保护数据。如果校验和失败，ZFS可以尝试基于池中的冗余加载良好的数据，并修复损坏的位。但是ZFS假设一个正确的checksum，意味着在应用checksum之前位是正确的。这就是ECC RAM如此关键的地方。ECC RAM可以大大降低比特在存储到池中之前不正确的风险。</p>
+<p>所以，你应该从这篇文章中吸取一些教训:  </p>
+<ul>
+<li>ZFS校验和假设来自RAM的数据是正确的。 </li>
+<li>常规的ZFS数据清理将极大地降低损坏位的风险，但对于非ecc RAM硬件故障，这可能是您最大的敌人。</li>
+<li>备份的好坏取决于它们存储的数据。如果备份损坏了，那就不是备份。 </li>
+<li>ZFS校验数据、chechsum和物理数据都需要匹配。如果不匹配，就需要开始维修了。如果由于非ECC RAM在门外就坏了，那么你使用ZFS有什么意义呢?</li>
+</ul>
+<p>感谢FreeBSD论坛上的“cyberjock”对这篇文章的启发。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://pthree.org/2013/12/10/zfs-administration-appendix-c-why-you-should-use-ecc-ram/">https://pthree.org/2013/12/10/zfs-administration-appendix-c-why-you-should-use-ecc-ram/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>如果你觉得本文对你有帮助，欢迎打赏</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt=" 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt=" 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+	<div>    
+     
+     
+    <ul class="post-copyright">
+      <li class="post-copyright-author">
+        <strong>本文作者：</strong>
+      </li>
+    <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+        <a href="/2021/10/24/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E4%B8%89%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8ECC%20RAM/" title="ZFS系列补充（三）为什么你应该使用ECC RAM">2021/10/24/ZFS系列补充（三）为什么你应该使用ECC RAM/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权： </strong>
+      本站文章均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载注明出处！
+    </li>
+    </ul>
+    
+    </div>
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/ZFS/" rel="tag"># ZFS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/10/23/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E4%BA%8C%EF%BC%89%E6%8A%8A%E4%BD%A0%E7%9A%84U%E7%9B%98%E7%94%A8%E8%B5%B7%E6%9D%A5/" rel="next" title="ZFS系列补充（二）把你的U盘用起来">
+                <i class="fa fa-chevron-left"></i> ZFS系列补充（二）把你的U盘用起来
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/10/25/ZFS%E7%B3%BB%E5%88%97%E8%A1%A5%E5%85%85%EF%BC%88%E5%9B%9B%EF%BC%89%E6%95%B0%E6%8D%AE%E5%8E%BB%E9%87%8D%E7%9A%84%E7%9C%9F%E5%AE%9E%E4%BB%A3%E4%BB%B7/" rel="prev" title="ZFS系列补充（四）数据去重的真实代价">
+                ZFS系列补充（四）数据去重的真实代价 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">110</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">125</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ahnselina" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ahnselina@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A5%BD%E7%9A%84RAM-vs-%E5%9D%8F%E7%9A%84RAM-vs-ECC-RAM"><span class="nav-number">2.</span> <span class="nav-text">好的RAM vs 坏的RAM vs ECC RAM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ECC-RAM"><span class="nav-number">3.</span> <span class="nav-text">ECC RAM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">一个场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ECC%E4%BB%B7%E6%A0%BC"><span class="nav-number">5.</span> <span class="nav-text">ECC价格</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ahnselina</span>
+
+  
+
+</div>
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'elAgecxLAajsnHwoO0h3xoso-gzGzoHsz',
+        appKey: 't7NXItGOauqKB6GSOqLqYT3o',
+        placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+
