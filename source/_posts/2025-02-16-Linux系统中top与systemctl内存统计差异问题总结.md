@@ -131,11 +131,11 @@ cat /sys/fs/cgroup/memory/system.slice/kvmaster.service/memory.stat | grep cache
    当服务涉及文件操作时，`systemctl status`数值必然大于`top`显示值，这是Linux内存管理机制的正常现象。
 
 2. **工具选择建议**  
-   | 场景                  | 推荐工具               |
-   |-----------------------|------------------------|
-   | 物理内存压力分析      | `top`/`htop`          |
-   | 资源配额监控          | `systemd-cgtop`       |
-   | 容器/CGroup内存分析   | `cat memory.stat`     |
+   | 场景                 | 推荐工具            |
+   |----------------------|---------------------|
+   | 物理内存压力分析     | `top`/`htop`        |
+   | 资源配额监控         | `systemd-cgtop`     |
+   | 容器/CGroup内存分析  | `cat memory.stat`   |
 
 3. **优化方向优先级**  
    - 程序级优化（日志策略、内存管理）→ **首选**
