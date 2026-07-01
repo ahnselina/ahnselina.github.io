@@ -26,7 +26,7 @@ archive_dir: archives
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
-skip_render:
+skip_render: 'ds160-app/**'
 
 # Writing
 new_post_name: :year-:month-:day-:title.md # File name of new posts
@@ -96,3 +96,6 @@ sitemap:
   path: sitemap.xml
 baidusitemap:
   path: baidusitemap.xml
+
+include:
+  - "ds160-app/**"
